@@ -43,6 +43,7 @@ def main():
         create_all()
         
     engine.start()
+    engine.wait()
     
 if __name__ == "__main__":
     main()

@@ -3,7 +3,7 @@ from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, Boo
 
 from . import Base
 
-class Project(Base):
+class RowProject(Base):
     __tablename__ = 'projects'
     
     id = Column(Integer, primary_key=True)
@@ -18,8 +18,7 @@ class Project(Base):
     active = Column(Boolean, nullable=False, default=True)
     
     def __str__(self):
-        return "<Project code=%s active=%s path=%s>" % (
+        return "<RowProject code=%s active=%s>" % (
             repr(self.code), 
-            repr(self.active), 
-            repr(self.path)
+            repr(self.active) 
             )

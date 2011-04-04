@@ -1,5 +1,5 @@
 
-class Project(object):
+class ProjectManager(object):
     def __init__(self, prj):
         self.data = prj
         self.load()
