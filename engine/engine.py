@@ -6,7 +6,6 @@ import bjsonrpc
 from bjsonrpc.handlers import BaseHandler
 
 import threading
-import signal
 
 import signal, os
 
@@ -14,7 +13,14 @@ thread_server = None
 
 class ServerHandler(BaseHandler):
     def getAvailableProjects(self):
-        return []
+        projectlist = []
+        for project in ProjectManager.available_projects:
+            projectrow = [
+                project.data.code,
+                project.data.description,
+                ]
+            projectlist.append(projectrow)
+        return projectlist
 
 def handler(signum, frame):
     print 'Received signal number', signum
@@ -23,8 +29,9 @@ def handler(signum, frame):
 def start():
     global thread_server
     #signal.signal(signal.SIGINT, handler)
-    server = bjsonrpc.createserver(host="0.0.0.0", port=10123, handler_factory=ServerHandler)        
-    thread_server = threading.Thread(target=server.serve)
+    rpcserver = bjsonrpc.createserver(host="0.0.0.0", port=10123, handler_factory=ServerHandler)        
+    rpcserver.debug_socket(True)
+    thread_server = threading.Thread(target=rpcserver.serve)
     thread_server.daemon = True
     thread_server.start()
     
