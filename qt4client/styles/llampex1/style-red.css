@@ -1,0 +1,20 @@
+
+QObject {
+    border: 1px solid gray;
+    border-radius: 6px;
+    padding: 2px;
+    background: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:0 rgba(255, 255, 255, 0), stop:1 rgba(255, 255, 255, 255));
+    selection-background-color: rgb(40, 125, 195);
+}
+
+QDialog {
+    border: 0;
+    border-radius: 0;
+    background: #f0e0e0;
+}
+
+QLabel {
+    border: 0;
+    background: transparent;
+    font-weight: bold;
+}

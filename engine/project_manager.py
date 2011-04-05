@@ -1,17 +1,39 @@
 # encoding: UTF-8
 import psycopg2
 import model
-from bjsonrpc.exceptions import ServerError
+import binascii
+import hashlib
+import os 
 
-class ProjectManager(object):
-    def __init__(self, prj):
+from bjsonrpc.exceptions import ServerError
+from bjsonrpc.handlers import BaseHandler
+
+verbose = False
+
+class ProjectManager(BaseHandler):
+    def __init__(self, rpc, prj,user, conn):
+        BaseHandler.__init__(self,rpc)
         self.data = prj
-        self.load()
+        self.user = user
+        self.conn = conn
+        self._load()
         
-    def load(self):
+    def _load(self):
         print "Loading . . . " , self.data
-        
-def login(project,username,password):
+        self.cur = self.conn.cursor()
+    
+    def getUserList(self):
+        self.cur.execute("SELECT iduser,username FROM users ORDER BY iduser")
+        retlist = []
+        for row in self.cur:
+            retlist.append({
+                "id": row[0],
+                "name" : row[1],
+            })
+            
+        return retlist
+
+def login(rpc,project,username,password):
     print "connecting to project", project
     print "as user", username
     if project.host is None: project.host = model.engine.url.host
@@ -51,11 +73,54 @@ def login(project,username,password):
             
         userrow = cur.fetchone()
         if userrow is None: raise ServerError, "LoginInvalidError"
-        iduser, username, password = userrow
-        
+        iduser, dbusername, dbpassword = userrow
+        if not validate_password(password, dbpassword): raise ServerError, "LoginInvalidError"
+        projectmanager = ProjectManager(rpc, project, dbusername, conn)
+        return projectmanager
     finally:
         cur.close()
         if projectmanager is None:
             conn.close()
             
+def validate_password(userpass, dbpass):
+    hashmethod, hashsalt, hashdigest = dbpass.split("$")
+    if hashmethod in ("md5","sha1"):
+        binsalt = binascii.a2b_hex(hashsalt)
+        userdigest = compute_password_hexhash(userpass, hashmethod, binsalt)
+    else:
+        print "Unknown hashmethod %s" % repr(hashmethod)
+        return False
+        
+    if userdigest == hashdigest: return True
+    if verbose:
+        print "Password validation failed:"
+        print "User supplied:", userdigest
+        print "Database supplied:", hashdigest
+        
+    return False
+
+def compute_password(userpass, hashmethod, saltsize = 4):
+    hashsalt = hashlib.sha1(userpass + hashmethod + os.urandom(32)).hexdigest()[:saltsize*2]
+    if hashmethod in ("md5","sha1"):
+        binsalt = binascii.a2b_hex(hashsalt)
+        userdigest = compute_password_hexhash(userpass, hashmethod, binsalt)
+    else:
+        print "Unknown hashmethod %s" % repr(hashmethod)
+        return False
+    return "$".join([hashmethod,hashsalt,userdigest])    
+    
+        
+def compute_password_hexhash(userpass, hashmethod, binsalt):
+    saltedpass = binsalt + userpass
+    m = None
+    if hashmethod == "md5":
+        m = hashlib.md5()
+    elif hashmethod == "sha1":
+        m = hashlib.sha1()
+    else:
+        raise ValueError, "Unsupported hashmethod '%s' " % repr(hashmethod)
+        
+    m.update(saltedpass)
+    userdigest = m.hexdigest()
+    return userdigest
     

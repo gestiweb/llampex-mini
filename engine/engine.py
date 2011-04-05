@@ -16,7 +16,7 @@ thread_server = None
 class ServerHandler(BaseHandler):
     def getAvailableProjects(self):
         projectlist = []
-        projectrows = model.session.query(RowProject).filter_by(active = True)
+        projectrows = model.session.query(RowProject).filter_by(active = True).order_by(RowProject.code)
         for rowproject in projectrows:
             projectrow = {
                 'code' : rowproject.code,
@@ -31,7 +31,7 @@ class ServerHandler(BaseHandler):
             raise ServerError, "No project exists with the name '%s'" % projectname
         if projectrow.active != True:
             raise ServerError, "Project '%s' is not active" % projectname
-        return project_manager.login(projectrow, username, password)
+        return project_manager.login(self,projectrow, username, password)
         
         
 

@@ -1,0 +1,25 @@
+
+QObject {
+    border: 1px solid gray;
+    border-radius: 8px;
+    padding: 2px 5px;
+    background: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:0 rgba(255, 200, 0, 50), stop:1 rgba(255, 255, 255, 255));
+    selection-background-color: rgb(40, 125, 195);
+}
+
+QAbstractButton {
+    padding: 4px 20px;
+    border-radius: 12px;
+}
+
+QDialog {
+    border: 0;
+    border-radius: 0;
+    background: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:0 rgba(225, 230, 240, 255), stop:1 rgba(165, 215, 165, 255));
+}
+
+QLabel {
+    border: 0;
+    background: transparent;
+    font-size: 12px;
+}

@@ -12,8 +12,6 @@ from PyQt4 import QtGui, QtCore, uic
 def apppath(): return os.path.abspath(os.path.dirname(sys.argv[0]))
 def filepath(): return os.path.abspath(os.path.dirname(__file__))
 
-print filepath()
-
 def appdir(x): # convierte una ruta relativa a la aplicación en absoluta
     if os.path.isabs(x): return x
     else: return os.path.join(apppath(),x)
@@ -41,11 +39,14 @@ class ConnectionDialog(QtGui.QDialog):
         password = unicode(self.ui.password.text())
         print "Connect!", username, project
         try:
-            logininfo = c.call.login(project,username,password)
+            project_manager = c.call.login(project,username,password)
+            if not project_manager: raise ValueError
             msgBox = QtGui.QMessageBox()
-            msgBox.setText("Login successful!")
+            msgBox.setText("Login successful!\n" + repr(project_manager.call.getUserList()))
             msgBox.setIcon(QtGui.QMessageBox.Information)
             msgBox.exec_()
+            
+            
             
         except ServerError, e:
             msgBox = QtGui.QMessageBox()
@@ -68,7 +69,9 @@ class ConnectionDialog(QtGui.QDialog):
         
     
 app = QtGui.QApplication(sys.argv) # Creamos la entidad de "aplicación"
-app.setStyleSheet(open(filedir("style.css")).read())
+
+# Iniciar como: python login.py -stylesheet styles/llampex1/style.css
+# app.setStyleSheet(open(filedir("styles/llampex1/style.css")).read())
 
 connwindow = ConnectionDialog()
 connwindow.show() # el método show asegura que se mostrará en pantalla.

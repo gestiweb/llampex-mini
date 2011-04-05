@@ -31,8 +31,15 @@
   <property name="windowTitle">
    <string>Llampex Login</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="formimages.qrc">
+    <normaloff>:/std/akonadi.png</normaloff>:/std/akonadi.png</iconset>
+  </property>
   <property name="sizeGripEnabled">
    <bool>false</bool>
+  </property>
+  <property name="modal">
+   <bool>true</bool>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="sizeConstraint">
@@ -107,7 +114,9 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="formimages.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>
