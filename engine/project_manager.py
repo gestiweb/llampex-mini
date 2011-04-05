@@ -7,7 +7,7 @@ import os , os.path
 
 from bjsonrpc.exceptions import ServerError
 from bjsonrpc.handlers import BaseHandler
-
+from base64 import b64encode, b64decode
 verbose = False
 
 class ProjectManager(BaseHandler):
@@ -17,6 +17,8 @@ class ProjectManager(BaseHandler):
         self.path = prj.path
         self.user = user
         self.conn = conn
+        self.cachehashsize = 5
+        self.cachehashoffset = 0
         self._load()
         
     def _load(self):
@@ -24,6 +26,9 @@ class ProjectManager(BaseHandler):
         self.cur = self.conn.cursor()
         self.filelist = {}
         self.filehash = {}
+        self.filecache = {}
+        self.treecache = {}
+        digests = set([])
         for root, dirs, files in os.walk(self.path):
             relroot = root[len(self.path):]
             if relroot.startswith("/"):
@@ -41,10 +46,37 @@ class ProjectManager(BaseHandler):
                 for name in files:
                     fullpath = os.path.join(root,name)
                     hashdigest = hashlib.sha1(open(fullpath).read()).hexdigest()
+                    b64digest = b64encode(binascii.a2b_hex(hashdigest))
+                    microhash = b64digest[self.cachehashoffset:self.cachehashoffset+self.cachehashsize]
+                    
+                    if microhash not in self.filecache:
+                        self.filecache[microhash] = set([])
+                        
+                    if microhash[0] not in self.treecache:
+                        self.treecache[microhash[0]] = set([])
+                    
+                    
                     key = relroot+"/"+name
+                    digests.add(hashdigest)
+                    self.treecache[microhash[0]].add(microhash[1:])
+                    self.filecache[microhash].add(key)
                     self.filehash[key] = hashdigest
-                    print key, hashdigest
-        
+                    #print key, hashdigest
+        print
+        print "---"
+        collisions = len(digests) - len(self.filecache.keys())
+        print "%d digests, %d microkeys" % (len(digests),len(self.filecache.keys()))
+        print "%d collisions (%.2f%%)" % (collisions,float(collisions)/len(digests)*100.0)
+        totalbytes = 0
+        for key1, mhashlist in sorted(self.treecache.iteritems()):
+            if mhashlist:
+                bytes = 1+len(list(mhashlist)[0])*len(mhashlist)
+                print key1, len(mhashlist), bytes, " ".join(sorted(list(mhashlist)))
+                totalbytes += bytes
+            
+        print "total bytes:", totalbytes
+        print "---"
+        print 
     
     def getUserList(self):
         self.cur.execute("SELECT iduser,username FROM users ORDER BY iduser")
@@ -58,7 +90,7 @@ class ProjectManager(BaseHandler):
         return retlist
         
     def getFileList(self):
-        return self.filelist
+        return {"." : self.filelist["."]}
         
 
 def login(rpc,project,username,password):
