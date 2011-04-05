@@ -39,29 +39,13 @@
     <enum>QLayout::SetDefaultConstraint</enum>
    </property>
    <item>
-    <widget class="QTableWidget" name="tableWidget">
-     <property name="editTriggers">
-      <set>QAbstractItemView::NoEditTriggers</set>
+    <widget class="QListWidget" name="project">
+     <property name="viewMode">
+      <enum>QListView::ListMode</enum>
      </property>
-     <property name="selectionMode">
-      <enum>QAbstractItemView::SingleSelection</enum>
+     <property name="selectionRectVisible">
+      <bool>false</bool>
      </property>
-     <property name="selectionBehavior">
-      <enum>QAbstractItemView::SelectRows</enum>
-     </property>
-     <attribute name="horizontalHeaderStretchLastSection">
-      <bool>true</bool>
-     </attribute>
-     <column>
-      <property name="text">
-       <string>Program</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Description</string>
-      </property>
-     </column>
     </widget>
    </item>
    <item>
@@ -80,7 +64,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="lineEdit"/>
+      <widget class="QLineEdit" name="user"/>
      </item>
     </layout>
    </item>
@@ -100,7 +84,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="lineEdit_2">
+      <widget class="QLineEdit" name="password">
        <property name="echoMode">
         <enum>QLineEdit::Password</enum>
        </property>

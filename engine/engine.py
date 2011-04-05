@@ -1,9 +1,11 @@
 import model
 from model import RowProject
-from project_manager import ProjectManager
+
+import project_manager 
 
 import bjsonrpc
 from bjsonrpc.handlers import BaseHandler
+from bjsonrpc.exceptions import ServerError
 
 import threading
 
@@ -14,13 +16,24 @@ thread_server = None
 class ServerHandler(BaseHandler):
     def getAvailableProjects(self):
         projectlist = []
-        for project in ProjectManager.available_projects:
-            projectrow = [
-                project.data.code,
-                project.data.description,
-                ]
+        projectrows = model.session.query(RowProject).filter_by(active = True)
+        for rowproject in projectrows:
+            projectrow = {
+                'code' : rowproject.code,
+                'description' : rowproject.description,
+                }
             projectlist.append(projectrow)
         return projectlist
+    
+    def login(self,projectname, username, password):
+        projectrow = model.session.query(RowProject).filter_by(code = projectname).first()
+        if projectrow is None:
+            raise ServerError, "No project exists with the name '%s'" % projectname
+        if projectrow.active != True:
+            raise ServerError, "Project '%s' is not active" % projectname
+        return project_manager.login(projectrow, username, password)
+        
+        
 
 def handler(signum, frame):
     print 'Received signal number', signum
@@ -36,9 +49,9 @@ def start():
     thread_server.start()
     
     # projectrows = model.session.query(RowProject).filter(RowProject.active == True)
-    projectrows = model.session.query(RowProject).filter_by(active = True)
-    for rowproject in projectrows:
-        ProjectManager(rowproject)
+    #projectrows = model.session.query(RowProject).filter_by(active = True)
+    #for rowproject in projectrows:
+    #    ProjectManager(rowproject)
         
 
 def wait():
