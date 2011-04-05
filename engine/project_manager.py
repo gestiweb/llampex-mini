@@ -3,7 +3,7 @@ import psycopg2
 import model
 import binascii
 import hashlib
-import os 
+import os , os.path
 
 from bjsonrpc.exceptions import ServerError
 from bjsonrpc.handlers import BaseHandler
@@ -14,6 +14,7 @@ class ProjectManager(BaseHandler):
     def __init__(self, rpc, prj,user, conn):
         BaseHandler.__init__(self,rpc)
         self.data = prj
+        self.path = prj.path
         self.user = user
         self.conn = conn
         self._load()
@@ -21,6 +22,29 @@ class ProjectManager(BaseHandler):
     def _load(self):
         print "Loading . . . " , self.data
         self.cur = self.conn.cursor()
+        self.filelist = {}
+        self.filehash = {}
+        for root, dirs, files in os.walk(self.path):
+            relroot = root[len(self.path):]
+            if relroot.startswith("/"):
+                relroot = relroot[1:]
+            if relroot == "": relroot = "."
+            
+            for name in files[:]: 
+                if name.startswith("."):
+                    files.remove(name)
+            for name in dirs[:]: 
+                if name.startswith("."):
+                    dirs.remove(name)
+            if files:
+                self.filelist[relroot] = files
+                for name in files:
+                    fullpath = os.path.join(root,name)
+                    hashdigest = hashlib.sha1(open(fullpath).read()).hexdigest()
+                    key = relroot+"/"+name
+                    self.filehash[key] = hashdigest
+                    print key, hashdigest
+        
     
     def getUserList(self):
         self.cur.execute("SELECT iduser,username FROM users ORDER BY iduser")
@@ -32,6 +56,10 @@ class ProjectManager(BaseHandler):
             })
             
         return retlist
+        
+    def getFileList(self):
+        return self.filelist
+        
 
 def login(rpc,project,username,password):
     print "connecting to project", project

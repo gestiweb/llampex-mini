@@ -9,6 +9,13 @@ import os.path
 import sys
 from PyQt4 import QtGui, QtCore, uic
 
+import yaml
+
+class ConfigSettings(yaml.YAMLObject):
+    yaml_tag = u'!ConfigSettings' 
+
+
+
 def apppath(): return os.path.abspath(os.path.dirname(sys.argv[0]))
 def filepath(): return os.path.abspath(os.path.dirname(__file__))
 
@@ -25,26 +32,40 @@ class ConnectionDialog(QtGui.QDialog):
             
         ui_filepath = filedir("forms/login.ui") # convertimos la ruta a absoluta
         self.ui = uic.loadUi(ui_filepath,self) # Cargamos un fichero UI externo    
+        
+        f1 = open(filedir(".settings.yaml"),"r")
+        settings = yaml.load(f1.read())
+        self.ui.user.setText(settings.username)
+        self.ui.password.setText(settings.password)
+        self.ui.rememberpasswd.setChecked(settings.remember)
+
+        selected = 0
         availableprojects  = c.call.getAvailableProjects()
         for row,rowdict in enumerate(availableprojects):
             listitem = QtGui.QListWidgetItem("%(description)s (%(code)s)" % rowdict)
             listitem.project = rowdict
+            if rowdict['code'] == settings.project: selected = row
             self.ui.project.addItem(listitem)
-        self.ui.project.setCurrentRow(0)
+        self.ui.project.setCurrentRow(selected)
             
     
     def accept(self):
         project = unicode(self.ui.project.currentItem().project['code'])
         username = unicode(self.ui.user.text())
         password = unicode(self.ui.password.text())
-        print "Connect!", username, project
+        
         try:
             project_manager = c.call.login(project,username,password)
             if not project_manager: raise ValueError
-            msgBox = QtGui.QMessageBox()
-            msgBox.setText("Login successful!\n" + repr(project_manager.call.getUserList()))
-            msgBox.setIcon(QtGui.QMessageBox.Information)
-            msgBox.exec_()
+            #msgBox = QtGui.QMessageBox()
+            #msgBox.setText("Login successful!")
+            #msgBox.setIcon(QtGui.QMessageBox.Information)
+            #msgBox.exec_()
+            # print project_manager.call.getUserList()
+            filelist = project_manager.call.getFileList()
+            print sorted( filelist.keys() )
+            
+            self.close()
             
             
             
@@ -66,8 +87,32 @@ class ConnectionDialog(QtGui.QDialog):
             msgBox.setText("Unexpected error: %s\n" % e.__class__.__name__ + repr(e.args[0]))
             msgBox.setIcon(QtGui.QMessageBox.Critical)
             msgBox.exec_()
-        
+
+    def reject(self):
+        self.close()
     
+        
+            
+
+    
+    def closeEvent(self,event):
+        settings = ConfigSettings()
+        if self.ui.rememberpasswd.isChecked():
+            settings.project = str(self.ui.project.currentItem().project['code'])
+            settings.username = str(self.ui.user.text())
+            settings.password = str(self.ui.password.text())
+            settings.remember = True
+        else:
+            settings.project = ""
+            settings.username = ""
+            settings.password = ""
+            settings.remember = False
+        f1 = open(filedir(".settings.yaml"),"w")
+        f1.write(yaml.dump(settings))
+        event.accept()
+        #event.ignore()
+        
+        
 app = QtGui.QApplication(sys.argv) # Creamos la entidad de "aplicación"
 
 # Iniciar como: python login.py -stylesheet styles/llampex1/style.css

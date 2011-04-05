@@ -18,7 +18,7 @@ QDialog {
     background: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:0 rgba(225, 230, 240, 255), stop:1 rgba(165, 215, 165, 255));
 }
 
-QLabel {
+QLabel, QCheckBox {
     border: 0;
     background: transparent;
     font-size: 12px;
