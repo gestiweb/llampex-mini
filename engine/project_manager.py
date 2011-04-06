@@ -39,6 +39,10 @@ class HashTable(BaseHandler):
         self.hashlist = []
         self.index = {}
         self.index_maxdepth = 2
+        self.b64tr1 = "+/0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+        self.b64tr2 = {}
+        for n,c in enumerate(list(self.b64tr1)):
+            self.b64tr2[c] = n/8
         
     def add(self,key):
         self.hashlist.append(key)
@@ -55,11 +59,8 @@ class HashTable(BaseHandler):
             if k not in index:
                 index[k] = []
             index[k].append(value)
-    
-    def __str__(self):
-        #return repr(self.getSignature(list("+/0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"), style = "text"))
-        return repr(self.getHashList(["++"]))
-        
+
+       
     def _get_hash_index(self,index):
         if type(index) is list:
             return index
@@ -92,19 +93,53 @@ class HashTable(BaseHandler):
         # end of index. manually get choices or return empty.
         return []
             
-    def getHashList(self, keylist = [""]):
+    def _get_node_hash_list(self, keylist = [""], style = "dict", hashsize = 10, hashoffset = 0):
         hashlist = set([])
         for key in keylist:
             hashes = set(self._get_hash_list(key, self.index))
             hashlist|= hashes
+        if style == "dict":
+            hashdict = {}
+            for mhash in hashlist:
+                hashdict[mhash] = b64digest_namecache[mhash]
+            return hashdict
+        elif style == "list":
+            hlist = [ mhash[hashoffset:hashoffset+hashsize] for mhash in sorted(list(hashlist))]
+            return hlist
+        else: raise ValueError, "unknown style."
+
         
-        hashdict = {}
-        for mhash in hashlist:
-            hashdict[mhash] = b64digest_namecache[mhash]
-             
-        return hashdict
+    def getNodeSignature(self, parentkey = "", hashsize = 20, hashoffset = 0):
+        return self._get_signature([parentkey],"list",hashsize,hashoffset)[0]
+
+    def getChild8Signature(self, parentkey = "", hashsize = 10, hashoffset = 0):
+        hashoptions = self._get_hash_options(parentkey, self.index)
+        keylist = [ parentkey + opt for opt in hashoptions ]
+        signdict = self._get_signature(keylist,"dict",hashsize,hashoffset)
+        child8 = [[],[],[],[],[],[],[],[]]
+        for k, val in signdict.iteritems():
+            k8 = self.b64tr2[k[-1]]
+            child8[k8].append(val)
+        
+        child8_2 = []
+        for v in child8:
+            child8_2.append(get_b64digest("".join(v)))
+        return child8_2
     
-    def getSignature(self, keylist = [""], style = "list", hashsize = 10, hashoffset = 0):
+    def getChildSignature(self, parentkey = "", hashsize = 10, hashoffset = 0):
+        hashoptions = self._get_hash_options(parentkey, self.index)
+        keylist = [ parentkey + opt for opt in hashoptions ]
+        return self._get_signature(keylist,"dict",hashsize,hashoffset)
+    
+    def getNodeHashList(self, keylist, hashsize = 10, hashoffset = 0):
+        return self._get_node_hash_list(keylist, "list", hashsize, hashoffset)
+
+    def getNodeHashValue(self, keylist):
+        if isinstance(keylist,basestring):
+            keylist = [keylist]
+        return self._get_node_hash_list(keylist, "dict",20,0)
+    
+    def _get_signature(self, keylist = [""], style = "list", hashsize = 20, hashoffset = 0):
         retlist = []
         for key in keylist:
             pos = len(key)
@@ -112,14 +147,19 @@ class HashTable(BaseHandler):
             hashoptions = self._get_hash_options(key, self.index)
             digest = get_b64digest("".join(hashlist))[hashoffset:hashoffset+hashsize]
             size = len(hashlist)
-            retlist.append([key,size,"".join(hashoptions),digest])
+            retlist.append([key,size,digest])
         
         if style == "list":
             return retlist
         elif style == "text":
             textdigest = ""
-            for key,size,options,digest in retlist:
-                textdigest += digest
+            for key,size,digest in retlist:
+                textdigest += key+digest
+            return textdigest
+        elif style == "dict":
+            textdigest = {}
+            for key,size,digest in retlist:
+                textdigest[key] = digest
             return textdigest
         else: raise ValueError, "unknown style."
 
@@ -157,80 +197,40 @@ class ProjectManager(BaseHandler):
                 if name.startswith("."):
                     dirs.remove(name)
             if files:
-                self.filelist[relroot] = files
                 for name in files:
                     fullpath = os.path.join(root,name)
                     key = relroot+"/"+name
+                    self.filelist[key] = fullpath
                     b64digest = get_file_b64digest(fullpath, name = key)
                     self.b64list.add(b64digest)
-                    """
-                    microhash = b64digest[self.cachehashoffset:self.cachehashoffset+self.cachehashsize]
-                    
-                    if microhash not in self.filecache:
-                        self.filecache[microhash] = set([])
-                        
-                    if microhash[0] not in self.treecache:
-                        self.treecache[microhash[0]] = set([])
-                    
-                    
-                    digests.add(b64digest)
-                    self.treecache[microhash[0]].add(b64digest)
-                    self.filecache[microhash].add(key)
-                    if b64digest not in self.filehash: 
-                        self.filehash[b64digest] = set([])
-                    self.filehash[b64digest].add(key)
-                    """
-                    #print key, hashdigest
-        print self.b64list
-        """
-        print "signature:", get_b64digest("".join(sorted(self.filehash.keys())))
+        print
+        from bjsonrpc.jsonlib import dumps
+
+        print
+        print "** Get global signature and options :::"
+        print dumps( self.b64list.getNodeSignature(), self._conn)
+        print
+        print "** Get signature for each 1/64 part :::"
+        print dumps( self.b64list.getChildSignature() , self._conn)
+        print
+        print "** Get signature for each 1/8 part for '+' :::"
+        print dumps( self.b64list.getChild8Signature("+") , self._conn)
+        print
+        print "** Get all hashes for '+%' part 0 :::"
+        print dumps( self.b64list.getNodeHashList([ "+" + opt for opt in "+/012345"]) , self._conn)
+        print
+        print "** Get all hashes for 'zc%' 'zD%' :::"
+        print dumps( self.b64list.getNodeHashValue(["zc","zD"]) , self._conn)
+        print
         
-        
-        microsignature = ""
-        sz = 10
-        for key1, mhashlist in sorted(self.treecache.iteritems()):
-            microsignature += key1
-            microsignature += get_b64digest("".join(sorted(list(mhashlist))))[:sz]
-            #print "signature for '%s': %s" % (key1,get_b64digest("".join(sorted(list(mhashlist)))))
-        print ":%d:%s" %(sz,microsignature)
-        for key in self.treecache:
-            microsignature2 = key + ":"
-            for mhash in sorted(list(self.treecache[key])):
-                microsignature2 += mhash[1:1+sz]
-            print microsignature2
-        """
-        #for k in sorted(self.filehash.keys()):
-        #    print k, " ".join(sorted(list(self.filehash[k])))
-            
-        #print
-        #print "---"
-        #collisions = len(digests) - len(self.filecache.keys())
-        #print "%d digests, %d microkeys" % (len(digests),len(self.filecache.keys()))
-        #print "%d collisions (%.2f%%)" % (collisions,float(collisions)/len(digests)*100.0)
-        #totalbytes = 0
-        #for key1, mhashlist in sorted(self.treecache.iteritems()):
-        #    if mhashlist:
-        #        bytes = 1+len(list(mhashlist)[0])*len(mhashlist)
-        #        print key1, len(mhashlist), bytes, " ".join(sorted(list(mhashlist)))
-        #        totalbytes += bytes
-        #    
-        #print "total bytes:", totalbytes
-        #print "---"
-        #print 
+    def getFileName(self,filename):
+        if filename not in self.filelist:
+            return None
+        fullpath = self.filelist[filename]
+        return b64encode(open(fullpath).read())
     
-    def getUserList(self):
-        self.cur.execute("SELECT iduser,username FROM users ORDER BY iduser")
-        retlist = []
-        for row in self.cur:
-            retlist.append({
-                "id": row[0],
-                "name" : row[1],
-            })
-            
-        return retlist
-        
-    def getFileList(self):
-        return {"." : self.filelist["."]}
+    def getFileTree(self):
+        return self.b64list
         
 
 def login(rpc,project,username,password):

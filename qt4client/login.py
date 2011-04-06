@@ -62,8 +62,8 @@ class ConnectionDialog(QtGui.QDialog):
             #msgBox.setIcon(QtGui.QMessageBox.Information)
             #msgBox.exec_()
             # print project_manager.call.getUserList()
-            filelist = project_manager.call.getFileList()
-            print sorted( filelist.keys() )
+            #filelist = project_manager.call.getFileList()
+            #print sorted( filelist.keys() )
             
             self.close()
             
