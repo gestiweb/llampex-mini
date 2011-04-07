@@ -5,16 +5,18 @@ from bjsonrpc.exceptions import ServerError
 c = bjsonrpc.connect()
 
 import os.path
+import time, threading
 
 import sys
 from PyQt4 import QtGui, QtCore, uic
 
-import yaml
+from base64 import b64decode, b64encode
+import yaml, hashlib, bz2
 
 class ConfigSettings(yaml.YAMLObject):
     yaml_tag = u'!ConfigSettings' 
 
-
+__version__ = "0.0.1"
 
 def apppath(): return os.path.abspath(os.path.dirname(sys.argv[0]))
 def filepath(): return os.path.abspath(os.path.dirname(__file__))
@@ -64,7 +66,9 @@ class ConnectionDialog(QtGui.QDialog):
             # print project_manager.call.getUserList()
             #filelist = project_manager.call.getFileList()
             #print sorted( filelist.keys() )
-            
+            splashwindow = SplashDialog()
+            splashwindow.prjconn = project_manager
+            splashwindow.show()
             self.close()
             
             
@@ -91,8 +95,6 @@ class ConnectionDialog(QtGui.QDialog):
     def reject(self):
         self.close()
     
-        
-            
 
     
     def closeEvent(self,event):
@@ -112,7 +114,179 @@ class ConnectionDialog(QtGui.QDialog):
         event.accept()
         #event.ignore()
         
+class remoteProject(object):
+    pass
+
+class SplashDialog(QtGui.QDialog):
+    def __init__(self):
+        QtGui.QDialog.__init__(self)
+        self.prjconn = None
+        ui_filepath = filedir("forms/splash.ui") # convertimos la ruta a absoluta
+        self.ui = uic.loadUi(ui_filepath,self) # Cargamos un fichero UI externo    
+        self.ui.version.setText("v%s" % __version__)
+        self.ui.progress.setValue(0)
+        wf = self.windowFlags()
+        self.setWindowFlags(wf | QtCore.Qt.FramelessWindowHint)
+        self.rprj = remoteProject()
+        self.progress_value = 0
+        self.load_mode = "init"
+        self.progress_load = {
+            "init" : 10,
+            "waitload" : 100,
+            "filetree" : 110,
+            "projectsignature" : 120,
+            "projectparts1" : 130,
+            "projectdownload" : 300,
+            "end" : 1000,
+            "error" : 0,
+        }
+        self.status_load = {
+            "init" : "Initializing ...",
+            "waitload" : "Waiting until server is ready ...",
+            "filetree" : "Obtaining project tree from server ...",
+            "projectsignature" : "Querying project signature ...",
+            "projectparts1" : "Querying project contents ...",
+            "projectdownload" : "Downloading project files ...",
+            "end" : "Load finished.",
+            "error" : "Unexpected error ocurred!!",
+        }
+        self.speed_load = {
+            "init" : 1,
+            "waitload" : 0.2,
+            "filetree" : 1,
+            "projectsignature" : 1,
+            "projectparts1" : 1,
+            "projectdownload" : 0.5,
+            "end" : 50,
+            "error" : 1,
+        }
+        self.waiting = 0
+        self.timer = QtCore.QTimer(self)
+        self.connect(self.timer, QtCore.SIGNAL("timeout()"), self.timer_timeout)
+        self.timer.start(20)
+        self.status_extra = ""
+        self.progress_extra = 0
         
+        self.statusthread = threading.Thread(target=self.updateLoadStatus)
+        self.statusthread.daemon = True
+        self.statusthread.start()
+        
+    def timer_timeout(self):       
+        self.progress_value = (self.progress_value * 100.0 + (self.progress_extra + self.progress_load[self.load_mode]) * self.speed_load[self.load_mode]) / (self.speed_load[self.load_mode]+100.0)
+        
+        self.ui.progress.setValue(int(self.progress_value))
+        status = self.status_load[self.load_mode]
+        if self.status_extra:
+            status += " (%s)" % self.status_extra
+        self.ui.status.setText( status )
+        if self.progress_value > 999: self.close()
+    
+    def updateLoadStatus(self):
+        try:
+            time.sleep(0.05)
+            self.load_mode = "init"
+            while self.prjconn is None: 
+                time.sleep(0.05)
+            
+            time.sleep(0.05)
+            self.load_mode = "waitload"
+            while not self.prjconn.call.isLoaded():
+                time.sleep(0.5)
+        
+            time.sleep(0.05)
+            self.load_mode = "filetree"
+            self.rprj.filetree = self.prjconn.call.getFileTree()
+        
+            time.sleep(0.05)
+            self.load_mode = "projectsignature"
+            key, size, signature = self.rprj.filetree.call.getNodeSignature()
+            self.rprj.project_signature = signature
+            self.rprj.project_size = size
+        
+            time.sleep(0.05)
+            self.load_mode = "projectparts1"
+            self.rprj.project_childs = self.rprj.filetree.call.getChildSignature()
+            self.rprj.files = {}
+            sz = len(self.rprj.project_childs)
+            for i,k in enumerate(self.rprj.project_childs):
+                p = i*100/sz
+                self.status_extra = "%d%%" % (p)
+                self.progress_extra = p
+                nodevalues = self.rprj.filetree.call.getNodeHashValue([k])
+                for nodehash, nodeval in nodevalues.iteritems():
+                    digest = nodeval['digest']
+                    name = nodeval['name']
+                    self.rprj.files[name] = digest
+        
+            p = 100
+            self.status_extra = "%d%%" % (p)
+            self.progress_extra = 100
+        
+            time.sleep(0.05)
+            self.status_extra = ""
+            self.progress_extra = 0
+            self.load_mode = "projectdownload"
+            cachedir = filedir(".cache/files")
+            try:
+                os.makedirs(cachedir)
+            except os.error:
+                pass
+            sz = len(self.rprj.files)
+            th1_queue = []
+            for i,name in enumerate(self.rprj.files):
+                p = i*100/sz
+                self.progress_extra = p
+                basename = os.path.basename(name)
+                self.status_extra = "%d%% %s" % (p,basename)
+                
+                def download(name,result):
+                    fullfilename = os.path.join(cachedir,name)
+                    folder = os.path.dirname(fullfilename)
+                    try:
+                        os.makedirs(folder)
+                    except os.error:
+                        pass
+                    f1 = open(fullfilename,"w")
+                    f_contents = bz2.decompress(b64decode(result))
+                    f1.write(f_contents)
+                    f1.close()
+                    #newdigest = get_b64digest(f_contents)
+                    #try:
+                    #    assert(newdigest == self.rprj.files[name])
+                    #except AssertionError:
+                    #    print "PANIC: Digest assertion error for", name
+                        
+                while len(th1_queue) > 100:
+                    if th1_queue[0].is_alive():
+                        th1_queue[0].join(1)
+                        
+                    if th1_queue[0].is_alive():
+                        print "Stuck:", th1_queue[0].filename
+                    del th1_queue[0]
+                #download(name)
+                result = self.prjconn.method.getFileName(name)
+                th1 = threading.Thread(target=download,kwargs={'name':name,'result':result.value})
+                th1.filename = name
+                th1.start()
+                th1_queue.append(th1)
+            
+            self.load_mode = "end"
+        except:        
+            self.load_mode = "error"
+            raise
+            
+        
+        
+    
+def get_b64digest(text):
+    bindigest = hashlib.sha1(text).digest()
+    b64digest = b64encode(bindigest)[:20]
+    return b64digest
+
+    
+        
+import formimages
+
 app = QtGui.QApplication(sys.argv) # Creamos la entidad de "aplicación"
 
 # Iniciar como: python login.py -stylesheet styles/llampex1/style.css

@@ -10,11 +10,15 @@ QObject {
 QDialog {
     border: 0;
     border-radius: 0;
-    background: #f0e0e0;
+    background: #ffe9e0;
 }
 
-QLabel {
+QPushButton {
+    padding: 5px 15px;
+}
+
+
+QLabel, QCheckBox {
     border: 0;
     background: transparent;
-    font-weight: bold;
 }

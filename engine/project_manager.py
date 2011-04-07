@@ -2,8 +2,8 @@
 import psycopg2
 import model
 import binascii
-import hashlib
-import os , os.path
+import hashlib, threading
+import os , os.path, bz2
 
 from bjsonrpc.exceptions import ServerError
 from bjsonrpc.handlers import BaseHandler
@@ -173,16 +173,23 @@ class ProjectManager(BaseHandler):
         self.rpc = rpc
         self.cachehashsize = 4
         self.cachehashoffset = 0
-        self._load()
-        
-    def _load(self):
-        print "Loading . . . " , self.data
         self.cur = self.conn.cursor()
         self.filelist = {}
         #self.filehash = {}
         #self.filecache = {}
         #self.treecache = {}
         self.b64list = HashTable(self.rpc)
+        self.is_loaded = False
+        self.load_thread = threading.Thread(target=self._load)
+        self.load_thread.start()
+        
+        
+        
+    def isLoaded(self): 
+        return self.is_loaded    
+    
+    def _load(self):
+        print "Loading . . . " , self.data
         digests = set([])
         for root, dirs, files in os.walk(self.path):
             relroot = root[len(self.path):]
@@ -203,6 +210,9 @@ class ProjectManager(BaseHandler):
                     self.filelist[key] = fullpath
                     b64digest = get_file_b64digest(fullpath, name = key)
                     self.b64list.add(b64digest)
+        self.is_loaded = True
+        print "project loaded."
+        """
         print
         from bjsonrpc.jsonlib import dumps
 
@@ -222,12 +232,13 @@ class ProjectManager(BaseHandler):
         print "** Get all hashes for 'zc%' 'zD%' :::"
         print dumps( self.b64list.getNodeHashValue(["zc","zD"]) , self._conn)
         print
+        """
         
     def getFileName(self,filename):
         if filename not in self.filelist:
             return None
         fullpath = self.filelist[filename]
-        return b64encode(open(fullpath).read())
+        return b64encode(bz2.compress(open(fullpath).read()))
     
     def getFileTree(self):
         return self.b64list
