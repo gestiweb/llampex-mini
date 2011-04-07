@@ -26,4 +26,5 @@ def create_all():
 
 if __name__ == "__main__":
     main()
+    create_all()
     

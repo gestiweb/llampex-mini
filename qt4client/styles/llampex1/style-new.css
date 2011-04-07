@@ -1,0 +1,33 @@
+
+QObject {
+    border: 1px solid rgba(90, 70, 43, 55);
+    border-radius: 4px;
+    padding: 1px 3px;
+    background: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:1 rgba(255, 230, 220, 50), stop:0 rgba(255, 210, 200, 40));
+    selection-background-color: rgb(195, 125, 40);
+    color: #eee;
+}
+
+QAbstractButton {
+    padding: 4px 20px;
+    border-radius: 4px;
+}
+
+QPushButton:open {
+    border-color:  rgba(185, 120, 90, 255);;
+    background: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:1 rgba(155, 100, 0, 55), stop:0 rgba(255, 255, 255, 255));
+}
+
+QDialog {
+    border: 0;
+    border-radius: 0;
+    background: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:0 rgba(35, 0, 0, 255), stop:1 rgba(65, 15, 5, 255));
+    color: #eee;
+}
+
+QLabel, QCheckBox {
+    border: 0;
+    background: transparent;
+    font-size: 12px;
+    color: #eee;
+}

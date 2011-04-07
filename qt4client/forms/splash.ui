@@ -64,6 +64,7 @@ QProgressBar::chunk {
 	background-color: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:0 rgba(70, 0, 0, 255), stop:1 rgba(151, 0, 0, 255));
 /*     width: 15px;*/
      margin-left: 0px;
+	width: 1px;
 }
 
 QLabel {

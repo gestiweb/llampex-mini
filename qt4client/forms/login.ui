@@ -32,8 +32,8 @@
    <string>Llampex Login</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="formimages.qrc">
-    <normaloff>:/std/akonadi.png</normaloff>:/std/akonadi.png</iconset>
+   <iconset>
+    <normaloff>akonadi.png</normaloff>akonadi.png</iconset>
   </property>
   <property name="sizeGripEnabled">
    <bool>false</bool>

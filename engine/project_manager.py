@@ -3,7 +3,7 @@ import psycopg2
 import model
 import binascii
 import hashlib, threading
-import os , os.path, bz2
+import os , os.path, bz2, zlib
 
 from bjsonrpc.exceptions import ServerError
 from bjsonrpc.handlers import BaseHandler
@@ -238,7 +238,7 @@ class ProjectManager(BaseHandler):
         if filename not in self.filelist:
             return None
         fullpath = self.filelist[filename]
-        return b64encode(bz2.compress(open(fullpath).read()))
+        return b64encode(zlib.compress(open(fullpath).read(),8))
     
     def getFileTree(self):
         return self.b64list

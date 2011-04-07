@@ -11,12 +11,13 @@ import sys
 from PyQt4 import QtGui, QtCore, uic
 
 from base64 import b64decode, b64encode
-import yaml, hashlib, bz2
+import yaml, hashlib, bz2, zlib
 
 class ConfigSettings(yaml.YAMLObject):
     yaml_tag = u'!ConfigSettings' 
 
 __version__ = "0.0.1"
+diskwrite_lock = threading.Lock()
 
 def apppath(): return os.path.abspath(os.path.dirname(sys.argv[0]))
 def filepath(): return os.path.abspath(os.path.dirname(__file__))
@@ -34,9 +35,16 @@ class ConnectionDialog(QtGui.QDialog):
             
         ui_filepath = filedir("forms/login.ui") # convertimos la ruta a absoluta
         self.ui = uic.loadUi(ui_filepath,self) # Cargamos un fichero UI externo    
-        
-        f1 = open(filedir(".settings.yaml"),"r")
-        settings = yaml.load(f1.read())
+        try:
+            f1 = open(filedir(".settings.yaml"),"r")
+            settings = yaml.load(f1.read())
+        except IOError:
+            settings = ConfigSettings()
+            settings.username = ""
+            settings.password = ""
+            settings.remember = False
+            settings.project = ""
+            
         self.ui.user.setText(settings.username)
         self.ui.password.setText(settings.password)
         self.ui.rememberpasswd.setChecked(settings.remember)
@@ -117,6 +125,11 @@ class ConnectionDialog(QtGui.QDialog):
 class remoteProject(object):
     pass
 
+def trb64_name(b64): #translate b64 to filename
+    filename = "cache_" + b64.replace("+","_") + ".data"
+    filename = filename.replace("/","-")
+    return filename
+
 class SplashDialog(QtGui.QDialog):
     def __init__(self):
         QtGui.QDialog.__init__(self)
@@ -157,7 +170,7 @@ class SplashDialog(QtGui.QDialog):
             "projectsignature" : 1,
             "projectparts1" : 1,
             "projectdownload" : 0.5,
-            "end" : 50,
+            "end" : 25,
             "error" : 1,
         }
         self.waiting = 0
@@ -236,40 +249,75 @@ class SplashDialog(QtGui.QDialog):
             for i,name in enumerate(self.rprj.files):
                 p = i*100/sz
                 self.progress_extra = p
-                basename = os.path.basename(name)
-                self.status_extra = "%d%% %s" % (p,basename)
                 
                 def download(name,result):
                     fullfilename = os.path.join(cachedir,name)
+                    cachefilename = os.path.join(cachedir,trb64_name(self.rprj.files[name]))
+                    
                     folder = os.path.dirname(fullfilename)
                     try:
                         os.makedirs(folder)
                     except os.error:
                         pass
+                    
+                    basename = os.path.basename(name)
+                    self.status_extra = "%d%% %s" % (p,basename)
+                    
+                    f_contents = zlib.decompress(b64decode(result.value))
+                    
                     f1 = open(fullfilename,"w")
-                    f_contents = bz2.decompress(b64decode(result))
-                    f1.write(f_contents)
-                    f1.close()
+                    #f1 = open(cachefilename,"w")
+                    diskwrite_lock.acquire() 
+                    try:
+                        f1.write(f_contents)
+                    finally:
+                        diskwrite_lock.release() 
+                        time.sleep(0.05)
+                        f1.close()
                     #newdigest = get_b64digest(f_contents)
                     #try:
                     #    assert(newdigest == self.rprj.files[name])
                     #except AssertionError:
                     #    print "PANIC: Digest assertion error for", name
                         
-                while len(th1_queue) > 100:
+                while len(th1_queue) > 30:
                     if th1_queue[0].is_alive():
-                        th1_queue[0].join(1)
+                        th1_queue[0].join(3)
                         
                     if th1_queue[0].is_alive():
                         print "Stuck:", th1_queue[0].filename
                     del th1_queue[0]
                 #download(name)
-                result = self.prjconn.method.getFileName(name)
-                th1 = threading.Thread(target=download,kwargs={'name':name,'result':result.value})
-                th1.filename = name
-                th1.start()
-                th1_queue.append(th1)
-            
+                fullfilename = os.path.join(cachedir,name)
+                sha1_64 = None
+                f1 = None
+                try:
+                    f1 = open(fullfilename)
+                    sha1_64 = get_b64digest(f1.read())
+                    f1.close()
+                except IOError:
+                    sha1_64 = ""
+                
+                if sha1_64 != self.rprj.files[name]:
+                    result = self.prjconn.method.getFileName(name)
+                    th1 = threading.Thread(target=download,kwargs={'name':name,'result':result})
+                    th1.filename = name
+                    th1.start()
+                    th1_queue.append(th1)
+                
+            self.status_extra = "syncing"
+            while len(th1_queue) > 0:
+                if th1_queue[0].is_alive():
+                    th1_queue[0].join(3)
+                self.status_extra = "syncing"
+                    
+                if th1_queue[0].is_alive():
+                    print "Stuck:", th1_queue[0].filename
+                del th1_queue[0]
+                
+                
+            self.progress_extra = 0
+            self.status_extra = ""
             self.load_mode = "end"
         except:        
             self.load_mode = "error"
@@ -284,8 +332,10 @@ def get_b64digest(text):
     return b64digest
 
     
-        
-import formimages
+try:        
+    import formimages
+except ImportError:
+    print "formimages.py not found. Probably you forgot to do 'pyrcc forms/..qrc -i formimages.py'"
 
 app = QtGui.QApplication(sys.argv) # Creamos la entidad de "aplicación"
 
