@@ -205,6 +205,7 @@ class ProjectManager(BaseHandler):
                     dirs.remove(name)
             if files:
                 for name in files:
+                    if name.endswith(".llampexcache"): continue
                     fullpath = os.path.join(root,name)
                     key = relroot+"/"+name
                     self.filelist[key] = fullpath
@@ -238,7 +239,28 @@ class ProjectManager(BaseHandler):
         if filename not in self.filelist:
             return None
         fullpath = self.filelist[filename]
-        return b64encode(zlib.compress(open(fullpath).read(),8))
+        pathhead, pathtail = os.path.split(fullpath)
+        cachepath = os.path.join(pathhead, ".%s.llampexcache" % pathtail)
+        mtime = os.stat(fullpath).st_mtime
+        
+        try:
+            mtime2 = os.stat(cachepath).st_mtime
+            if mtime2 < mtime: raise ValueError
+
+            f1 = open(cachepath)
+            zipcontent = f1.read()
+            f1.close()
+        except Exception:    
+            print "creating cache for", filename
+            filecontent = open(fullpath).read()
+            zipcontent = bz2.compress(filecontent,9)
+            f1 = open(cachepath,"w")
+            f1.write(zipcontent)
+            f1.close()
+            
+        
+        b64content = b64encode(zipcontent)
+        return b64content
     
     def getFileTree(self):
         return self.b64list

@@ -262,25 +262,24 @@ class SplashDialog(QtGui.QDialog):
                     
                     basename = os.path.basename(name)
                     self.status_extra = "%d%% %s" % (p,basename)
-                    
-                    f_contents = zlib.decompress(b64decode(result.value))
-                    
-                    f1 = open(fullfilename,"w")
-                    #f1 = open(cachefilename,"w")
+                    value = result.value
+                    f_contents = bz2.decompress(b64decode(value))
+                    del value
                     diskwrite_lock.acquire() 
                     try:
+                        f1 = open(fullfilename,"w")
                         f1.write(f_contents)
+                        f1.close()
                     finally:
                         diskwrite_lock.release() 
-                        time.sleep(0.05)
-                        f1.close()
+                    
                     #newdigest = get_b64digest(f_contents)
                     #try:
                     #    assert(newdigest == self.rprj.files[name])
                     #except AssertionError:
                     #    print "PANIC: Digest assertion error for", name
                         
-                while len(th1_queue) > 30:
+                while len(th1_queue) > 8:
                     if th1_queue[0].is_alive():
                         th1_queue[0].join(3)
                         
@@ -290,6 +289,7 @@ class SplashDialog(QtGui.QDialog):
                 #download(name)
                 fullfilename = os.path.join(cachedir,name)
                 sha1_64 = None
+                
                 f1 = None
                 try:
                     f1 = open(fullfilename)
