@@ -246,12 +246,13 @@ class SplashDialog(QtGui.QDialog):
                 pass
             sz = len(self.rprj.files)
             th1_queue = []
+            delta = [0,0,0,0]
             for i,name in enumerate(self.rprj.files):
                 p = i*100/sz
                 self.progress_extra = p
                 
                 def download(name,result):
-
+                    t1 = time.time()
                     fullfilename = os.path.join(cachedir,name)
                     cachefilename = os.path.join(cachedir,trb64_name(self.rprj.files[name]))
                     
@@ -262,25 +263,29 @@ class SplashDialog(QtGui.QDialog):
                         pass
                     
                     basename = os.path.basename(name)
-                    self.status_extra = "%d%% %s" % (p,basename)
+                    t2 = time.time()
                     value = self.prjconn.call.getFileName(name)
+                    t3 = time.time()
                     f_contents = bz2.decompress(b64decode(value))
                     del value
-                    diskwrite_lock.acquire() 
-                    try:
-                        f1 = open(fullfilename,"w")
-                        f1.write(f_contents)
-                        f1.close()
-                    finally:
-                        diskwrite_lock.release() 
+                    t4 = time.time()
+                    f1 = open(fullfilename,"w")
+                    f1.write(f_contents)
+                    f1.close()
                     
+                    t5 = time.time()
+                    self.status_extra = "%d%% %s" % (p,basename)
+                    delta[0] += t2-t1
+                    delta[1] += t3-t2
+                    delta[2] += t4-t3
+                    delta[3] += t5-t4
                     #newdigest = get_b64digest(f_contents)
                     #try:
                     #    assert(newdigest == self.rprj.files[name])
                     #except AssertionError:
                     #    print "PANIC: Digest assertion error for", name
                         
-                while len(th1_queue) > 8:
+                while len(th1_queue) > 64:
                     if th1_queue[0].is_alive():
                         th1_queue[0].join(3)
                         
@@ -314,8 +319,9 @@ class SplashDialog(QtGui.QDialog):
                 if th1_queue[0].is_alive():
                     print "Stuck:", th1_queue[0].filename
                 del th1_queue[0]
-                
-                
+            
+            if delta != [0,0,0,0]:
+                print "Time Deltas:", delta
             self.progress_extra = 0
             self.status_extra = ""
             self.load_mode = "end"
