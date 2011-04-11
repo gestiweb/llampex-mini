@@ -2,12 +2,22 @@
 # encoding: UTF-8
 import bjsonrpc
 from bjsonrpc.exceptions import ServerError
-c = bjsonrpc.connect()
 
 import os.path
 import time, threading, traceback
 
 import sys
+try:
+    hostname = sys.argv.index("-host")
+except ValueError:
+    hostname = -1 
+if hostname > 0:
+    host = sys.argv[hostname+1]
+    print "Connecting to server", host
+    c = bjsonrpc.connect(host=host)
+else:
+    c = bjsonrpc.connect()
+
 from PyQt4 import QtGui, QtCore, uic
 
 from base64 import b64decode, b64encode
@@ -349,6 +359,7 @@ class SplashDialog(QtGui.QDialog):
         global mainwin
         mainwin = LlampexMainWindow()
         mainwin.show()
+        self.close()
         
 
         

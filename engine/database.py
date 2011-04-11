@@ -2,7 +2,7 @@ import model # import Project, metadata, engine, session
 
 def connect(dboptions):
     from sqlalchemy import create_engine
-    conn_url = 'postgresql+psycopg2://%(dbuser)s:%(dbpasswd)s@%(dbhost)s:%(dbport)d/%(dbname)s' % dboptions
+    conn_url = 'postgresql://%(dbuser)s:%(dbpasswd)s@%(dbhost)s:%(dbport)d/%(dbname)s' % dboptions
     #print conn_url
     model.engine = create_engine(conn_url, echo=True)
     model.Base.metadata.bind = model.engine
