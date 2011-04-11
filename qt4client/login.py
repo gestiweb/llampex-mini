@@ -357,6 +357,7 @@ class LlampexMainWindow(QtGui.QMainWindow):
     def __init__(self):
         QtGui.QMainWindow.__init__(self)
         self.mainmenu = llampexmainmenu.LlampexDockMainMenu()
+        self.setWindowTitle("Llampex Qt4 Client")
         icon_fact = QtGui.QIcon(filedir(".cache/files/facturacion/facturacion/flfacturac.xpm"))
         icon_cont = QtGui.QIcon(filedir(".cache/files/contabilidad/principal/flcontppal.xpm"))
         

@@ -7,7 +7,7 @@ QListWidget, QDialog, QLabel, QCheckBox, QAbstractButton, QLineEdit, QFrame {
     border: 1px solid rgba(90, 70, 43, 55);
     border-radius: 4px;
     padding: 1px 3px;
-    background: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:1 rgba(255, 230, 220, 50), stop:0 rgba(255, 210, 200, 40));
+    background: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:1 rgba(255, 230, 220, 5), stop:0 rgba(255, 210, 200, 40));
     selection-background-color: rgb(195, 125, 40);
     color: #eee;
 }
