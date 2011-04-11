@@ -2,14 +2,24 @@ QMainWindow QMdiArea {
     border-radius: 2px;
     background: qlineargradient(spread:pad, x1:1, y1:0, x2:1, y2:1, stop:0 rgba(35, 0, 0, 255), stop:1 rgba(65, 15, 5, 255));
 }
+LlampexDockMainMenu LlampexMainMenu LlampexMainMenuFrame QFrame {
+    background: transparent;
+    border-radius: 6px;
+}
+
+LlampexDockMainMenu LlampexMainMenu LlampexMainMenuFrame {
+    border-radius: 2px;
+    background: qlineargradient(spread:pad, x1:1, y1:0, x2:1, y2:1, stop:0 rgba(35, 0, 0, 255), stop:1 rgba(65, 15, 5, 255));
+}
+
 
 QListWidget, QDialog, QLabel, QCheckBox, QAbstractButton, QLineEdit, QFrame {
-    border: 1px solid rgba(90, 70, 43, 55);
-    border-radius: 4px;
+    border: 2px solid rgba(120, 70, 53, 100);
+    border-radius: 6px;
     padding: 1px 3px;
-    background: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:1 rgba(255, 230, 220, 5), stop:0 rgba(255, 210, 200, 40));
-    selection-background-color: rgb(195, 125, 40);
-    color: #eee;
+    background: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:1 rgba(255, 210, 200, 10), stop:0.5 rgba(255, 230, 220, 25), stop:0 rgba(255, 210, 200, 40));
+    selection-background-color: rgb(165, 95, 10);
+    color: #fec;
 }
 QAbstractButton {
     padding: 4px 20px;
@@ -41,4 +51,53 @@ QLabel, QCheckBox {
     background: transparent;
     font-size: 12px;
     color: #eee;
+}
+
+
+
+
+
+
+
+QScrollBar:vertical { /* colores de fondo generales de la barra */
+    border: 2px solid rgba(255, 230, 220, 20);
+    background: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:0 rgba(35, 0, 0, 255), stop:1 rgba(65, 15, 5, 255));
+    width: 15px;
+    margin: 20px 0px 20px 0;
+}
+
+QScrollBar::handle:vertical {
+    background: qlineargradient(spread:pad, x1:1, y1:1, x2:0, y2:1, stop:1 rgba(255, 230, 220, 30), stop:0 rgba(255, 210, 200, 20));
+    min-width: 20px;
+    border: 1px outset rgba(255, 230, 220, 40);
+}
+
+QScrollBar::add-line:vertical { /* agregar una linea (flecha abajo o derecha) */
+    border: 0;
+    height: 20px;
+    background: qlineargradient(spread:pad, x1:1, y1:0, x2:1, y2:1, stop:0 rgba(35, 0, 0, 255), stop:1 rgba(65, 15, 5, 255));
+    subcontrol-position: bottom;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::sub-line:vertical {
+    border: 0;
+    height: 20px;
+    background: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:0 rgba(35, 0, 0, 255), stop:1 rgba(65, 15, 5, 255));
+    subcontrol-position: top;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::sub-line:vertical:open, QScrollBar::add-line:vertical:open {
+    background: rgba(255, 230, 220, 120);
+}
+QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
+    border: 2px solid rgba(255, 230, 220, 40);
+    width: 3px;
+    height: 3px;
+    background: rgba(255, 230, 220, 20);
+}
+
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+    background: none;
 }
