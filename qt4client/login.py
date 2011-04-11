@@ -251,6 +251,7 @@ class SplashDialog(QtGui.QDialog):
                 self.progress_extra = p
                 
                 def download(name,result):
+
                     fullfilename = os.path.join(cachedir,name)
                     cachefilename = os.path.join(cachedir,trb64_name(self.rprj.files[name]))
                     
@@ -262,7 +263,7 @@ class SplashDialog(QtGui.QDialog):
                     
                     basename = os.path.basename(name)
                     self.status_extra = "%d%% %s" % (p,basename)
-                    value = result.value
+                    value = self.prjconn.call.getFileName(name)
                     f_contents = bz2.decompress(b64decode(value))
                     del value
                     diskwrite_lock.acquire() 
@@ -299,8 +300,7 @@ class SplashDialog(QtGui.QDialog):
                     sha1_64 = ""
                 
                 if sha1_64 != self.rprj.files[name]:
-                    result = self.prjconn.method.getFileName(name)
-                    th1 = threading.Thread(target=download,kwargs={'name':name,'result':result})
+                    th1 = threading.Thread(target=download,kwargs={'name':name,'result':None})
                     th1.filename = name
                     th1.start()
                     th1_queue.append(th1)
