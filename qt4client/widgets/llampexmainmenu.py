@@ -39,10 +39,12 @@ class LlampexMainMenuItem(QtGui.QFrame):
         
         self.llampex_cmdbutton = QtGui.QCommandLinkButton(text)
         self.llampex_subitems = LlampexMainMenuItemList() # Cambiar luego por un widget distinto.
+        self.button = self.llampex_cmdbutton
 
         self.llampex_cmdbutton.setCheckable(True) # Checked es mostrado.
         self.llampex_cmdbutton.setMaximumHeight(36)
         self.llampex_cmdbutton.setMinimumHeight(36)
+        self.llampex_cmdbutton.setMinimumWidth(200)
         
         self.llampex_subitems.setVisible(False)
         self.llampex_subitems.setMinimumHeight(30)
@@ -59,7 +61,7 @@ class LlampexMainMenuItem(QtGui.QFrame):
         self.connect( self.llampex_cmdbutton, QtCore.SIGNAL("toggled(bool)"),   self.llampex_subitems.setVisible )
 
     def llampex_addItem(self, text):
-        self.llampex_subitems.llampex_addItem(text)
+        return self.llampex_subitems.llampex_addItem(text)
     addItem = llampex_addItem
         
 
