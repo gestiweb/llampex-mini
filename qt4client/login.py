@@ -374,6 +374,7 @@ class LlampexMainWindow(QtGui.QMainWindow):
         icon_fppl = QtGui.QIcon(filedir(".cache/files/facturacion/principal/flfactppal.xpm"))
         
         item_favr = self.mainmenu.addItem(u"Favoritos")
+        item_favr.setDefaultCallback(self.menubutton_clicked)
         item_favr.button.setIcon(icon_fppl)
         item_favr.button.setDescription(u"Acciones guardadas")
         item_favr.button.setMaximumHeight(50)
@@ -385,6 +386,7 @@ class LlampexMainWindow(QtGui.QMainWindow):
         item_favr.addItem(u"Ventas artículo")
         
         item_fact = self.mainmenu.addItem(u"Facturación")
+        item_fact.setDefaultCallback(self.menubutton_clicked)
         item_fact.button.setDescription(u"Artículos, Clientes, Fra...")
         item_fact.button.setIcon(icon_fact)
         item_fact.button.setMaximumHeight(50)
@@ -394,6 +396,7 @@ class LlampexMainWindow(QtGui.QMainWindow):
         item_fact.addItem(u"Tesorería")
         item_fact.addItem(u"Facturación").setIcon(icon_fact)
         item_cont = self.mainmenu.addItem(u"Contabilidad")
+        item_cont.setDefaultCallback(self.menubutton_clicked)
         item_cont.button.setDescription(u"Asientos, Amortizaciones..")
         item_cont.button.setMaximumHeight(50)
         item_cont.button.setIcon(icon_cont)
@@ -401,6 +404,7 @@ class LlampexMainWindow(QtGui.QMainWindow):
         item_cont.addItem(u"Principal").setIcon(icon_cont)
         item_cont.addItem(u"Modelos")
         item_sist = self.mainmenu.addItem(u"Sistema")
+        item_sist.setDefaultCallback(self.menubutton_clicked)
         item_sist.button.setDescription(u"Configuración, otros..")
         item_sist.button.setMaximumHeight(50)
         item_sist.addItem(u"Configuración")
@@ -410,6 +414,13 @@ class LlampexMainWindow(QtGui.QMainWindow):
         self.mdiarea = QtGui.QMdiArea()
         self.mdiarea.setBackground(QtGui.QBrush())
         self.setCentralWidget(self.mdiarea)
+    
+    def menubutton_clicked(self,key):
+        # print "menubutton clicked:", key
+        widget = QtGui.QTableWidget()
+        subwindow = self.mdiarea.addSubWindow(widget)
+        subwindow.show()
+        subwindow.setWindowTitle(key)
 
     
 def get_b64digest(text):

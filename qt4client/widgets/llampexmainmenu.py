@@ -3,6 +3,21 @@
 from PyQt4 import QtCore, QtGui
 import math, sys, random
 
+class LlampexMainMenuButton(QtGui.QCommandLinkButton):
+    def __init__(self, text, key, fn, parent=None):
+        super(LlampexMainMenuButton, self).__init__(text,parent)
+        self.setMinimumHeight(36)
+        self.setMaximumHeight(36)
+        self._key = key
+        self._callback = fn
+        self.connect(self,QtCore.SIGNAL("clicked()"),self.button_clicked)
+    
+    def button_clicked(self):
+        if self._callback:
+            self._callback(self._key)
+        else:
+            print "Clicked", self._key
+    
 
 class LlampexMainMenuItemList(QtGui.QFrame):
     def __init__(self, parent=None):
@@ -14,13 +29,8 @@ class LlampexMainMenuItemList(QtGui.QFrame):
         self.llampex_layout.setSizeConstraint(QtGui.QLayout.SetMinAndMaxSize)
         self.setLayout(self.llampex_layout)
 
-    def llampex_addItem(self, textobj):
-        if isinstance(textobj,basestring):
-            llampex_item = QtGui.QCommandLinkButton(textobj)
-        elif isinstance(textobj,QtGui.QCommandLinkButton):
-            llampex_item = textobj
-        else:
-            raise ValueError, "The 1st argument isn't either a string nor a QtGui.QCommandLinkButton!"
+    def llampex_addItem(self, text, key, fn):
+        llampex_item = LlampexMainMenuButton(text,key,fn)
         llampex_item.setMinimumHeight(36)
         llampex_item.setMaximumHeight(36)
         self.llampex_items.append(llampex_item)
@@ -59,9 +69,15 @@ class LlampexMainMenuItem(QtGui.QFrame):
         self.setLayout(self.llampex_layout)
 
         self.connect( self.llampex_cmdbutton, QtCore.SIGNAL("toggled(bool)"),   self.llampex_subitems.setVisible )
+        self._default_callback = None
+    
+    def setDefaultCallback(self,fn):
+        self._default_callback = fn
 
-    def llampex_addItem(self, text):
-        return self.llampex_subitems.llampex_addItem(text)
+    def llampex_addItem(self, text,key=None,fn=None):
+        if key is None: key = text
+        if fn is None: fn = self._default_callback 
+        return self.llampex_subitems.llampex_addItem(text,key,fn)
     addItem = llampex_addItem
         
 
