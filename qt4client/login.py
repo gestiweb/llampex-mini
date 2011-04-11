@@ -5,13 +5,14 @@ from bjsonrpc.exceptions import ServerError
 c = bjsonrpc.connect()
 
 import os.path
-import time, threading
+import time, threading, traceback
 
 import sys
 from PyQt4 import QtGui, QtCore, uic
 
 from base64 import b64decode, b64encode
 import yaml, hashlib, bz2, zlib
+from widgets import llampexmainmenu
 
 class ConfigSettings(yaml.YAMLObject):
     yaml_tag = u'!ConfigSettings' 
@@ -142,6 +143,7 @@ class SplashDialog(QtGui.QDialog):
         self.setWindowFlags(wf | QtCore.Qt.FramelessWindowHint)
         self.rprj = remoteProject()
         self.progress_value = 0
+        self.prev_load_mode = None
         self.load_mode = "init"
         self.progress_load = {
             "init" : 10,
@@ -192,7 +194,19 @@ class SplashDialog(QtGui.QDialog):
         if self.status_extra:
             status += " (%s)" % self.status_extra
         self.ui.status.setText( status )
+        if self.prev_load_mode != self.load_mode:
+            self.changedMode(self.prev_load_mode, self.load_mode)
+            self.prev_load_mode = self.load_mode
         if self.progress_value > 999: self.close()
+    
+    def changedMode(self,frommode,tomode):
+        #print frommode, tomode
+        try:
+            if tomode == "end": self.finishLoad()
+        except:
+            print traceback.format_exc()
+        
+    
     
     def updateLoadStatus(self):
         try:
@@ -325,12 +339,39 @@ class SplashDialog(QtGui.QDialog):
             self.progress_extra = 0
             self.status_extra = ""
             self.load_mode = "end"
+            
+            
         except:        
             self.load_mode = "error"
             raise
             
+    def finishLoad(self): 
+        global mainwin
+        mainwin = LlampexMainWindow()
+        mainwin.show()
         
+
         
+
+class LlampexMainWindow(QtGui.QMainWindow):
+    def __init__(self):
+        QtGui.QMainWindow.__init__(self)
+        self.mainmenu = llampexmainmenu.LlampexDockMainMenu()
+        item_fact = self.mainmenu.addItem(u"Facturación")
+        item_fact.addItem(u"Almacén")
+        item_fact.addItem(u"Informes")
+        item_fact.addItem(u"Principal")
+        item_fact.addItem(u"Tesorería")
+        item_cont = self.mainmenu.addItem(u"Contabilidad")
+        item_cont.addItem(u"Informes")
+        item_cont.addItem(u"Principal")
+        item_sist = self.mainmenu.addItem(u"Sistema")
+        item_sist.addItem(u"Configuración")
+        self.addDockWidget(QtCore.Qt.LeftDockWidgetArea,self.mainmenu)
+        self.mdiarea = QtGui.QMdiArea()
+        self.mdiarea.setBackground(QtGui.QBrush())
+        self.setCentralWidget(self.mdiarea)
+
     
 def get_b64digest(text):
     bindigest = hashlib.sha1(text).digest()

@@ -9,7 +9,7 @@ class LlampexMainMenuItemList(QtGui.QFrame):
         super(LlampexMainMenuItemList, self).__init__(parent)
         self.llampex_layout = QtGui.QVBoxLayout()
         self.llampex_items = []
-        self.setMinimumHeight(20)
+        self.setMinimumHeight(36)
         self.setMaximumHeight(5000)
         self.llampex_layout.setSizeConstraint(QtGui.QLayout.SetMinAndMaxSize)
         self.setLayout(self.llampex_layout)
@@ -21,11 +21,14 @@ class LlampexMainMenuItemList(QtGui.QFrame):
             llampex_item = textobj
         else:
             raise ValueError, "The 1st argument isn't either a string nor a QtGui.QCommandLinkButton!"
-        llampex_item.setMinimumHeight(32)
-        llampex_item.setMaximumHeight(32)
+        llampex_item.setMinimumHeight(36)
+        llampex_item.setMaximumHeight(36)
         self.llampex_items.append(llampex_item)
         self.llampex_layout.insertWidget(self.llampex_layout.count()-1,llampex_item,1)
         return llampex_item
+        
+    addItem = llampex_addItem
+    
     
 
 
@@ -38,8 +41,8 @@ class LlampexMainMenuItem(QtGui.QFrame):
         self.llampex_subitems = LlampexMainMenuItemList() # Cambiar luego por un widget distinto.
 
         self.llampex_cmdbutton.setCheckable(True) # Checked es mostrado.
-        self.llampex_cmdbutton.setMaximumHeight(30)
-        self.llampex_cmdbutton.setMinimumHeight(30)
+        self.llampex_cmdbutton.setMaximumHeight(36)
+        self.llampex_cmdbutton.setMinimumHeight(36)
         
         self.llampex_subitems.setVisible(False)
         self.llampex_subitems.setMinimumHeight(30)
@@ -57,6 +60,7 @@ class LlampexMainMenuItem(QtGui.QFrame):
 
     def llampex_addItem(self, text):
         self.llampex_subitems.llampex_addItem(text)
+    addItem = llampex_addItem
         
 
 class LlampexMainMenuFrame(QtGui.QFrame):
@@ -89,8 +93,8 @@ class LlampexMainMenu(QtGui.QScrollArea):
         self.mywidget = LlampexMainMenuFrame()
         self.setWidget(self.mywidget)
         self.setWidgetResizable(True)
-        #self.setVerticalScrollBarPolicy(2)
-        
+        self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        #self.setMinimumWidth(230)
 
 
 class LlampexDockMainMenu(QtGui.QDockWidget):
@@ -99,6 +103,9 @@ class LlampexDockMainMenu(QtGui.QDockWidget):
         
         self.mywidget = LlampexMainMenu() # Se carga en memoria
         self.setWidget(self.mywidget) # y se establece que es el control contenido por el Dock.
+    
+    def addItem(self, item):
+        return self.mywidget.mywidget.llampex_addItem(item)
 
 if __name__ == "__main__": # programa de demo.
     app = QtGui.QApplication(sys.argv)
