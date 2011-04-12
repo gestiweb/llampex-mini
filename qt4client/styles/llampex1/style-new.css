@@ -1,7 +1,58 @@
-QMainWindow QMdiArea {
-    border-radius: 2px;
+QMdiArea {
+    border: 0;
     background: qlineargradient(spread:pad, x1:1, y1:0, x2:1, y2:1, stop:0 rgba(35, 0, 0, 255), stop:1 rgba(65, 15, 5, 255));
 }
+
+QMdiArea QTabBar::tab { /* The tab widget frame */
+    background: qlineargradient(spread:pad, x1:1, y1:0, x2:1, y2:1, stop:0 rgba(0, 0, 0, 200), stop:1 rgba(65, 15, 5, 200));
+    color: #fec;
+    padding-right:4px;
+    margin-right:2px;
+    height: 30px;
+    border-radius: 8px;
+    border: 0;
+    min-width: 200px;
+}
+
+QMdiArea  QTabBar::tear {
+    background: qlineargradient(spread:pad, x1:0, y1:1, x2:1, y2:1, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(0, 0, 0, 0));
+    width: 12px;
+}
+
+QMdiArea  QAbstractButton {
+    background: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:0 rgba(0, 0, 0, 0), stop:1 rgba(125, 55, 25, 255));
+    color: #fff;
+    border-top: 1px solid rgb(165, 95, 10);
+    font-weight: bold;
+}
+
+QMdiArea QAbstractButton:open {
+    border-color:  rgba(185, 120, 90, 255);
+    background: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:1 rgba(155, 100, 0, 255), stop:0 rgba(255, 255, 255, 255));
+}
+
+QAbstractButton:open:hover {
+    border-color:  rgba(185, 120, 90, 255);
+    background: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:1 rgba(175, 130, 30, 255), stop:0 rgba(255, 255, 255, 255));
+}
+
+QAbstractButton:hover {
+    background: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:1 rgba(165, 110, 10, 255), stop:0 rgba(255, 255, 255, 255));
+}
+
+
+QMdiArea  QTabBar::tab:selected { /* The tab widget frame */
+    background: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:0 rgba(0, 0, 0, 0), stop:1 rgba(125, 55, 25, 255));
+    color: #fff;
+    border-top: 1px solid rgb(165, 95, 10);
+    font-weight: bold;
+}
+
+QMdiArea QMdiSubWindow {
+    border: 0;
+    background: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:0 rgba(35, 0, 0, 255), stop:1 rgba(65, 15, 5, 255));    
+}
+
 LlampexDockMainMenu LlampexMainMenu LlampexMainMenuFrame QFrame {
     background: transparent;
     border-radius: 6px;
@@ -13,7 +64,7 @@ LlampexDockMainMenu LlampexMainMenu LlampexMainMenuFrame {
 }
 
 
-QListWidget, QDialog, QLabel, QCheckBox, QAbstractButton, QLineEdit, QFrame {
+QListWidget, QDialog, QLabel, QCheckBox, QAbstractButton, QLineEdit, QFrame, QGroupBox {
     border: 2px solid rgba(120, 70, 53, 100);
     border-radius: 6px;
     padding: 1px 3px;
@@ -39,7 +90,8 @@ QPushButton:hover {
     background: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:1 rgba(255, 230, 220, 90), stop:0 rgba(255, 210, 200, 70));
 }
 
-QScrollArea, QDialog, QMainWindow, LlampexMainMenu, QDockWidget {
+/*QScrollArea, QDialog, QMainWindow, LlampexMainMenu, QDockWidget {*/
+QWidget:window {
     border: 0;
     border-radius: 0;
     background: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:0 rgba(35, 0, 0, 255), stop:1 rgba(65, 15, 5, 255));

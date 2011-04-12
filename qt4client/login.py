@@ -413,11 +413,22 @@ class LlampexMainWindow(QtGui.QMainWindow):
         self.addDockWidget(QtCore.Qt.LeftDockWidgetArea,self.mainmenu)
         self.mdiarea = QtGui.QMdiArea()
         self.mdiarea.setBackground(QtGui.QBrush())
+        self.mdiarea.setViewMode(QtGui.QMdiArea.TabbedView)
+        self.mdiarea.setDocumentMode(True)
         self.setCentralWidget(self.mdiarea)
     
     def menubutton_clicked(self,key):
         # print "menubutton clicked:", key
-        widget = QtGui.QTableWidget()
+        widget = QtGui.QWidget()
+        widget.layout = QtGui.QVBoxLayout()
+        groupbox1 = QtGui.QGroupBox(key + " - Group Options 1")
+        groupbox2 = QtGui.QGroupBox(key + " - Group Options 2")
+        groupbox3 = QtGui.QGroupBox(key + " - Group Options 3")
+        widget.layout.addWidget(groupbox1)
+        widget.layout.addWidget(groupbox2)
+        widget.layout.addWidget(groupbox3)
+        widget.setLayout(widget.layout)
+        
         subwindow = self.mdiarea.addSubWindow(widget)
         subwindow.show()
         subwindow.setWindowTitle(key)
