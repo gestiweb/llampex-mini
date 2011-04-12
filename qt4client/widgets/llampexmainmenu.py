@@ -28,6 +28,8 @@ class LlampexMainMenuItemList(QtGui.QFrame):
         self.setMaximumHeight(5000)
         self.llampex_layout.setSizeConstraint(QtGui.QLayout.SetMinAndMaxSize)
         self.setLayout(self.llampex_layout)
+        self.setFrameShadow(QtGui.QFrame.Plain)
+        self.setFrameShape(QtGui.QFrame.StyledPanel)
 
     def llampex_addItem(self, text, key, fn):
         llampex_item = LlampexMainMenuButton(text,key,fn)
@@ -45,6 +47,8 @@ class LlampexMainMenuItemList(QtGui.QFrame):
 class LlampexMainMenuItem(QtGui.QFrame):
     def __init__(self, text="Button", parent=None):
         super(LlampexMainMenuItem, self).__init__(parent)
+        self.setFrameShadow(QtGui.QFrame.Raised)
+        self.setFrameShape(QtGui.QFrame.StyledPanel)
         self.llampex_layout = QtGui.QVBoxLayout()
         
         self.llampex_cmdbutton = QtGui.QCommandLinkButton(text)
@@ -112,7 +116,7 @@ class LlampexMainMenu(QtGui.QScrollArea):
         self.setWidget(self.mywidget)
         self.setWidgetResizable(True)
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        #self.setMinimumWidth(230)
+        self.setMinimumWidth(250)
 
 
 class LlampexDockMainMenu(QtGui.QDockWidget):
