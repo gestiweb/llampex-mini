@@ -538,12 +538,12 @@ def get_b64digest(text):
     b64digest = b64encode(bindigest)[:20]
     return b64digest
 
-    
+"""    
 try:        
     import formimages
 except ImportError:
     print "formimages.py not found. Probably you forgot to do 'pyrcc forms/..qrc -i formimages.py'"
-
+"""
 app = QtGui.QApplication(sys.argv) # Creamos la entidad de "aplicación"
 
 # Iniciar como: python login.py -stylesheet styles/llampex1/style.css
