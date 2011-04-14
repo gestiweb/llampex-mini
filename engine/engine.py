@@ -1,5 +1,5 @@
 import model
-from model import RowProject
+from model import RowProject, RowUser,RowProjectUser
 
 import project_manager 
 
@@ -14,9 +14,11 @@ import signal, os
 thread_server = None
 
 class ServerHandler(BaseHandler):
+    username = None
     def getAvailableProjects(self):
+        if self.username is None: raise ServerError, "LoginInvalidError"
         projectlist = []
-        projectrows = model.session.query(RowProject).filter_by(active = True).order_by(RowProject.code)
+        projectrows = model.session.query(RowProject).filter(RowProject.active == True).filter(RowProjectUser.user_id == self.user.id).order_by(RowProject.code)
         for rowproject in projectrows:
             projectrow = {
                 'code' : rowproject.code,
@@ -25,13 +27,30 @@ class ServerHandler(BaseHandler):
             projectlist.append(projectrow)
         return projectlist
     
-    def login(self,projectname, username, password):
+    def login(self,username,password):
+        if self.username is not None: raise ServerError, "AlreadyLoggedError"
+        userrow = model.session.query(RowUser).filter_by(active = True,username = username).first()
+        if userrow is None: raise ServerError, "LoginInvalidError"
+        
+        if not project_manager.validate_password(password, userrow.password): raise ServerError, "LoginInvalidError"
+        #projectmanager = ProjectManager(rpc, project, dbusername, conn)
+        #return projectmanager
+        self.username = username
+        self.user = userrow
+        return True
+        
+        
+    def connectProject(self,projectname):
+        if self.username is None: raise ServerError, "LoginInvalidError"
+        
         projectrow = model.session.query(RowProject).filter_by(code = projectname).first()
         if projectrow is None:
             raise ServerError, "No project exists with the name '%s'" % projectname
         if projectrow.active != True:
             raise ServerError, "Project '%s' is not active" % projectname
-        return project_manager.login(self,projectrow, username, password)
+        # TODO: Limit user access for this project
+        
+        return project_manager.connect_project(self,projectrow, self.username)
         
         
 

@@ -7,16 +7,6 @@ import os.path
 import time, threading, traceback
 
 import sys
-try:
-    hostname = sys.argv.index("-host")
-except ValueError:
-    hostname = -1 
-if hostname > 0:
-    host = sys.argv[hostname+1]
-    print "Connecting to server", host
-    c = bjsonrpc.connect(host=host)
-else:
-    c = bjsonrpc.connect()
 
 from PyQt4 import QtGui, QtCore, uic
 
@@ -24,8 +14,6 @@ from base64 import b64decode, b64encode
 import yaml, hashlib, bz2, zlib
 from widgets import llampexmainmenu
 
-class ConfigSettings(yaml.YAMLObject):
-    yaml_tag = u'!ConfigSettings' 
 
 __version__ = "0.0.1"
 diskwrite_lock = threading.Lock()
@@ -40,6 +28,44 @@ def filedir(x): # convierte una ruta relativa a este fichero en absoluta
     if os.path.isabs(x): return x
     else: return os.path.join(filepath(),x)
 
+def argvparam(key):
+    try:
+        idx = sys.argv.index("-"+key)
+    except ValueError:
+        return None
+    
+    try:
+        value = sys.argv[idx+1]
+    except IndexError:
+        return ""
+    
+    return value
+    
+def str2bool(x):
+    if x == "": return False
+    x = x.lower()[0]
+    if x == "0": return False
+    if x == "f": return False
+    if x == "n": return False
+    if x == "1": return True
+    if x == "y": return True
+    if x == "t": return True
+    
+    
+
+class ConfigSettings(yaml.YAMLObject):
+    yaml_tag = u'!ConfigSettings' 
+    
+    def setargv(self, key, default = None, cast=str):
+        val = argvparam(key)
+        if val is not None: 
+            setattr(self,key,cast(val))
+        else:
+            if not hasattr(self,key):
+                setattr(self,key,default)
+    
+    
+
 class ConnectionDialog(QtGui.QDialog):
     def __init__(self):
         QtGui.QDialog.__init__(self)
@@ -51,16 +77,27 @@ class ConnectionDialog(QtGui.QDialog):
             settings = yaml.load(f1.read())
         except IOError:
             settings = ConfigSettings()
-            settings.username = ""
-            settings.password = ""
-            settings.remember = False
-            settings.project = ""
-            
+        
+        settings.setargv("username","")
+        settings.setargv("password","")
+        settings.setargv("host","127.0.0.1")
+        settings.setargv("port","10123")
+        settings.setargv("remember",False, cast=str2bool)
+        
         self.ui.user.setText(settings.username)
         self.ui.password.setText(settings.password)
+        try:
+            self.ui.host.setText(settings.host)
+            self.ui.port.setText(settings.port)
+        except Exception:
+            pass
         self.ui.rememberpasswd.setChecked(settings.remember)
-
+        self.connect(self.ui.manage, QtCore.SIGNAL("clicked()"), self.manage_clicked)
         selected = 0
+        if '-autoconnect' in sys.argv: 
+            QtCore.QTimer.singleShot(10,self.accept)
+
+        """
         availableprojects  = c.call.getAvailableProjects()
         for row,rowdict in enumerate(availableprojects):
             listitem = QtGui.QListWidgetItem("%(description)s (%(code)s)" % rowdict)
@@ -68,16 +105,38 @@ class ConnectionDialog(QtGui.QDialog):
             if rowdict['code'] == settings.project: selected = row
             self.ui.project.addItem(listitem)
         self.ui.project.setCurrentRow(selected)
-            
-    
+        """    
+    def manage_clicked(self):
+        global managewindow
+        managewindow = ManageDialog()
+        managewindow.show()
+        self.close()
+        
     def accept(self):
-        project = unicode(self.ui.project.currentItem().project['code'])
         username = unicode(self.ui.user.text())
         password = unicode(self.ui.password.text())
+        host = unicode(self.ui.host.text())
+        port = unicode(self.ui.port.text())
+        try:
+            port = int(port)
+        except ValueError:
+            msgBox = QtGui.QMessageBox()
+            msgBox.setText("The port number must be integer")
+            msgBox.setIcon(QtGui.QMessageBox.Critical)
+            msgBox.exec_()
+            return
+            
+        
         
         try:
-            project_manager = c.call.login(project,username,password)
-            if not project_manager: raise ValueError
+            self.conn = bjsonrpc.connect(host=host,port=port)
+            logresult = self.conn.call.login(username,password)
+            if not logresult: raise ValueError
+            global selectionwindow
+            selectionwindow = ProjectSelectionDialog(self.conn)
+            selectionwindow.show()
+            self.close()
+            return
             #msgBox = QtGui.QMessageBox()
             #msgBox.setText("Login successful!")
             #msgBox.setIcon(QtGui.QMessageBox.Information)
@@ -118,13 +177,13 @@ class ConnectionDialog(QtGui.QDialog):
     
     def closeEvent(self,event):
         settings = ConfigSettings()
+        settings.host = str(self.ui.host.text())
+        settings.port = str(self.ui.port.text())
         if self.ui.rememberpasswd.isChecked():
-            settings.project = str(self.ui.project.currentItem().project['code'])
             settings.username = str(self.ui.user.text())
             settings.password = str(self.ui.password.text())
             settings.remember = True
         else:
-            settings.project = ""
             settings.username = ""
             settings.password = ""
             settings.remember = False
@@ -132,7 +191,47 @@ class ConnectionDialog(QtGui.QDialog):
         f1.write(yaml.dump(settings))
         event.accept()
         #event.ignore()
+
+class ManageDialog(QtGui.QDialog):
+    def __init__(self):
+        QtGui.QDialog.__init__(self)
+            
+        ui_filepath = filedir("forms/manage.ui") # convertimos la ruta a absoluta
+        self.ui = uic.loadUi(ui_filepath,self) # Cargamos un fichero UI externo    
+
+
+class ProjectSelectionDialog(QtGui.QDialog):
+    def __init__(self, conn):
+        QtGui.QDialog.__init__(self)
+        self.setWindowTitle("Project selection")
+        self.resize(500,300)
+        self.conn = conn
+        availableprojects  = self.conn.call.getAvailableProjects()
+        self.layout = QtGui.QVBoxLayout()
+        n = 0
+        for row,rowdict in enumerate(availableprojects):
+            n += 1
+            button = llampexmainmenu.LlampexMainMenuButton("%(code)s" % rowdict, rowdict['code'],self.open_project)
+            button.setDescription("%(description)s" % rowdict)
+            button.setMaximumHeight(96)
+            self.layout.addWidget(button)
+            
+        if n == 0:
+            label = QtGui.QLabel("No projects available for this username")
+            self.layout.addWidget(label)
         
+        self.setLayout(self.layout)
+        
+    def open_project(self,projectname):
+        print "Open", projectname
+        project_manager = self.conn.call.connectProject(projectname)
+        splashwindow = SplashDialog()
+        splashwindow.prjconn = project_manager
+        splashwindow.show()
+        self.close()
+        
+        
+    
 class remoteProject(object):
     pass
 
@@ -452,6 +551,7 @@ app = QtGui.QApplication(sys.argv) # Creamos la entidad de "aplicación"
 
 connwindow = ConnectionDialog()
 connwindow.show() # el método show asegura que se mostrará en pantalla.
+
 
 retval = app.exec_() # ejecutamos la aplicación. A partir de aquí perdemos el
 

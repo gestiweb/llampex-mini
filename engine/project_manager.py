@@ -266,7 +266,7 @@ class ProjectManager(BaseHandler):
         return self.b64list
         
 
-def login(rpc,project,username,password):
+def connect_project(rpc,project,username):
     print "connecting to project", project
     print "as user", username
     if project.host is None: project.host = model.engine.url.host
@@ -293,27 +293,9 @@ def login(rpc,project,username,password):
         print e.__class__.__name__, repr(e.args[:])
         raise ServerError, "Some unknown error ocurred trying to connect to the project. Check logs at server."
     
-    projectmanager = None
+    projectmanager = ProjectManager(rpc, project, username, conn)
+    return projectmanager
     
-    try:
-        cur = conn.cursor() 
-        try:
-            cur.execute("SELECT iduser,username,password FROM users WHERE username = %s;", [username])
-        except psycopg2.ProgrammingError,e:
-            print e.__class__.__name__, repr(e.args[:])
-            print "Check if 'users' table exists."
-            raise ServerError,"DatabaseConnectionError"
-            
-        userrow = cur.fetchone()
-        if userrow is None: raise ServerError, "LoginInvalidError"
-        iduser, dbusername, dbpassword = userrow
-        if not validate_password(password, dbpassword): raise ServerError, "LoginInvalidError"
-        projectmanager = ProjectManager(rpc, project, dbusername, conn)
-        return projectmanager
-    finally:
-        cur.close()
-        if projectmanager is None:
-            conn.close()
             
 def validate_password(userpass, dbpass):
     hashmethod, hashsalt, hashdigest = dbpass.split("$")

@@ -2,19 +2,23 @@ QMdiArea {
     border: 0;
     background: qlineargradient(spread:pad, x1:1, y1:0, x2:1, y2:1, stop:0 rgba(35, 0, 0, 255), stop:1 rgba(65, 15, 5, 255));
 }
+QTabWidget::pane {
+    border: 0;
+    background: qlineargradient(spread:pad, x1:1, y1:0, x2:1, y2:1, stop:0 rgba(35, 0, 0, 255), stop:1 rgba(65, 15, 5, 255));
+}
 
-QMdiArea QTabBar::tab { /* The tab widget frame */
+QMdiArea QTabBar::tab,QTabWidget QTabBar::tab { /* The tab widget frame */
     background: qlineargradient(spread:pad, x1:1, y1:0, x2:1, y2:1, stop:0 rgba(0, 0, 0, 200), stop:1 rgba(65, 15, 5, 200));
     color: #fec;
     padding-right:4px;
-    margin-right:2px;
+    margin-right:4px;
     height: 30px;
     border-radius: 8px;
     border: 0;
-    min-width: 200px;
+    min-width: 150px;
 }
 
-QMdiArea  QTabBar::tear {
+QMdiArea  QTabBar::tear, QTabWidget QTabBar::tear {
     background: qlineargradient(spread:pad, x1:0, y1:1, x2:1, y2:1, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(0, 0, 0, 0));
     width: 12px;
 }
@@ -41,7 +45,7 @@ QAbstractButton:hover {
 }
 
 
-QMdiArea  QTabBar::tab:selected { /* The tab widget frame */
+QMdiArea  QTabBar::tab:selected , QTabWidget  QTabBar::tab:selected { /* The tab widget frame */
     background: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:0 rgba(0, 0, 0, 0), stop:1 rgba(125, 55, 25, 255));
     color: #fff;
     border-top: 1px solid rgb(165, 95, 10);
@@ -98,7 +102,7 @@ QWidget:window {
     color: #eee;
 }
 
-QLabel, QCheckBox {
+QLabel, QCheckBox, QFrame QLabel, QFrame QCheckBox {
     border: 0;
     background: transparent;
     font-size: 12px;
