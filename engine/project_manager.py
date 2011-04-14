@@ -314,7 +314,7 @@ def validate_password(userpass, dbpass):
         
     return False
 
-def compute_password(userpass, hashmethod, saltsize = 4):
+def compute_password(userpass, hashmethod = "sha1", saltsize = 4):
     hashsalt = hashlib.sha1(userpass + hashmethod + os.urandom(32)).hexdigest()[:saltsize*2]
     if hashmethod in ("md5","sha1"):
         binsalt = binascii.a2b_hex(hashsalt)

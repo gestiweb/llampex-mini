@@ -1,5 +1,6 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, Boolean
+from sqlalchemy.orm import relationship, backref
 
 from . import Base
 
@@ -16,6 +17,7 @@ class RowProject(Base):
     user = Column(String(64))
     password = Column(String(64))
     active = Column(Boolean, nullable=False, default=True)
+    
     
     def __str__(self):
         return "<RowProject(%s) code=%s active=%s>" % (
