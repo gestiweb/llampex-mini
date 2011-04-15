@@ -1,6 +1,7 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, Boolean
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import relation as relationship
+from sqlalchemy.orm import backref
 
 from . import Base
 
