@@ -16,6 +16,7 @@ from widgets import llampexmainmenu
 
 __version__ = "0.0.1"
 diskwrite_lock = threading.Lock()
+lampex_icon = None
 
 def apppath(): return os.path.abspath(os.path.dirname(sys.argv[0]))
 def filepath(): return os.path.abspath(os.path.dirname(__file__))
@@ -76,7 +77,8 @@ class ConnectionDialog(QtGui.QDialog):
             settings = yaml.load(f1.read())
         except IOError:
             settings = ConfigSettings()
-        
+        global llampex_icon 
+        llampex_icon = self.windowIcon()
         settings.setargv("username","")
         settings.setargv("password","")
         settings.setargv("host","127.0.0.1")
@@ -216,6 +218,8 @@ class ProjectSelectionDialog(QtGui.QDialog):
         self.conn = conn
         availableprojects  = self.conn.call.getAvailableProjects()
         self.layout = QtGui.QVBoxLayout()
+        self.setWindowIcon(llampex_icon)
+
         n = 0
         for row,rowdict in enumerate(availableprojects):
             n += 1
@@ -465,6 +469,7 @@ class SplashDialog(QtGui.QDialog):
     def finishLoad(self): 
         global mainwin
         mainwin = LlampexMainWindow()
+        mainwin.setWindowIcon(llampex_icon)
         mainwin.show()
         self.close()
         

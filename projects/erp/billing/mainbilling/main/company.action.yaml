@@ -1,6 +1,6 @@
 !LlampexAction
-code: empresa
-name: Empresa
+code: company
+name: Company
 icon: company.png # path to icon
 weight: 10
 

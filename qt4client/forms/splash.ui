@@ -31,21 +31,602 @@
     <height>300</height>
    </size>
   </property>
+  <property name="palette">
+   <palette>
+    <active>
+     <colorrole role="Button">
+      <brush brushstyle="LinearGradientPattern">
+       <gradient startx="1.000000000000000" starty="0.700000000000000" endx="0.800000000000000" endy="0.000000000000000" type="LinearGradient" spread="ReflectSpread" coordinatemode="ObjectBoundingMode">
+        <gradientstop position="0.000000000000000">
+         <color alpha="255">
+          <red>0</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.100000000000000">
+         <color alpha="255">
+          <red>0</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.400000000000000">
+         <color alpha="255">
+          <red>145</red>
+          <green>46</green>
+          <blue>30</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.500000000000000">
+         <color alpha="255">
+          <red>165</red>
+          <green>66</green>
+          <blue>20</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.510000000000000">
+         <color alpha="255">
+          <red>185</red>
+          <green>76</green>
+          <blue>30</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.600000000000000">
+         <color alpha="255">
+          <red>125</red>
+          <green>16</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.800000000000000">
+         <color alpha="255">
+          <red>70</red>
+          <green>16</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="1.000000000000000">
+         <color alpha="255">
+          <red>0</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+       </gradient>
+      </brush>
+     </colorrole>
+     <colorrole role="Base">
+      <brush brushstyle="LinearGradientPattern">
+       <gradient startx="1.000000000000000" starty="0.700000000000000" endx="0.800000000000000" endy="0.000000000000000" type="LinearGradient" spread="ReflectSpread" coordinatemode="ObjectBoundingMode">
+        <gradientstop position="0.000000000000000">
+         <color alpha="255">
+          <red>0</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.100000000000000">
+         <color alpha="255">
+          <red>0</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.400000000000000">
+         <color alpha="255">
+          <red>145</red>
+          <green>46</green>
+          <blue>30</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.500000000000000">
+         <color alpha="255">
+          <red>165</red>
+          <green>66</green>
+          <blue>20</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.510000000000000">
+         <color alpha="255">
+          <red>185</red>
+          <green>76</green>
+          <blue>30</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.600000000000000">
+         <color alpha="255">
+          <red>125</red>
+          <green>16</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.800000000000000">
+         <color alpha="255">
+          <red>70</red>
+          <green>16</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="1.000000000000000">
+         <color alpha="255">
+          <red>0</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+       </gradient>
+      </brush>
+     </colorrole>
+     <colorrole role="Window">
+      <brush brushstyle="LinearGradientPattern">
+       <gradient startx="1.000000000000000" starty="0.700000000000000" endx="0.800000000000000" endy="0.000000000000000" type="LinearGradient" spread="ReflectSpread" coordinatemode="ObjectBoundingMode">
+        <gradientstop position="0.000000000000000">
+         <color alpha="255">
+          <red>0</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.100000000000000">
+         <color alpha="255">
+          <red>0</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.400000000000000">
+         <color alpha="255">
+          <red>145</red>
+          <green>46</green>
+          <blue>30</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.500000000000000">
+         <color alpha="255">
+          <red>165</red>
+          <green>66</green>
+          <blue>20</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.510000000000000">
+         <color alpha="255">
+          <red>185</red>
+          <green>76</green>
+          <blue>30</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.600000000000000">
+         <color alpha="255">
+          <red>125</red>
+          <green>16</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.800000000000000">
+         <color alpha="255">
+          <red>70</red>
+          <green>16</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="1.000000000000000">
+         <color alpha="255">
+          <red>0</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+       </gradient>
+      </brush>
+     </colorrole>
+    </active>
+    <inactive>
+     <colorrole role="Button">
+      <brush brushstyle="LinearGradientPattern">
+       <gradient startx="1.000000000000000" starty="0.700000000000000" endx="0.800000000000000" endy="0.000000000000000" type="LinearGradient" spread="ReflectSpread" coordinatemode="ObjectBoundingMode">
+        <gradientstop position="0.000000000000000">
+         <color alpha="255">
+          <red>0</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.100000000000000">
+         <color alpha="255">
+          <red>0</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.400000000000000">
+         <color alpha="255">
+          <red>145</red>
+          <green>46</green>
+          <blue>30</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.500000000000000">
+         <color alpha="255">
+          <red>165</red>
+          <green>66</green>
+          <blue>20</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.510000000000000">
+         <color alpha="255">
+          <red>185</red>
+          <green>76</green>
+          <blue>30</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.600000000000000">
+         <color alpha="255">
+          <red>125</red>
+          <green>16</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.800000000000000">
+         <color alpha="255">
+          <red>70</red>
+          <green>16</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="1.000000000000000">
+         <color alpha="255">
+          <red>0</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+       </gradient>
+      </brush>
+     </colorrole>
+     <colorrole role="Base">
+      <brush brushstyle="LinearGradientPattern">
+       <gradient startx="1.000000000000000" starty="0.700000000000000" endx="0.800000000000000" endy="0.000000000000000" type="LinearGradient" spread="ReflectSpread" coordinatemode="ObjectBoundingMode">
+        <gradientstop position="0.000000000000000">
+         <color alpha="255">
+          <red>0</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.100000000000000">
+         <color alpha="255">
+          <red>0</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.400000000000000">
+         <color alpha="255">
+          <red>145</red>
+          <green>46</green>
+          <blue>30</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.500000000000000">
+         <color alpha="255">
+          <red>165</red>
+          <green>66</green>
+          <blue>20</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.510000000000000">
+         <color alpha="255">
+          <red>185</red>
+          <green>76</green>
+          <blue>30</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.600000000000000">
+         <color alpha="255">
+          <red>125</red>
+          <green>16</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.800000000000000">
+         <color alpha="255">
+          <red>70</red>
+          <green>16</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="1.000000000000000">
+         <color alpha="255">
+          <red>0</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+       </gradient>
+      </brush>
+     </colorrole>
+     <colorrole role="Window">
+      <brush brushstyle="LinearGradientPattern">
+       <gradient startx="1.000000000000000" starty="0.700000000000000" endx="0.800000000000000" endy="0.000000000000000" type="LinearGradient" spread="ReflectSpread" coordinatemode="ObjectBoundingMode">
+        <gradientstop position="0.000000000000000">
+         <color alpha="255">
+          <red>0</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.100000000000000">
+         <color alpha="255">
+          <red>0</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.400000000000000">
+         <color alpha="255">
+          <red>145</red>
+          <green>46</green>
+          <blue>30</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.500000000000000">
+         <color alpha="255">
+          <red>165</red>
+          <green>66</green>
+          <blue>20</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.510000000000000">
+         <color alpha="255">
+          <red>185</red>
+          <green>76</green>
+          <blue>30</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.600000000000000">
+         <color alpha="255">
+          <red>125</red>
+          <green>16</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.800000000000000">
+         <color alpha="255">
+          <red>70</red>
+          <green>16</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="1.000000000000000">
+         <color alpha="255">
+          <red>0</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+       </gradient>
+      </brush>
+     </colorrole>
+    </inactive>
+    <disabled>
+     <colorrole role="Button">
+      <brush brushstyle="LinearGradientPattern">
+       <gradient startx="1.000000000000000" starty="0.700000000000000" endx="0.800000000000000" endy="0.000000000000000" type="LinearGradient" spread="ReflectSpread" coordinatemode="ObjectBoundingMode">
+        <gradientstop position="0.000000000000000">
+         <color alpha="255">
+          <red>0</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.100000000000000">
+         <color alpha="255">
+          <red>0</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.400000000000000">
+         <color alpha="255">
+          <red>145</red>
+          <green>46</green>
+          <blue>30</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.500000000000000">
+         <color alpha="255">
+          <red>165</red>
+          <green>66</green>
+          <blue>20</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.510000000000000">
+         <color alpha="255">
+          <red>185</red>
+          <green>76</green>
+          <blue>30</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.600000000000000">
+         <color alpha="255">
+          <red>125</red>
+          <green>16</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.800000000000000">
+         <color alpha="255">
+          <red>70</red>
+          <green>16</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="1.000000000000000">
+         <color alpha="255">
+          <red>0</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+       </gradient>
+      </brush>
+     </colorrole>
+     <colorrole role="Base">
+      <brush brushstyle="LinearGradientPattern">
+       <gradient startx="1.000000000000000" starty="0.700000000000000" endx="0.800000000000000" endy="0.000000000000000" type="LinearGradient" spread="ReflectSpread" coordinatemode="ObjectBoundingMode">
+        <gradientstop position="0.000000000000000">
+         <color alpha="255">
+          <red>0</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.100000000000000">
+         <color alpha="255">
+          <red>0</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.400000000000000">
+         <color alpha="255">
+          <red>145</red>
+          <green>46</green>
+          <blue>30</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.500000000000000">
+         <color alpha="255">
+          <red>165</red>
+          <green>66</green>
+          <blue>20</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.510000000000000">
+         <color alpha="255">
+          <red>185</red>
+          <green>76</green>
+          <blue>30</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.600000000000000">
+         <color alpha="255">
+          <red>125</red>
+          <green>16</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.800000000000000">
+         <color alpha="255">
+          <red>70</red>
+          <green>16</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="1.000000000000000">
+         <color alpha="255">
+          <red>0</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+       </gradient>
+      </brush>
+     </colorrole>
+     <colorrole role="Window">
+      <brush brushstyle="LinearGradientPattern">
+       <gradient startx="1.000000000000000" starty="0.700000000000000" endx="0.800000000000000" endy="0.000000000000000" type="LinearGradient" spread="ReflectSpread" coordinatemode="ObjectBoundingMode">
+        <gradientstop position="0.000000000000000">
+         <color alpha="255">
+          <red>0</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.100000000000000">
+         <color alpha="255">
+          <red>0</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.400000000000000">
+         <color alpha="255">
+          <red>145</red>
+          <green>46</green>
+          <blue>30</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.500000000000000">
+         <color alpha="255">
+          <red>165</red>
+          <green>66</green>
+          <blue>20</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.510000000000000">
+         <color alpha="255">
+          <red>185</red>
+          <green>76</green>
+          <blue>30</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.600000000000000">
+         <color alpha="255">
+          <red>125</red>
+          <green>16</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="0.800000000000000">
+         <color alpha="255">
+          <red>70</red>
+          <green>16</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+        <gradientstop position="1.000000000000000">
+         <color alpha="255">
+          <red>0</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </gradientstop>
+       </gradient>
+      </brush>
+     </colorrole>
+    </disabled>
+   </palette>
+  </property>
   <property name="windowTitle">
    <string>Llampex Splash</string>
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>alevt.png</normaloff>alevt.png</iconset>
+    <normaloff>llampex1_ico2.png</normaloff>llampex1_ico2.png</iconset>
   </property>
   <property name="autoFillBackground">
-   <bool>true</bool>
+   <bool>false</bool>
   </property>
   <property name="styleSheet">
-   <string notr="true">QDialog {
-	background-image: url(forms/llampex1.jpg);
+   <string notr="true">QDialog {	
+	background-color: qlineargradient(spread:reflect, x1:1.0, y1:0.7, x2:0.8, y2:0, 
+stop:0 rgba(0, 0, 0, 255), 
+stop:0.1 rgba(0, 0, 0, 255), 
+stop:0.4 rgba(145, 46, 30, 255), 
+stop:0.5 rgba(165, 66, 20, 255), 
+stop:0.51 rgba(185, 76, 30, 255), 
+stop:0.6 rgba(125, 16, 0, 255), 
+stop:0.8 rgba(70, 16, 0, 255), 
+stop:1 rgba(0, 0, 0, 255));
 }
-
+#logo {
+	margin-bottom: -10px;
+}
+#version {
+	position: absolute;
+}
  QProgressBar {
 /*     border: 1px solid grey;
      border-radius: 1px;
@@ -71,84 +652,146 @@ QLabel {
 	color: #eee;
 }</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
-    <spacer name="verticalSpacer_2">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeType">
-      <enum>QSizePolicy::Fixed</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>150</width>
-       <height>129</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item>
-    <widget class="QLabel" name="version">
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>v0.0.0-rev21231</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-     </property>
-     <property name="margin">
-      <number>5</number>
-     </property>
-     <property name="indent">
-      <number>50</number>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>220</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item>
-    <widget class="QLabel" name="status">
-     <property name="text">
-      <string>Loading Llampex ...</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QProgressBar" name="progress">
-     <property name="maximum">
-      <number>1000</number>
-     </property>
-     <property name="value">
-      <number>1</number>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-     <property name="textVisible">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-  </layout>
+  <property name="windowFilePath">
+   <string>.</string>
+  </property>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>1</x>
+     <y>-4</y>
+     <width>401</width>
+     <height>311</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="pixmap">
+    <pixmap>lightning.png</pixmap>
+   </property>
+  </widget>
+  <widget class="QLabel" name="logo">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>70</y>
+     <width>381</width>
+     <height>89</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>89</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>16777215</width>
+     <height>150</height>
+    </size>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>35</pointsize>
+     <weight>75</weight>
+     <italic>true</italic>
+     <bold>true</bold>
+     <stylestrategy>PreferAntialias</stylestrategy>
+     <kerning>true</kerning>
+    </font>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="pixmap">
+    <pixmap>llampex3.png</pixmap>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+   <property name="margin">
+    <number>0</number>
+   </property>
+   <property name="indent">
+    <number>0</number>
+   </property>
+  </widget>
+  <widget class="QLabel" name="version">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>140</y>
+     <width>181</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>8</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>v0.0.0-rev21231</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+   </property>
+   <property name="margin">
+    <number>0</number>
+   </property>
+   <property name="indent">
+    <number>10</number>
+   </property>
+  </widget>
+  <widget class="QLabel" name="status">
+   <property name="geometry">
+    <rect>
+     <x>9</x>
+     <y>249</y>
+     <width>381</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Loading Llampex ...</string>
+   </property>
+  </widget>
+  <widget class="QProgressBar" name="progress">
+   <property name="geometry">
+    <rect>
+     <x>9</x>
+     <y>272</y>
+     <width>381</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="maximum">
+    <number>1000</number>
+   </property>
+   <property name="value">
+    <number>100</number>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+   </property>
+   <property name="textVisible">
+    <bool>false</bool>
+   </property>
+  </widget>
+  <zorder>label</zorder>
+  <zorder>logo</zorder>
+  <zorder>version</zorder>
+  <zorder>status</zorder>
+  <zorder>progress</zorder>
  </widget>
- <resources>
-  <include location="formimages.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

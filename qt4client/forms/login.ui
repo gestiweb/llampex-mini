@@ -33,7 +33,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>akonadi.png</normaloff>akonadi.png</iconset>
+    <normaloff>llampex1_ico1.png</normaloff>llampex1_ico1.png</iconset>
   </property>
   <property name="sizeGripEnabled">
    <bool>false</bool>

@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Manage users and projects</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>llampex1_ico1.png</normaloff>llampex1_ico1.png</iconset>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QTabWidget" name="tabWidget">
