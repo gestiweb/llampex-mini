@@ -86,7 +86,7 @@ class LlampexMainWindow(QtGui.QMainWindow):
         for i in iconlist:
             icon.append(QtGui.QIcon(filedir(i)))
 
-        widget = QtGui.QFrame()
+        widget = QtGui.QWidget()
         widget.layout = QtGui.QVBoxLayout()
         
         groupbox = llampexgroupbutton.LlampexGroupButton("Principal")

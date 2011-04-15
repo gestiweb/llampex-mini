@@ -52,7 +52,7 @@ QMdiArea  QTabBar::tab:selected , QTabWidget  QTabBar::tab:selected { /* The tab
     font-weight: bold;
 }
 
-QMdiArea QMdiSubWindow, QScrollArea QFrame {
+QMdiArea QMdiSubWindow, QScrollArea > QWidget  > QWidget {
     border: 0;
     background: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:0 rgba(35, 0, 0, 255), stop:1 rgba(65, 15, 5, 255));    
 }
