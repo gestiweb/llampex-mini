@@ -1,0 +1,16 @@
+!LlampexAction
+code: suppliers
+name: Suppliers
+icon: suppliers.png
+weight: 50
+
+table: proveedores
+record:
+    script: proveedores
+    form: proveedores
+master:
+    script: masterproveedores
+    form: masterproveedores
+
+description: "La gestión de proveedores (...)"
+

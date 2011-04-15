@@ -1,0 +1,16 @@
+!LlampexAction
+code: empresa
+name: Empresa
+icon: company.png # path to icon
+weight: 10
+
+table: empresa
+record:
+    script: empresa
+    form: empresa
+master:
+    script: masterempresa
+    form: masterempresa
+
+description: "La gestión de la empresa..."
+

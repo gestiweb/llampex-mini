@@ -1,0 +1,5 @@
+!LlampexModule
+version: 0.1 # module version
+code: mainbilling
+name: Main
+icon: mainbilling.png
