@@ -4,7 +4,7 @@ from PyQt4 import QtCore, QtGui
 import math, sys, random
 
 class LlampexMainMenuButton(QtGui.QCommandLinkButton):
-    def __init__(self, text, key, fn, parent=None):
+    def __init__(self, text, key, fn = None, parent=None):
         super(LlampexMainMenuButton, self).__init__(text,parent)
         self.setMinimumHeight(36)
         self.setMaximumHeight(36)

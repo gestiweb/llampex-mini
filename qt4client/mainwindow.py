@@ -4,7 +4,8 @@ import yaml
 
 from PyQt4 import QtGui, QtCore, uic
 
-from widgets import llampexmainmenu 
+from widgets import llampexmainmenu, llampexgroupbutton
+
 
 
 __version__ = "0.0.1"
@@ -71,16 +72,62 @@ class LlampexMainWindow(QtGui.QMainWindow):
     
     def menubutton_clicked(self,key):
         # print "menubutton clicked:", key
-        widget = QtGui.QWidget()
+        iconlist = [
+            'forms/accessories-dictionary.png',
+            'forms/accessories-text-editor.png',
+            'forms/acroread.png',
+            'forms/akonadi.png',
+            'forms/akregator.png',
+            'forms/alevt.png',
+            'forms/application-sxw.png',
+            'forms/settings.png'
+            ]
+        icon = []
+        for i in iconlist:
+            icon.append(QtGui.QIcon(filedir(i)))
+
+        widget = QtGui.QFrame()
         widget.layout = QtGui.QVBoxLayout()
-        groupbox1 = QtGui.QGroupBox(key + " - Group Options 1")
-        groupbox2 = QtGui.QGroupBox(key + " - Group Options 2")
-        groupbox3 = QtGui.QGroupBox(key + " - Group Options 3")
-        widget.layout.addWidget(groupbox1)
-        widget.layout.addWidget(groupbox2)
-        widget.layout.addWidget(groupbox3)
-        widget.setLayout(widget.layout)
         
-        subwindow = self.mdiarea.addSubWindow(widget)
+        groupbox = llampexgroupbutton.LlampexGroupButton("Principal")
+        groupbox.addAction("Empresa", "empresa", icon[0])
+        groupbox.addSeparator()
+        groupbox.addAction("Clientes", "clientes", icon[1])
+        groupbox.addAction("Proveedores", "proveedores", icon[2])
+        groupbox.addSeparator(0)
+        widget.layout.addWidget(groupbox)
+        
+        groupbox = llampexgroupbutton.LlampexGroupButton("Fiscalidad")
+        groupbox.addAction("Ejercicios\nFiscales", "ejercicios", icon[3])
+        groupbox.addAction("Series de\nFacturacion", "series", icon[4])
+        groupbox.addAction("Impuestos", "impuestos", icon[5])
+        groupbox.addSeparator(0)
+        widget.layout.addWidget(groupbox)
+        
+        groupbox = llampexgroupbutton.LlampexGroupButton("Tablas Generales")
+        groupbox.addAction("Cuentas Bancarias", "cuentasbco", icon[6])
+        groupbox.addAction("Bancos", "bancos", icon[3])
+        groupbox.addSeparator()
+        groupbox.addAction("Descuentos", "dtoclientes", icon[7])
+        groupbox.addAction("Tipos\nde Pago", "tipospago", icon[0])
+        groupbox.addAction("Formas\nde Pago", "formaspago", icon[1])
+        groupbox.addAction("Tipos\nde Rappel", "tiposrappel", icon[2])
+        groupbox.addSeparator()
+        groupbox.addAction("Agentes", "", icon[3])
+        groupbox.addAction("Departamentos", "", icon[3])
+        groupbox.addAction("Usuarios", "", icon[3])
+        groupbox.addSeparator()
+        groupbox.addAction("Agencias\nTransporte", "", icon[3])
+        groupbox.addSeparator(0)
+        widget.layout.addWidget(groupbox)
+        
+        widget.setLayout(widget.layout)
+        scrollarea = QtGui.QScrollArea()
+        scrollarea.setWidget(widget)
+        scrollarea.setWidgetResizable(True)
+        scrollarea.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        scrollarea.setMinimumWidth(250)
+        
+        subwindow = self.mdiarea.addSubWindow(scrollarea)
         subwindow.show()
         subwindow.setWindowTitle(key)

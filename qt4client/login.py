@@ -82,7 +82,8 @@ class ConnectionDialog(QtGui.QDialog):
         settings.setargv("host","127.0.0.1")
         settings.setargv("port","10123")
         settings.setargv("remember",False, cast=str2bool)
-        
+        settings.setargv("project","")
+        self.project = settings.project
         self.ui.user.setText(settings.username)
         self.ui.password.setText(settings.password)
         try:
@@ -140,6 +141,8 @@ class ConnectionDialog(QtGui.QDialog):
             global selectionwindow
             selectionwindow = ProjectSelectionDialog(self.conn)
             selectionwindow.show()
+            if self.project:
+                selectionwindow.open_project(self.project)
             self.close()
             return
             #msgBox = QtGui.QMessageBox()
