@@ -2,6 +2,7 @@ import model # import Project, metadata, engine, session
 from model import RowUser, RowProject, RowProjectUser    
 from project_manager import compute_password
 from getpass import getpass
+import os.path
 
 def connect(dboptions, echo = True):
     from sqlalchemy import create_engine
@@ -131,7 +132,7 @@ def do_init():
         project1.code = "llampex"
         project1.description = "Llampex main project"
         project1.db = "llampex"
-        project1.path = os.apth.realpath(filedir("../"))
+        project1.path = os.path.realpath(filedir("../"))
         project1.active = True
         model.session.add(project1)
         model.session.commit()
