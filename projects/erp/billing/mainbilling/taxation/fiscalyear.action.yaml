@@ -1,0 +1,16 @@
+!LlampexAction
+code: fiscalyear
+name: Fiscal Year
+icon: fiscalyear.png # path to icon
+weight: 10
+
+table: ejercicios
+record:
+    script: ejercicios
+    form: ejercicios
+master:
+    script: masterempresa
+    form: masterempresa
+
+description: "Ejercicios fiscales"
+

@@ -1,0 +1,16 @@
+!LlampexAction
+code: discounts
+name: Discounts
+icon: discounts.png # path to icon
+weight: P.1
+
+table: descuentos
+record:
+    script: ejercicios
+    form: ejercicios
+master:
+    script: masterempresa
+    form: masterempresa
+
+description: "Ejercicios fiscales"
+

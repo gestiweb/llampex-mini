@@ -1,0 +1,16 @@
+!LlampexAction
+code: users
+name: Users
+icon: users.png
+weight: U.7
+
+table: usuarios
+record:
+    script: impuestos
+    form: impuestos
+master:
+    script: masterproveedores
+    form: masterproveedores
+
+description: "La gestión de proveedores (...)"
+

@@ -1,0 +1,16 @@
+!LlampexAction
+code: taxes
+name: Taxes
+icon: taxes.png
+weight: 50
+
+table: impuestos
+record:
+    script: impuestos
+    form: impuestos
+master:
+    script: masterproveedores
+    form: masterproveedores
+
+description: "La gestión de proveedores (...)"
+

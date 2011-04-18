@@ -1,0 +1,16 @@
+!LlampexAction
+code: transportagencies
+name: Transport Agencies
+icon: transportagencies.png
+weight: Z.1
+
+table: agenciastransporte
+record:
+    script: impuestos
+    form: impuestos
+master:
+    script: masterproveedores
+    form: masterproveedores
+
+description: "La gestión de proveedores (...)"
+

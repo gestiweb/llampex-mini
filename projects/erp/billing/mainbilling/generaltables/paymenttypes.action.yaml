@@ -1,0 +1,16 @@
+!LlampexAction
+code: paymenttypes
+name: Payment Types
+icon: paymenttypes.png # path to icon
+weight: P.3
+
+table: tipospago
+record:
+    script: ejercicios
+    form: ejercicios
+master:
+    script: masterempresa
+    form: masterempresa
+
+description: "Ejercicios fiscales"
+
