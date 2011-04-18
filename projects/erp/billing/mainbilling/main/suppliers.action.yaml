@@ -2,7 +2,7 @@
 code: suppliers
 name: Suppliers
 icon: suppliers.png
-weight: 50
+weight: B.2
 
 table: proveedores
 record:

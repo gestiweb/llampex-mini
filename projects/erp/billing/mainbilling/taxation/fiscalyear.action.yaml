@@ -2,7 +2,7 @@
 code: fiscalyear
 name: Fiscal Year
 icon: fiscalyear.png # path to icon
-weight: 10
+weight: A.1
 
 table: ejercicios
 record:

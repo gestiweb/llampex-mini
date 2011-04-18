@@ -3,4 +3,6 @@ code: billing
 shortcut: Ctrl+B
 name: Billing
 icon: billing.png
+weight: 1
+description: Manages processes related to warehouse and billing
 

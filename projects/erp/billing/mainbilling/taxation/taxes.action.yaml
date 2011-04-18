@@ -2,7 +2,7 @@
 code: taxes
 name: Taxes
 icon: taxes.png
-weight: 50
+weight: B.1
 
 table: impuestos
 record:

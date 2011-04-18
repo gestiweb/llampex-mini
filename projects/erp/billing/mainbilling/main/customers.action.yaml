@@ -2,7 +2,7 @@
 code: customers
 name: Customers
 icon: customers.png # path to icon
-weight: 40
+weight: B.1
 
 table: clientes
 record:

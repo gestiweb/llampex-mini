@@ -1,5 +1,5 @@
 # encoding: UTF-8
-import os.path
+import os.path, traceback
 import yaml
 
 from PyQt4 import QtGui, QtCore, uic
@@ -28,9 +28,100 @@ class LlampexMainWindow(QtGui.QMainWindow):
         self.setWindowTitle("Llampex Qt4 Client")
         self.projectpath = projectpath
         self.projectfiles = projectfiles
-        prj = projectloader.ProjectLoader(projectpath,projectfiles)
-        prj.load()
+        try:
+            self.prjloader = projectloader.ProjectLoader(projectpath,projectfiles)
+            self.project = self.prjloader.load()
+        except Exception:
+            print traceback.format_exc()
+            print "Some error ocurred when loading your project. Loading default demo."
+            self.load_demo()
+        self.load()
+    
+    def load(self):
+        self.modules = {}
+        for area_code in self.project.area_list:
+            areaobj = self.project.area[area_code]
+            icon = None
+            item = self.mainmenu.addItem(unicode(areaobj.name))
+            item.setDefaultCallback(self.menubutton_clicked)
+            if areaobj.icon:
+                iconfile = areaobj.filedir(areaobj.icon)
+                icon = QtGui.QIcon(iconfile)
+                item.button.setIcon(icon)
+            if areaobj.description:
+                item.button.setDescription(areaobj.description)
+                item.button.setMaximumHeight(64)
+            else:
+                item.button.setMaximumHeight(32)
+                
+            for module_code in areaobj.module_list:
+                moduleobj = areaobj.module[module_code]
+                module_key = "%s.%s" % (areaobj,moduleobj)
+                self.modules[module_key] = moduleobj
+                subitem = item.addItem(unicode(moduleobj.name),module_key)
+                if moduleobj.icon:
+                    iconfile = moduleobj.filedir(moduleobj.icon)
+                    icon = QtGui.QIcon(iconfile)
+                    subitem.setIcon(icon)
+                    
+        self.finish_load()        
+    
+    def finish_load(self):
+        self.addDockWidget(QtCore.Qt.LeftDockWidgetArea,self.mainmenu)
+        self.mdiarea = QtGui.QMdiArea()
+        self.mdiarea.setBackground(QtGui.QBrush())
+        self.mdiarea.setViewMode(QtGui.QMdiArea.TabbedView)
+        self.mdiarea.setDocumentMode(True)
+        self.setCentralWidget(self.mdiarea)
+            
+    
+            
+    def menubutton_clicked(self,key):
+        print "menubutton clicked:", key        
         
+        widget = QtGui.QWidget()
+        widget.layout = QtGui.QVBoxLayout()
+        
+        moduleobj = self.modules[key] 
+
+        for group_code in moduleobj.group_list:
+            groupboxobj = moduleobj.group[group_code]
+            groupbox = llampexgroupbutton.LlampexGroupButton(groupboxobj.name)
+            # TODO: Add actions here.
+            oldweight = None
+            for action_code in groupboxobj.action_list:
+                actionobj = groupboxobj.action[action_code]
+                icon = None
+                if actionobj.icon:
+                    iconfile = actionobj.filedir(actionobj.icon)
+                    icon = QtGui.QIcon(iconfile)
+                try:
+                    if oldweight and actionobj.weight[0] != oldweight[0]:
+                        groupbox.addSeparator()
+                except:
+                    print repr(actionobj.weight)
+                    print repr(oldweight)
+                    raise
+                groupbox.addAction(actionobj.name, action_code, icon)
+                oldweight = actionobj.weight
+
+            groupbox.addSeparator(0)
+            widget.layout.addWidget(groupbox)
+        
+        widget.setLayout(widget.layout)
+        scrollarea = QtGui.QScrollArea()
+        scrollarea.setWidget(widget)
+        scrollarea.setWidgetResizable(True)
+        scrollarea.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        scrollarea.setMinimumWidth(250)
+        
+        subwindow = self.mdiarea.addSubWindow(scrollarea)
+        subwindow.show()
+        subwindow.setWindowTitle(moduleobj.name)
+    
+    
+    def load_demo(self):
+        self.menubutton_clicked = self.menubutton_clicked_demo
         icon_fact = QtGui.QIcon(self.prjdir("facturacion/facturacion/flfacturac.xpm"))
         icon_cont = QtGui.QIcon(self.prjdir("contabilidad/principal/flcontppal.xpm"))
         icon_fppl = QtGui.QIcon(self.prjdir("facturacion/principal/flfactppal.xpm"))
@@ -72,14 +163,11 @@ class LlampexMainWindow(QtGui.QMainWindow):
         item_sist.addItem(u"Configuración")
         item_sist.addItem(u"Datos")
         item_sist.addItem(u"Exportación")
-        self.addDockWidget(QtCore.Qt.LeftDockWidgetArea,self.mainmenu)
-        self.mdiarea = QtGui.QMdiArea()
-        self.mdiarea.setBackground(QtGui.QBrush())
-        self.mdiarea.setViewMode(QtGui.QMdiArea.TabbedView)
-        self.mdiarea.setDocumentMode(True)
-        self.setCentralWidget(self.mdiarea)
-    
-    def menubutton_clicked(self,key):
+        
+        self.finish_load()
+        
+
+    def menubutton_clicked_demo(self,key):
         # print "menubutton clicked:", key
         iconlist = [
             'forms/accessories-dictionary.png',

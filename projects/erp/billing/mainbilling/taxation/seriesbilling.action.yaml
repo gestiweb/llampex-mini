@@ -2,7 +2,7 @@
 code: seriesbilling
 name: Series Billing
 icon: seriesbilling.png # path to icon
-weight: 40
+weight: A.2
 
 table: series
 record:
