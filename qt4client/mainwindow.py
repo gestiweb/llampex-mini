@@ -31,11 +31,11 @@ class LlampexMainWindow(QtGui.QMainWindow):
         try:
             self.prjloader = projectloader.ProjectLoader(projectpath,projectfiles)
             self.project = self.prjloader.load()
+            self.load()
         except Exception:
             print traceback.format_exc()
             print "Some error ocurred when loading your project. Loading default demo."
             self.load_demo()
-        self.load()
     
     def load(self):
         self.modules = {}
