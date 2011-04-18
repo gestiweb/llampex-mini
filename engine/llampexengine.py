@@ -2,6 +2,7 @@
 # encoding: UTF-8
 from optparse import OptionParser
 from database import connect, create_all
+from config import Config
 import engine
 
 global options
@@ -11,12 +12,12 @@ def main():
     global options
     parser = OptionParser()
     parser.set_defaults(
-            dbname = "llampex",
-            dbuser = "llampexuser",
-            dbpasswd = "llampexpasswd",
-            dbhost = "127.0.0.1",
-            dbport = 5432,
-            createtables = False
+            dbname = Config.Database.dbname,
+            dbuser = Config.Database.dbuser,
+            dbpasswd = Config.Database.dbpasswd,
+            dbhost = Config.Database.dbhost,
+            dbport = Config.Database.dbport,
+            createtables = Config.Database.createtables
             )
             
     parser.add_option("--dbname", dest="dbname",

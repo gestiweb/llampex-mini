@@ -2,6 +2,7 @@ import model # import Project, metadata, engine, session
 from model import RowUser, RowProject, RowProjectUser    
 from project_manager import compute_password
 from getpass import getpass
+from config import Config
 import os.path
 
 def connect(dboptions, echo = True):
@@ -24,11 +25,11 @@ def filedir(x): # convierte una ruta relativa a este fichero en absoluta
 
 def main():
     dboptions = {
-            'dbname' : "llampex",
-            'dbuser' : "llampexuser",
-            'dbpasswd' : "llampexpasswd",
-            'dbhost' : "127.0.0.1",
-            'dbport' : 5432
+            'dbname' : Config.Database.dbname,
+            'dbuser' : Config.Database.dbuser,
+            'dbpasswd' : Config.Database.dbpasswd,
+            'dbhost' : Config.Database.dbhost,
+            'dbport' : Config.Database.dbport
             }
     connect(dboptions, echo = False)
     import sys
