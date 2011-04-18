@@ -18,13 +18,17 @@ def filedir(x): # convierte una ruta relativa a este fichero en absoluta
         
 
 class LlampexMainWindow(QtGui.QMainWindow):
-    def __init__(self):
+    def prjdir(self, x):
+        return os.path.join(self.projectpath,x)
+        
+    def __init__(self, projectpath):
         QtGui.QMainWindow.__init__(self)
         self.mainmenu = llampexmainmenu.LlampexDockMainMenu()
         self.setWindowTitle("Llampex Qt4 Client")
-        icon_fact = QtGui.QIcon(filedir(".cache/files/facturacion/facturacion/flfacturac.xpm"))
-        icon_cont = QtGui.QIcon(filedir(".cache/files/contabilidad/principal/flcontppal.xpm"))
-        icon_fppl = QtGui.QIcon(filedir(".cache/files/facturacion/principal/flfactppal.xpm"))
+        self.projectpath = projectpath
+        icon_fact = QtGui.QIcon(self.prjdir("facturacion/facturacion/flfacturac.xpm"))
+        icon_cont = QtGui.QIcon(self.prjdir("contabilidad/principal/flcontppal.xpm"))
+        icon_fppl = QtGui.QIcon(self.prjdir("facturacion/principal/flfactppal.xpm"))
         
         item_favr = self.mainmenu.addItem(u"Favoritos")
         item_favr.setDefaultCallback(self.menubutton_clicked)

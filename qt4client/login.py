@@ -238,6 +238,7 @@ class ProjectSelectionDialog(QtGui.QDialog):
         print "Open", projectname
         project_manager = self.conn.call.connectProject(projectname)
         splashwindow = SplashDialog()
+        splashwindow.prjname = projectname
         splashwindow.prjconn = project_manager
         splashwindow.show()
         self.close()
@@ -256,6 +257,7 @@ class SplashDialog(QtGui.QDialog):
     def __init__(self):
         QtGui.QDialog.__init__(self)
         self.prjconn = None
+        self.prjname = None
         ui_filepath = filedir("forms/splash.ui") # convertimos la ruta a absoluta
         self.ui = uic.loadUi(ui_filepath,self) # Cargamos un fichero UI externo    
         self.ui.version.setText("v%s" % __version__)
@@ -374,7 +376,8 @@ class SplashDialog(QtGui.QDialog):
             self.status_extra = ""
             self.progress_extra = 0
             self.load_mode = "projectdownload"
-            cachedir = filedir(".cache/files")
+            cachedir = filedir(".cache/%s/files" % self.prjname)
+            self.projectpath = cachedir
             try:
                 os.makedirs(cachedir)
             except os.error:
@@ -468,7 +471,7 @@ class SplashDialog(QtGui.QDialog):
             
     def finishLoad(self): 
         global mainwin
-        mainwin = LlampexMainWindow()
+        mainwin = LlampexMainWindow(self.projectpath)
         mainwin.setWindowIcon(llampex_icon)
         mainwin.show()
         self.close()
