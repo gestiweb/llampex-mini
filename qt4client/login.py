@@ -471,7 +471,7 @@ class SplashDialog(QtGui.QDialog):
             
     def finishLoad(self): 
         global mainwin
-        mainwin = LlampexMainWindow(self.projectpath)
+        mainwin = LlampexMainWindow(self.projectpath, self.rprj.files)
         mainwin.setWindowIcon(llampex_icon)
         mainwin.show()
         self.close()

@@ -6,6 +6,7 @@ from PyQt4 import QtGui, QtCore, uic
 
 from widgets import llampexmainmenu, llampexgroupbutton
 
+import projectloader
 
 
 __version__ = "0.0.1"
@@ -21,11 +22,15 @@ class LlampexMainWindow(QtGui.QMainWindow):
     def prjdir(self, x):
         return os.path.join(self.projectpath,x)
         
-    def __init__(self, projectpath):
+    def __init__(self, projectpath, projectfiles):
         QtGui.QMainWindow.__init__(self)
         self.mainmenu = llampexmainmenu.LlampexDockMainMenu()
         self.setWindowTitle("Llampex Qt4 Client")
         self.projectpath = projectpath
+        self.projectfiles = projectfiles
+        prj = projectloader.ProjectLoader(projectpath,projectfiles)
+        prj.load()
+        
         icon_fact = QtGui.QIcon(self.prjdir("facturacion/facturacion/flfacturac.xpm"))
         icon_cont = QtGui.QIcon(self.prjdir("contabilidad/principal/flcontppal.xpm"))
         icon_fppl = QtGui.QIcon(self.prjdir("facturacion/principal/flfactppal.xpm"))
