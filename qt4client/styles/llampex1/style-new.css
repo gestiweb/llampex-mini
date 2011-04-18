@@ -80,11 +80,26 @@ QWidget QToolButton {
     padding: 2px;
     margin: 0;
     color: #fec;
+  /*  border: 0;*/
 }
 
 QWidget QToolButton:hover {
-    color: #420;
+    color: #fff;
 }
+
+QWidget QToolButton[autoRaise="true"] {
+    border: 0;
+    background: transparent;
+}
+QWidget QToolButton[autoRaise="true"]:hover {
+    /*border: 1px;*/
+    background: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:1 rgba(255, 230, 220, 40), stop:0 rgba(255, 210, 200, 30));
+}
+QWidget QToolButton[autoRaise="true"]:open {
+    border-color:  rgba(185, 120, 90, 255);
+    background: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:1 rgba(155, 100, 0, 55), stop:0 rgba(255, 255, 255, 100));
+}
+
 
 QListWidget, QDialog, QLabel, QCheckBox, QAbstractButton, QLineEdit, QFrame, QGroupBox {
     border: 2px solid rgba(120, 70, 53, 100);

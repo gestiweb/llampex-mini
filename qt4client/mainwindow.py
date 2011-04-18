@@ -57,12 +57,13 @@ class LlampexMainWindow(QtGui.QMainWindow):
             for module_code in areaobj.module_list:
                 moduleobj = areaobj.module[module_code]
                 module_key = "%s.%s" % (areaobj,moduleobj)
-                self.modules[module_key] = moduleobj
                 subitem = item.addItem(unicode(moduleobj.name),module_key)
+                icon = None
                 if moduleobj.icon:
                     iconfile = moduleobj.filedir(moduleobj.icon)
                     icon = QtGui.QIcon(iconfile)
                     subitem.setIcon(icon)
+                self.modules[module_key] = (icon, moduleobj)
                     
         self.finish_load()        
     
@@ -77,17 +78,24 @@ class LlampexMainWindow(QtGui.QMainWindow):
     
             
     def menubutton_clicked(self,key):
-        print "menubutton clicked:", key        
-        
+        #print "menubutton clicked:", key        
+
         widget = QtGui.QWidget()
         widget.layout = QtGui.QVBoxLayout()
         
-        moduleobj = self.modules[key] 
+        scrollarea = QtGui.QScrollArea()
+        scrollarea.setWidget(widget)
+        scrollarea.setWidgetResizable(True)
+        scrollarea.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        scrollarea.setMinimumWidth(250)
+        subwindow = self.mdiarea.addSubWindow(scrollarea)
+        
+        moduleicon, moduleobj = self.modules[key] 
+        self.actions = {}
 
         for group_code in moduleobj.group_list:
             groupboxobj = moduleobj.group[group_code]
             groupbox = llampexgroupbutton.LlampexGroupButton(groupboxobj.name)
-            # TODO: Add actions here.
             oldweight = None
             for action_code in groupboxobj.action_list:
                 actionobj = groupboxobj.action[action_code]
@@ -102,23 +110,42 @@ class LlampexMainWindow(QtGui.QMainWindow):
                     print repr(actionobj.weight)
                     print repr(oldweight)
                     raise
-                groupbox.addAction(actionobj.name, action_code, icon)
+                action_key = "%s.%s" % (key,action_code)
+                self.actions[action_key] = (subwindow,icon, actionobj)
+                groupbox.addAction(actionobj.name, action_key, icon, self.actionbutton_clicked)
                 oldweight = actionobj.weight
 
             groupbox.addSeparator(0)
             widget.layout.addWidget(groupbox)
         
         widget.setLayout(widget.layout)
+        
+        subwindow.show()
+        subwindow.setWindowTitle(moduleobj.name)
+        subwindow.setWindowIcon(moduleicon)
+    
+    def actionbutton_clicked(self, key):
+        print "action clicked", key
+        subwindow, icon, actionobj = self.actions[key]
+        
+        subwindow.close()
+        
+        widget = QtGui.QWidget()
+        widget.layout = QtGui.QVBoxLayout()
+        
         scrollarea = QtGui.QScrollArea()
         scrollarea.setWidget(widget)
         scrollarea.setWidgetResizable(True)
         scrollarea.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         scrollarea.setMinimumWidth(250)
-        
         subwindow = self.mdiarea.addSubWindow(scrollarea)
+        widget.setLayout(widget.layout)
+        
         subwindow.show()
-        subwindow.setWindowTitle(moduleobj.name)
-    
+        subwindow.setWindowTitle(actionobj.name)
+        subwindow.setWindowIcon(icon)
+        
+        
     
     def load_demo(self):
         self.menubutton_clicked = self.menubutton_clicked_demo

@@ -45,10 +45,10 @@ class LlampexGroupButton(QtGui.QGroupBox):
         self.ncontrol = 0
         self.controlwidth = 3
     
-    def addAction(self, text, key, icon):
+    def addAction(self, text, key, icon, fn = None):
         x = int(self.ncontrol % self.controlwidth)
         y = int((self.ncontrol - x) / self.controlwidth)
-        button = LlampexActionButton(text, key, icon)
+        button = LlampexActionButton(text, key, icon, fn)
         self.ncontrol +=1
         self.layout.addWidget(button,y,x)
         
