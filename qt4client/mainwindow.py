@@ -28,7 +28,7 @@ class LlampexMdiSubWindow(QtGui.QMdiSubWindow):
         self.windowdict[self.windowkey] = self
         self.setWidget(widget)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        #print "Opened", self.windowkey
+        self.widget = widget
     
     @classmethod
     def close_window(cls,key):
@@ -36,16 +36,13 @@ class LlampexMdiSubWindow(QtGui.QMdiSubWindow):
             self = cls.windowdict[key]
             self.close()
     
-    def close(self):
+    def closeEvent(self,event):
         #print "Closing", self.windowkey
-        if self.windowkey in self.windowdict:
-            del self.windowdict[self.windowkey]
         try:
-            QtGui.QMdiSubWindow.close(self)
-        except RuntimeError, e:
-            print repr(e)
-            pass
-        return True
+            if self.windowkey in self.windowdict:
+                del self.windowdict[self.windowkey]
+        finally:
+            event.accept()
         
 class LlampexMasterForm(QtGui.QWidget):        
     def __init__(self, windowkey, actionobj):
@@ -54,7 +51,6 @@ class LlampexMasterForm(QtGui.QWidget):
         self.actionobj = actionobj
         try:
             ui_filepath = self.actionobj.filedir(self.actionobj.master["form"])
-            print ui_filepath
             self.ui = uic.loadUi(ui_filepath,self)
         except Exception:
             self.layout = QtGui.QVBoxLayout()
@@ -186,6 +182,7 @@ class LlampexMainWindow(QtGui.QMainWindow):
         subwindow.setWindowTitle(moduleobj.name)
         subwindow.setWindowIcon(moduleicon)
         self.mdiarea.setActiveSubWindow(subwindow)
+        subwindow.setWindowState(QtCore.Qt.WindowMaximized)
     
     def actionbutton_clicked(self, key):
         print "action clicked", key
@@ -194,7 +191,7 @@ class LlampexMainWindow(QtGui.QMainWindow):
             subwindow = self.modulesubwindow[subwindowkey]
             subwindow.close()
             del self.modulesubwindow[subwindowkey]
-        
+         
         
         widget = LlampexMasterForm(key,actionobj)
         
@@ -207,11 +204,11 @@ class LlampexMainWindow(QtGui.QMainWindow):
         subwindow = LlampexMdiSubWindow(key,scrollarea)
         self.mdiarea.addSubWindow(subwindow)
         
-        subwindow.show()
         subwindow.setWindowTitle(actionobj.name)
         subwindow.setWindowIcon(icon)
+        subwindow.show()
         self.mdiarea.setActiveSubWindow(subwindow)
-        
+        subwindow.setWindowState(QtCore.Qt.WindowMaximized)
         
     
     def load_demo(self):
