@@ -1,0 +1,16 @@
+!LlampexAction
+code: rates
+name: Rates
+icon: icons/rates.png # path to icon
+weight: B.3
+
+table: tarifas
+record:
+    script: tarifas
+    form: tarifas
+master:
+    script: mastertarifas
+    form: master/forms/masterprint.ui
+
+description: "Las tarifas son variaciones positivas o negativas, porcentuales o lineales, que se aplican al precio base de los artículos"
+

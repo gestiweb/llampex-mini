@@ -1,0 +1,16 @@
+!LlampexAction
+code: stockstrans
+name: Stocks Transfers
+icon: icons/stocktrans.png # path to icon
+weight: B.5
+
+table: transstock
+record:
+    script: transstock
+    form: transstock
+master:
+    script: mastertransstock
+    form: master/forms/masterprint.ui
+
+description: "Las transferencias reflejan el cambio de material de un almacén a otro."
+

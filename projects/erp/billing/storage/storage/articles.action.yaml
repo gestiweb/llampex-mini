@@ -1,0 +1,16 @@
+!LlampexAction
+code: articles
+name: Articles
+icon: icons/articles.png # path to icon
+weight: B.1
+
+table: articulos
+record:
+    script: articulos
+    form: articulos
+master:
+    script: masterarticulos
+    form: master/forms/masterprint.ui
+
+description: "Los artículos soportan información completa de precios de venta y compra por proveedor, precios por cliente y por tarifa y control de stocks"
+

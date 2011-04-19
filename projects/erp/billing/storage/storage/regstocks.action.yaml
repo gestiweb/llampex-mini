@@ -1,0 +1,16 @@
+!LlampexAction
+code: regstocks
+name: Stocks Regularization
+icon: icons/regstocks.png # path to icon
+weight: B.6
+
+table: stocks
+record:
+    script: regstocks
+    form: regstocks
+master:
+    script: masterregstocks
+    form: master/forms/masterprint.ui
+
+description: "La regularización de stocks permite realizar ajustes sobre las cantidades de stocks de los artículos"
+
