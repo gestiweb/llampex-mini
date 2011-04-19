@@ -1,7 +1,7 @@
 !LlampexAction
 code: paymenttypes
 name: Payment Types
-icon: paymenttypes.png # path to icon
+icon: icons/paymenttypes.png # path to icon
 weight: P.3
 
 table: tipospago

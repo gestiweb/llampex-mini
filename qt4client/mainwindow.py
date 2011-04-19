@@ -16,6 +16,32 @@ def filedir(x): # convierte una ruta relativa a este fichero en absoluta
     if os.path.isabs(x): return x
     else: return os.path.join(filepath(),x)
 
+class LlampexMdiSubWindow(QtGui.QMdiSubWindow):
+    windowdict = {}
+    def __init__(self, windowkey, widget):
+        QtGui.QMdiSubWindow.__init__(self)
+        self.windowkey = windowkey
+        if self.windowkey in self.windowdict:
+            print "!Window %s already opened, closing prior to creating it again." % self.windowkey
+            self.windowdict[self.windowkey].close()
+            
+        self.windowdict[self.windowkey] = self
+        self.setWidget(widget)
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        #print "Opened", self.windowkey
+    
+    @classmethod
+    def close_window(cls,key):
+        if key in cls.windowdict:
+            self = cls.windowdict[key]
+            self.close()
+    
+    def close(self):
+        #print "Closing", self.windowkey
+        if self.windowkey in self.windowdict:
+            del self.windowdict[self.windowkey]
+        return QtGui.QMdiSubWindow.close(self)
+        
         
 
 class LlampexMainWindow(QtGui.QMainWindow):
@@ -56,7 +82,7 @@ class LlampexMainWindow(QtGui.QMainWindow):
                 
             for module_code in areaobj.module_list:
                 moduleobj = areaobj.module[module_code]
-                module_key = "%s.%s" % (areaobj,moduleobj)
+                module_key = "%s.%s" % (areaobj.code,moduleobj.code)
                 subitem = item.addItem(unicode(moduleobj.name),module_key)
                 icon = None
                 if moduleobj.icon:
@@ -64,6 +90,7 @@ class LlampexMainWindow(QtGui.QMainWindow):
                     icon = QtGui.QIcon(iconfile)
                     subitem.setIcon(icon)
                 self.modules[module_key] = (icon, moduleobj)
+        self.modulesubwindow = {}
                     
         self.finish_load()        
     
@@ -78,8 +105,14 @@ class LlampexMainWindow(QtGui.QMainWindow):
     
             
     def menubutton_clicked(self,key):
-        #print "menubutton clicked:", key        
-
+        #print "menubutton clicked:", key      
+        LlampexMdiSubWindow.close_window(key)  
+        """
+        if key in self.modulesubwindow:
+            subwindow = self.modulesubwindow[key]
+            subwindow.close()
+            del self.modulesubwindow[key]
+        """
         widget = QtGui.QWidget()
         widget.layout = QtGui.QVBoxLayout()
         
@@ -88,10 +121,12 @@ class LlampexMainWindow(QtGui.QMainWindow):
         scrollarea.setWidgetResizable(True)
         scrollarea.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         scrollarea.setMinimumWidth(250)
-        subwindow = self.mdiarea.addSubWindow(scrollarea)
+        subwindow = LlampexMdiSubWindow(key,scrollarea)
+        self.mdiarea.addSubWindow(subwindow)
         
         moduleicon, moduleobj = self.modules[key] 
         self.actions = {}
+        self.modulesubwindow[key] = subwindow
 
         for group_code in moduleobj.group_list:
             groupboxobj = moduleobj.group[group_code]
@@ -111,7 +146,7 @@ class LlampexMainWindow(QtGui.QMainWindow):
                     print repr(oldweight)
                     raise
                 action_key = "%s.%s" % (key,action_code)
-                self.actions[action_key] = (subwindow,icon, actionobj)
+                self.actions[action_key] = (key,icon, actionobj)
                 groupbox.addAction(actionobj.name, action_key, icon, self.actionbutton_clicked)
                 oldweight = actionobj.weight
 
@@ -123,12 +158,16 @@ class LlampexMainWindow(QtGui.QMainWindow):
         subwindow.show()
         subwindow.setWindowTitle(moduleobj.name)
         subwindow.setWindowIcon(moduleicon)
+        self.mdiarea.setActiveSubWindow(subwindow)
     
     def actionbutton_clicked(self, key):
         print "action clicked", key
-        subwindow, icon, actionobj = self.actions[key]
+        subwindowkey, icon, actionobj = self.actions[key]
+        if subwindowkey in self.modulesubwindow:
+            subwindow = self.modulesubwindow[subwindowkey]
+            subwindow.close()
+            del self.modulesubwindow[subwindowkey]
         
-        subwindow.close()
         
         widget = QtGui.QWidget()
         widget.layout = QtGui.QVBoxLayout()
@@ -138,12 +177,14 @@ class LlampexMainWindow(QtGui.QMainWindow):
         scrollarea.setWidgetResizable(True)
         scrollarea.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         scrollarea.setMinimumWidth(250)
-        subwindow = self.mdiarea.addSubWindow(scrollarea)
-        widget.setLayout(widget.layout)
+        
+        subwindow = LlampexMdiSubWindow(key,scrollarea)
+        self.mdiarea.addSubWindow(subwindow)
         
         subwindow.show()
         subwindow.setWindowTitle(actionobj.name)
         subwindow.setWindowIcon(icon)
+        self.mdiarea.setActiveSubWindow(subwindow)
         
         
     

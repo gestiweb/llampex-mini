@@ -1,7 +1,7 @@
 !LlampexAction
 code: paymentmethods
 name: Payment Methods
-icon: paymentmethods.png # path to icon
+icon: icons/paymentmethods.png # path to icon
 weight: P.4
 
 table: formaspago

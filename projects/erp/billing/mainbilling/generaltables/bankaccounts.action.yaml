@@ -1,7 +1,7 @@
 !LlampexAction
 code: banksaccounts
 name: Bank Accounts
-icon: bankaccounts.png # path to icon
+icon: icons/bankaccounts.png # path to icon
 weight: B.1
 
 table: couentasbancarias

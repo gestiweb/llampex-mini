@@ -1,7 +1,7 @@
 !LlampexAction
 code: departments
 name: Departments
-icon: departments.png # path to icon
+icon: icons/departments.png # path to icon
 weight: U.6
 
 table: departamentos

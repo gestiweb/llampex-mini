@@ -1,7 +1,7 @@
 !LlampexAction
 code: rappeltypes
 name: Types of rappel
-icon: rappeltypes.png # path to icon
+icon: icons/rappeltypes.png # path to icon
 weight: P.9
 
 table: rappel

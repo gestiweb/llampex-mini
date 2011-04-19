@@ -1,7 +1,7 @@
 !LlampexAction
 code: transportagencies
 name: Transport Agencies
-icon: transportagencies.png
+icon: icons/transportagencies.png
 weight: Z.1
 
 table: agenciastransporte

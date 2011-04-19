@@ -1,7 +1,7 @@
 !LlampexAction
 code: users
 name: Users
-icon: users.png
+icon: icons/users.png
 weight: U.7
 
 table: usuarios

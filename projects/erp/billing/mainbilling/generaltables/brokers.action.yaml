@@ -1,7 +1,7 @@
 !LlampexAction
 code: brokers
 name: Brokers
-icon: brokers.png # path to icon
+icon: icons/brokers.png # path to icon
 weight: U.1
 
 table: agentes
