@@ -67,6 +67,22 @@ def do_adduser(username = None, password = None):
     model.session.commit()
     print "Username %s added. To change the password use 'passwd' command" % (
         repr(user1.username))
+    
+def do_deluser(username = None):
+    if username is None:
+        username = raw_input("Please give an username: ")
+    if not username: return
+    user1 = model.session.query(RowUser).filter(RowUser.username == username).first()
+    if user1 is None:
+        print "No user found with that name. Giving up."
+        return
+    verify = raw_input("Are you sure you want to delete the user "+repr(user1.username)+"? [Yes|No]: ")
+    if verify != "Yes":
+        print "Giving up."
+        return
+    model.session.delete(user1) #TODO deberia eliminarse en cascada
+    model.session.commit()
+    print "Username %s deleted." % (repr(user1.username))
 
 def do_passwd(username = None, newpassword = None):
     if username is None:
@@ -118,8 +134,104 @@ def do_addprojectuser(username = None, project = None):
     projectuser1.user = user1
     model.session.add(projectuser1)
     model.session.commit()
-    print "User %s added to the project %s" % (username,project)   
+    print "User %s added to the project %s" % (username,project)
+    
+def do_delprojectuser(username = None, project = None):
+    if username is None:
+        username = raw_input("Please give an username: ")
+    if not username: return
+    user1 = model.session.query(RowUser).filter(RowUser.username == username).first()
+    if user1 is None:
+        print "No user found with that name. Giving up."
+        return
+    
+    if project is None:
+        do_lsproject()
+        project = raw_input("Give a project code: ")
+    if not project: return
+    project1 = model.session.query(RowProject).filter(RowProject.code == project).first()
+    if project1 is None:
+        print "No project found with that name. Giving up."
+        return
+    
+    userproject1 = model.session.query(RowProjectUser).filter(RowProjectUser.project_id == project1.id).filter(RowProjectUser.user_id == user1.id).first()
+    
+    if userproject1 is None:
+        print "No user and project relation found with that name. Giving up."
+        return
+    
+    verify = raw_input("Are you sure you want to delete this user-project relation? [Yes|No]: ")
+    if verify != "Yes":
+        print "Giving up."
+        return
+    model.session.delete(userproject1)
+    model.session.commit()
+    print "User-project relation deleted."
+    
+    
+def do_addproject(code = None, description = None, db = None, path = None, host = None, port = None, user = None, password = None, active = None):
+    if code is None:
+        code = raw_input("Please give a code: ")
+    if not code: return
+    if model.session.query(RowProject).filter(RowProject.code == code).first():
+        print "This project already exists. Giving up."
+        return
+    if description is None:
+        description = raw_input("Please give a description: ")
+    if db is None:
+        db = raw_input("Please give a database: ")
+    if not db: return
+    if path is None:
+        path = raw_input("Please give a path: ")
+    if not path: return
+    if host is None:
+        host = raw_input("Please give a host: ")
+    if not host: host = "127.0.0.1" # default is localhost
+    if port is None:
+        port = raw_input("Please give a port: ")
+    if not port: port = "5432" # default is 5432
+    if user is None:
+        user = raw_input("Please give a user: ")
+    if not user: user = "llampexuser" # default
+    if password is None:
+        password = raw_input("Please give a password: ")
+    if not password: password = "llampexpasswd" # default
+    if active is None:
+        active = raw_input("Project is actived? [True|False]: ")
+    if active != "False":
+        active = "True" # default is true
         
+    project1 = RowProject()
+    project1.code = code
+    project1.description = description
+    project1.db = db
+    project1.path = path
+    project1.host = host
+    project1.port = port
+    project1.user = user
+    project1.password = password
+    project1.active = active
+    
+    model.session.add(project1)
+    model.session.commit()
+    print "Project %s added." % (repr(project1.code))
+    
+def do_delproject(code = None):
+    if code is None:
+        code = raw_input("Please give a code: ")
+    if not code: return
+    project1 = model.session.query(RowProject).filter(RowProject.code == code).first()
+    if project1 is None:
+        print "No project found with that name. Giving up."
+        return
+    verify = raw_input("Are you sure you want to delete the project "+repr(project1.code)+"? [Yes|No]: ")
+    if verify != "Yes":
+        print "Giving up."
+        return
+    model.session.delete(project1) #TODO deberia eliminarse en cascada
+    model.session.commit()
+    print "Project %s deleted." % (repr(project1.code))
+
 
 def create_all():
     model.Base.metadata.create_all()
