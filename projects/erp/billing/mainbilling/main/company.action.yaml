@@ -10,7 +10,7 @@ record:
     form: empresa
 master:
     script: masterempresa
-    form: masterempresa
+    form: master/forms/masterbase.ui
 
 description: "La gestión de la empresa..."
 
