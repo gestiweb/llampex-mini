@@ -189,6 +189,6 @@ class LlampexAction(LlampexBaseFile):
         self.require_attribute("record")
         self.require_attribute("master")
         self.require_attribute("description")
-        
+
         
         
