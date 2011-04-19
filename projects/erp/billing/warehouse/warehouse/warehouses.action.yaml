@@ -1,8 +1,8 @@
 !LlampexAction
-code: stores
-name: Stores
-icon: icons/stores.png # path to icon
-weight: B.4
+code: warehouses
+name: Warehouses
+icon: icons/warehouses.png # path to icon
+weight: B.1
 
 table: almacenes
 record:

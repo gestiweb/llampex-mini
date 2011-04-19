@@ -2,7 +2,7 @@
 code: families
 name: Families
 icon: icons/families.png # path to icon
-weight: B.2
+weight: A.2
 
 table: familias
 record:

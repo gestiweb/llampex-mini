@@ -1,8 +1,8 @@
 !LlampexAction
-code: articles
-name: Articles
-icon: icons/articles.png # path to icon
-weight: B.1
+code: items
+name: Items
+icon: icons/items.png # path to icon
+weight: A.1
 
 table: articulos
 record:

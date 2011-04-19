@@ -2,7 +2,7 @@
 code: stockstrans
 name: Stocks Transfers
 icon: icons/stocktrans.png # path to icon
-weight: B.5
+weight: B.4
 
 table: transstock
 record:

@@ -2,7 +2,7 @@
 code: rates
 name: Rates
 icon: icons/rates.png # path to icon
-weight: B.3
+weight: A.3
 
 table: tarifas
 record:

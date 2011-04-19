@@ -1,6 +1,0 @@
-!LlampexModule
-version: v0.1 # module version
-code: storage
-name: Storage
-icon: storage.png
-weight: B
