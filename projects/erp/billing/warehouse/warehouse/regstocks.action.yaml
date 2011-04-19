@@ -2,7 +2,7 @@
 code: regstocks
 name: Stocks Regularization
 icon: icons/regstocks.png # path to icon
-weight: B.6
+weight: B.2
 
 table: stocks
 record:

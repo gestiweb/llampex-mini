@@ -2,7 +2,7 @@
 code: subfamilies
 name: SubFamilies
 icon: icons/subfamilies.png # path to icon
-weight: B.5
+weight: B.3
 
 table: subfamilias
 record:
