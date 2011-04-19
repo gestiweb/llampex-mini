@@ -40,8 +40,35 @@ class LlampexMdiSubWindow(QtGui.QMdiSubWindow):
         #print "Closing", self.windowkey
         if self.windowkey in self.windowdict:
             del self.windowdict[self.windowkey]
-        return QtGui.QMdiSubWindow.close(self)
+        try:
+            QtGui.QMdiSubWindow.close(self)
+        except RuntimeError, e:
+            print repr(e)
+            pass
+        return True
         
+class LlampexMasterForm(QtGui.QWidget):        
+    def __init__(self, windowkey, actionobj):
+        QtGui.QWidget.__init__(self)
+        self.windowkey = windowkey
+        self.actionobj = actionobj
+        try:
+            ui_filepath = self.actionobj.filedir(self.actionobj.master["form"])
+            print ui_filepath
+            self.ui = uic.loadUi(ui_filepath,self)
+        except Exception:
+            self.layout = QtGui.QVBoxLayout()
+            self.layout.addStretch()
+            
+            label = QtGui.QLabel("FATAL: An error ocurred trying to load the master form:")
+            self.layout.addWidget(label)
+            text = QtGui.QTextBrowser()
+            text.setText(traceback.format_exc())
+            self.layout.addWidget(text)
+
+            self.layout.addStretch()
+            self.setLayout(self.layout)
+            
         
 
 class LlampexMainWindow(QtGui.QMainWindow):
@@ -169,8 +196,7 @@ class LlampexMainWindow(QtGui.QMainWindow):
             del self.modulesubwindow[subwindowkey]
         
         
-        widget = QtGui.QWidget()
-        widget.layout = QtGui.QVBoxLayout()
+        widget = LlampexMasterForm(key,actionobj)
         
         scrollarea = QtGui.QScrollArea()
         scrollarea.setWidget(widget)
