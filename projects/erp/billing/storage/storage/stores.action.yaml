@@ -1,0 +1,16 @@
+!LlampexAction
+code: stores
+name: Stores
+icon: icons/stores.png # path to icon
+weight: B.4
+
+table: almacenes
+record:
+    script: almacenes
+    form: almacenes
+master:
+    script: almacenes
+    form: master/forms/masterprint.ui
+
+description: "Los almacenes se registran con datos de dirección y contacto"
+

@@ -1,0 +1,16 @@
+!LlampexAction
+code: families
+name: Families
+icon: icons/families.png # path to icon
+weight: B.2
+
+table: familias
+record:
+    script: familias
+    form: familias
+master:
+    script: familias
+    form: master/forms/masterprint.ui
+
+description: "Las familias de artículos permiten agrupar artículos por determinados criterios comunes"
+

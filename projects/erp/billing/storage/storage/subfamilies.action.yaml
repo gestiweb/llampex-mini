@@ -1,0 +1,16 @@
+!LlampexAction
+code: subfamilies
+name: SubFamilies
+icon: icons/subfamilies.png # path to icon
+weight: B.5
+
+table: subfamilias
+record:
+    script: subfamilias
+    form: subfamilias
+master:
+    script: subfamilias
+    form: master/forms/masterprint.ui
+
+description: "Subfamilias, varias subfamilias se agrupan en una familia"
+
