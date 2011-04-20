@@ -4,6 +4,7 @@ from project_manager import compute_password
 from getpass import getpass
 from config import Config
 import os.path
+import yaml 
 
 def connect(dboptions, echo = True):
     from sqlalchemy import create_engine
@@ -99,11 +100,20 @@ def do_passwd(username = None, newpassword = None):
     model.session.commit()
     print "Password changed."
 
-def do_lsproject():
-    print "Project List:"
-    for p in model.session.query(RowProject):
-        print "-", p.code,":", p
-
+def do_lsproject(project = None):
+    if project is None: # list projects
+        print "Project List:"
+        for p in model.session.query(RowProject):
+            print "-", p.code,":", p
+    else:
+        project1 = model.session.query(RowProject).filter(RowProject.code == project).first()
+        if project1 is None:
+            print "No project found with that name. Giving up."
+            return        
+        for k in "id,code,description,db,path,host,port,user,password,active".split(","):
+            print "- %s:" % k, repr(getattr(project1,k,None))
+        print
+          
 def do_lsuser():
     print "User List:"
     for u in model.session.query(RowUser):
@@ -123,7 +133,7 @@ def do_addprojectuser(username = None, project = None):
     if not project: return
     project1 = model.session.query(RowProject).filter(RowProject.code == project).first()
     if project1 is None:
-        print "No user found with that name. Giving up."
+        print "No project found with that name. Giving up."
         return        
     projectuser1 = model.session.query(RowProjectUser).filter(RowProjectUser.user == user1).filter(RowProjectUser.project == project1).first()
     if projectuser1 is not None:
