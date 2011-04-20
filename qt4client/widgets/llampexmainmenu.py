@@ -36,7 +36,8 @@ class LlampexMainMenuItemList(QtGui.QFrame):
         llampex_item.setMinimumHeight(36)
         llampex_item.setMaximumHeight(36)
         self.llampex_items.append(llampex_item)
-        self.llampex_layout.insertWidget(self.llampex_layout.count()-1,llampex_item,1)
+        self.llampex_layout.addWidget(llampex_item)
+        #self.llampex_layout.insertWidget(self.llampex_layout.count()-1,llampex_item,1)
         return llampex_item
         
     addItem = llampex_addItem
