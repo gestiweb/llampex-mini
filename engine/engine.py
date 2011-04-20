@@ -18,7 +18,7 @@ class ServerHandler(BaseHandler):
     def getAvailableProjects(self):
         if self.username is None: raise ServerError, "LoginInvalidError"
         projectlist = []
-        projectrows = model.session.query(RowProject).filter(RowProject.active == True).filter(RowProjectUser.user_id == self.user.id).order_by(RowProject.code)
+        projectrows = model.session.query(RowProject).filter(RowProject.active == True).filter(RowProject.id.in_(model.session.query(RowProjectUser.project_id).filter(RowProjectUser.user_id == self.user.id))).order_by(RowProject.code)
         for rowproject in projectrows:
             projectrow = {
                 'code' : rowproject.code,
