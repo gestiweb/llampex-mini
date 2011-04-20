@@ -10,7 +10,7 @@ record:
     form: ejercicios
 master:
     script: masterempresa
-    form: master/forms/masterprint.ui
+    form: /generic/master/forms/masterprint.ui
 
 description: "Ejercicios fiscales"
 
