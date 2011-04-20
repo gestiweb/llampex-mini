@@ -1,0 +1,30 @@
+!LlampexTable
+code: customers
+name: Customers
+
+fields:
+	codcliente:
+		alias: "Código Cliente"
+		type: vchar(6)
+		pk: true
+		null: false
+		relations:[] #TODO Add relatios
+	nombre:
+		alias: Nombre
+		type : vchar(100)
+		pk: false
+		null: false
+	cifnif:
+		alias: "C.I.F./N.I.F."
+		type: vchar(20)
+		pk: false
+		null: false
+	telefono1:
+		alias: "Teléfono 1"
+		type: vchar(30)
+		pk: false
+		null: true
+	debaja:
+		alias: "De baja"
+		type: bool
+		pk: false
