@@ -9,8 +9,8 @@ record:
     script: regstocks
     form: regstocks
 master:
-    script: masterregstocks
-    form: master/forms/masterprint.ui
+    script: /generic/master/scripts/masterbasic
+    form: /generic/master/forms/masterprint.ui
 
 description: "La regularización de stocks permite realizar ajustes sobre las cantidades de stocks de los artículos"
 

@@ -9,7 +9,7 @@ record:
     script: impuestos
     form: impuestos
 master:
-    script: masterproveedores
+    script: /generic/master/scripts/masterbasic
     form: /generic/master/forms/mastercopy.ui
 
 description: "La gestión de proveedores (...)"

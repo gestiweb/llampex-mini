@@ -9,8 +9,8 @@ record:
     script: subfamilias
     form: subfamilias
 master:
-    script: subfamilias
-    form: master/forms/masterprint.ui
+    script: /generic/master/scripts/masterbasic
+    form: /generic/master/forms/masterprint.ui
 
 description: "Subfamilias, varias subfamilias se agrupan en una familia"
 

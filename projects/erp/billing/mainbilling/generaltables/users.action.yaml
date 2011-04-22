@@ -9,7 +9,6 @@ record:
     script: impuestos
     form: impuestos
 master:
-    script: masterproveedores
     form: masterproveedores
 
 description: "La gestión de proveedores (...)"

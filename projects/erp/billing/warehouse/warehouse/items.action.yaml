@@ -9,8 +9,8 @@ record:
     script: articulos
     form: articulos
 master:
-    script: masterarticulos
-    form: master/forms/masterprint.ui
+    script: /generic/master/scripts/masterbasic
+    form: /generic/master/forms/masterprint.ui
 
 description: "Los artículos soportan información completa de precios de venta y compra por proveedor, precios por cliente y por tarifa y control de stocks"
 

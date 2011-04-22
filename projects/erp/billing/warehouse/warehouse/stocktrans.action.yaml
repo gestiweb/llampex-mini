@@ -9,8 +9,8 @@ record:
     script: transstock
     form: transstock
 master:
-    script: mastertransstock
-    form: master/forms/masterprint.ui
+    script: /generic/master/scripts/masterbasic
+    form: /generic/master/forms/masterprint.ui
 
 description: "Las transferencias reflejan el cambio de material de un almacén a otro."
 

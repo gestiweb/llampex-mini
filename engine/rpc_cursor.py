@@ -1,6 +1,13 @@
 # encoding: UTF-8
-import psycopg2
 import threading
+# UNICODE HANDLING:
+#  In Python 2, if you want to receive uniformly all your database input in 
+#  Unicode, you can register the related typecasters globally as soon as 
+#  Psycopg is imported:
+import psycopg2
+import psycopg2.extensions
+psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
+psycopg2.extensions.register_type(psycopg2.extensions.UNICODEARRAY)
 
 from bjsonrpc.exceptions import ServerError
 from bjsonrpc.handlers import BaseHandler
@@ -9,8 +16,11 @@ def withrlock(function):
     def lockfn(self,*args,**kwargs):
         if self.cur is None: raise ServerError, "Cursor not Open!"
         self.rlock.acquire()
-        function(*args,**kwargs)
+        ret = function(self,*args,**kwargs)
         self.rlock.release()
+        return ret
+
+    lockfn.__name__ = function.__name__
     return lockfn
         
 
@@ -26,6 +36,12 @@ class RPCCursor(BaseHandler):
     def description(self):
         "Returns field properties"
         return self.cur.description
+
+    @withrlock    
+    def fields(self):
+        "Returns field list"
+        fields = [l[0] for l in self.cur.description]
+        return fields
     
     @withrlock    
     def commit(self):
@@ -43,6 +59,7 @@ class RPCCursor(BaseHandler):
         self.cur.close()
         self.pm.cursors.remove(self)
         self.cur = None
+        BaseHandler.close(self)
         
     @withrlock    
     def execute(self, sql, params = None):

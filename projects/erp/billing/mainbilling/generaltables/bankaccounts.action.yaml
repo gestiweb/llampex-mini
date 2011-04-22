@@ -9,7 +9,7 @@ record:
     script: ejercicios
     form: ejercicios
 master:
-    script: :module:/master/script/bankaccounts
+    script: /generic/master/scripts/masterbasic
     form: /generic/master/forms/masterbase.ui
 
 description: "Ejercicios fiscales"

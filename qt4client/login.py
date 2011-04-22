@@ -6,11 +6,28 @@ import time, threading, traceback
 import yaml, hashlib, bz2, zlib
 from base64 import b64decode, b64encode
 
-from PyQt4 import QtGui, QtCore, uic
+try:
+    from PyQt4 import QtGui, QtCore, uic
+except ImportError:
+    print "ERROR: Unable to import PyQt4 (Qt4 for Python)."
+    print " * * * Please install PyQt4 / python-qt4 package * * *"    
+    sys.exit(1)
 
-import bjsonrpc
+try:
+    import bjsonrpc
+except ImportError:
+    print "ERROR: Unable to import bjsonrpc (bidirectional JSON-RPC protocol)."
+    print " * * * Please install bjsonrpc package * * *"    
+    sys.exit(1)
+
 from bjsonrpc.exceptions import ServerError
-
+bjsonrpc_required_release = '0.2.0'
+try:
+    assert(bjsonrpc.__release__ >= bjsonrpc_required_release)
+except AssertionError:
+    print "ERROR: bjsonrpc release is %s , and llampex mini qt4client requires at least %s" % (bjsonrpc.__release__, bjsonrpc_required_release)
+    print " * * * Please Upgrade BJSONRPC * * * "
+    sys.exit(1)
 from mainwindow import LlampexMainWindow
 from widgets import llampexmainmenu 
 
@@ -471,7 +488,7 @@ class SplashDialog(QtGui.QDialog):
             
     def finishLoad(self): 
         global mainwin
-        mainwin = LlampexMainWindow(self.projectpath, self.rprj.files)
+        mainwin = LlampexMainWindow(self.projectpath, self.rprj.files,self.prjconn)
         mainwin.setWindowIcon(llampex_icon)
         mainwin.show()
         self.close()
