@@ -8,6 +8,8 @@ import os , os.path, bz2, zlib
 from bjsonrpc.exceptions import ServerError
 from bjsonrpc.handlers import BaseHandler
 from base64 import b64encode, b64decode
+import rpc_cursor
+
 verbose = False
 b64digest_filecache = {}
 b64digest_namecache = {}
@@ -173,7 +175,6 @@ class ProjectManager(BaseHandler):
         self.rpc = rpc
         self.cachehashsize = 4
         self.cachehashoffset = 0
-        self.cur = self.conn.cursor()
         self.filelist = {}
         #self.filehash = {}
         #self.filecache = {}
@@ -182,9 +183,13 @@ class ProjectManager(BaseHandler):
         self.is_loaded = False
         self.load_thread = threading.Thread(target=self._load)
         self.load_thread.start()
+        self.cursors = []
         
-        
-        
+    def newCursor(self):
+        newcur = rpc_cursor.RPCCursor(self.rpc, self)
+        self.cursors.append(newcur)
+        return newcur
+            
     def isLoaded(self): 
         return self.is_loaded    
     
