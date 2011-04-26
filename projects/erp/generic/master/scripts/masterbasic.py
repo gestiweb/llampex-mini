@@ -5,12 +5,23 @@ from PyQt4 import QtGui, QtCore, uic
 from masterform import LlampexMasterForm
 import time
 import re
-#import threading
+import threading
 
-#class DataLoaderThread(Thread):
-#    def run():
-#        p = self.parent
-        
+class DataLoaderThread(threading.Thread):
+    def run(self):
+        p = self.parent
+        p.cachedata[:] = []
+        results = []
+        for i in range(5):
+            results.append( p.cursor.method.fetch(p.rowsperfecth) )
+            
+        while True:
+            newresult = p.cursor.method.fetch(p.rowsperfecth)
+            rows = results.pop(0).value
+            results.append(newresult)
+            if not rows:
+                break
+            p.cachedata += rows
 
 class MasterScript(object):
     def __init__(self, form):
@@ -23,7 +34,9 @@ class MasterScript(object):
         self.form.connect(self.form.ui.table, QtCore.SIGNAL("cellDoubleClicked(int,int)"), self.table_cellDoubleClicked)
         self.filterdata = {}
         self.filter_regex = r"(\w+)[ ]*(~|=|>|<|LIKE|ILIKE|>=|<=)[ ]*'(.+)'"
-        #self.cachedata = []
+        
+        self.sqlquery = None
+        self.cachedata = []
         self.data_reload()
     
     def table_cellDoubleClicked(self, row, col):
@@ -43,7 +56,11 @@ class MasterScript(object):
                     del self.filterdata[col]
             else:
                 self.filterdata[col] = rettext
-            self.data_reload()
+            result1 = re.match(self.filter_regex,rettext)
+            if result1:
+                self.data_reload()
+            else:
+                self.data_softreload()
     
     
     def data_reload(self):
@@ -54,8 +71,31 @@ class MasterScript(object):
         self.maxcolumns = 6
         self.starttime = time.time()
         print "started init for", self.table
+        where_str = []
+        for col, regex in self.filterdata.iteritems():
+            result1 = re.match(self.filter_regex,regex)
+            if result1:
+                fieldname, operator, regexvalue = result1.group(1), result1.group(2), result1.group(3)
+                print "adding:", fieldname, regexvalue
+                where_str.append("%s %s '%s'" % (fieldname, operator ,regexvalue))
+        
+        self.sqlquery = "SELECT * FROM \"%s\"" % self.table
+        if where_str:
+            self.sqlquery += " WHERE %s" % (self.table," AND ".join(where_str))
+        
         self.table_initialized = False
         self.timer.start(5)
+
+    def data_softreload(self):
+        table = self.form.ui.table
+        self.starttime = time.time()
+        print "started soft reload for", self.table
+        self.nrows = 0
+        self.nrow = 0        
+        self.totalrows = len(self.cachedata)
+        table.setRowCount(self.totalrows)
+        self.timer.start(5)
+    
         
     def timer_timeout(self):
         if self.table_initialized == False:
@@ -65,47 +105,54 @@ class MasterScript(object):
         
     def timer_initload(self):
         table = self.form.ui.table
-        where_str = []
-        for col, regex in self.filterdata.iteritems():
-            result1 = re.match(self.filter_regex,regex)
-            if result1:
-                fieldname, operator, regexvalue = result1.group(1), result1.group(2), result1.group(3)
-                print "adding:", fieldname, regexvalue
-                where_str.append("%s %s '%s'" % (fieldname, operator ,regexvalue))
-        
-        if where_str:
-            self.cursor.call.execute("SELECT * FROM \"%s\" WHERE %s" % (self.table," AND ".join(where_str)))
-        else:    
-            self.cursor.call.execute("SELECT * FROM \"%s\"" % self.table)
+        self.cursor.call.execute(self.sqlquery)
         self.totalrows = self.cursor.call.rowcount()
         print "%s: %d rows" % (self.table,self.totalrows)
         field_list = self.cursor.call.fields()[:self.maxcolumns]
         table.setColumnCount(len(field_list))
         table.setHorizontalHeaderLabels(field_list)
+        
+        table.setRowCount(self.totalrows)
+        
         self.lastreporttime = time.time()
         self.nrows = 0
         self.nrow = 0        
-        self.rowsperfecth = 600
-        self.fetchresult = self.cursor.method.fetch(self.rowsperfecth)
-        table.setRowCount(self.totalrows)
+        self.rowsperfecth = 50
+        
+        self.datathread = DataLoaderThread()
+        self.datathread.parent = self
+        self.datathread.start()
+        
+        #self.fetchresult = self.cursor.method.fetch(self.rowsperfecth)
         self.table_initialized = True
     
     
+    
     def timer_populatetable(self):
-        self.fetchresult.conn.dispatch_until_empty()
-        if self.fetchresult.response is None: return
-        rowlist = self.fetchresult.value
-        self.fetchresult = self.cursor.method.fetch(self.rowsperfecth)
+        #self.fetchresult.conn.dispatch_until_empty()
+        #if self.fetchresult.response is None: return
+        #rowlist = self.fetchresult.value
+        #self.fetchresult = self.cursor.method.fetch(self.rowsperfecth)
+        
+        rowlist = self.cachedata[self.nrows:]
         table = self.form.ui.table
-        if not rowlist:
+        if not rowlist and not self.datathread.isAlive():
             
             print "finished loading data for %s (%d rows) in %.3f seconds" % (
                 self.table, self.totalrows, time.time() - self.starttime)
-            x = self.fetchresult.value #get and drop.
-            assert( not x ) # should be empty
+            #x = self.fetchresult.value #get and drop.
+            #assert( not x ) # should be empty
             self.timer.stop() 
+            
+        if not rowlist:
+            return 
+            
         self.nrows += len(rowlist)
         #table.setRowCount(self.nrows)
+        self.table_loaddata(rowlist)
+    
+    def table_loaddata(self, rowlist):
+        table = self.form.ui.table
         omittedrows = 0
         for rowdata in rowlist:
             includerow = True
@@ -114,8 +161,8 @@ class MasterScript(object):
                 result1 = re.match(self.filter_regex,regex)
                 if result1: continue
                 val = unicode(rowdata[col])
-                #if not re.search(regex,val, re.I): 
-                if not val.startswith(regex):
+                if not re.search(regex,val, re.I): 
+                #if not val.startswith(regex):
                     includerow = False
                     break
                     
