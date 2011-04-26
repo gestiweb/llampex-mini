@@ -36,6 +36,7 @@ class MasterScript(object):
         self.filter_regex = r"(\w+)[ ]*(~|=|>|<|LIKE|ILIKE|>=|<=)[ ]*'(.+)'"
         
         self.sqlquery = None
+        self.datathread = None
         self.cachedata = []
         self.data_reload()
     
@@ -56,35 +57,45 @@ class MasterScript(object):
                     del self.filterdata[col]
             else:
                 self.filterdata[col] = rettext
-            result1 = re.match(self.filter_regex,rettext)
-            if result1:
+            fullreload = False
+            self.update_sqlquery()
+            if self.datathread is None: fullreload = True
+            else:
+                if self.sqlquery != self.datathread.sql: fullreload = True
+                
+            if fullreload:
                 self.data_reload()
             else:
                 self.data_softreload()
     
+    def update_sqlquery(self):
+        where_str = []
+        for col, regex in self.filterdata.iteritems():
+            result1 = re.match(self.filter_regex,regex)
+            if result1:
+                fieldname, operator, regexvalue = result1.group(1), result1.group(2), result1.group(3)
+                print "adding:", fieldname, operator, regexvalue
+                where_str.append("%s %s '%s'" % (fieldname, operator ,regexvalue))
+        
+        self.sqlquery = "SELECT * FROM \"%s\"" % self.table
+        if where_str:
+            self.sqlquery += " WHERE %s" % (" AND ".join(where_str))
     
     def data_reload(self):
         table = self.form.ui.table
         table.setRowCount(0)
         table.setColumnCount(1)
         table.setHorizontalHeaderLabels(["wait, loading data . . . "])
-        self.maxcolumns = 6
+        self.maxcolumns = 16
         self.starttime = time.time()
         print "started init for", self.table
-        where_str = []
-        for col, regex in self.filterdata.iteritems():
-            result1 = re.match(self.filter_regex,regex)
-            if result1:
-                fieldname, operator, regexvalue = result1.group(1), result1.group(2), result1.group(3)
-                print "adding:", fieldname, regexvalue
-                where_str.append("%s %s '%s'" % (fieldname, operator ,regexvalue))
+        self.update_sqlquery()
         
-        self.sqlquery = "SELECT * FROM \"%s\"" % self.table
-        if where_str:
-            self.sqlquery += " WHERE %s" % (" AND ".join(where_str))
-        
+        self.datathread = DataLoaderThread()
+        self.datathread.parent = self
+        self.datathread.sql = self.sqlquery
         self.table_initialized = False
-        self.timer.start(5)
+        self.timer.start(150)
 
     def data_softreload(self):
         table = self.form.ui.table
@@ -94,14 +105,13 @@ class MasterScript(object):
         self.nrow = 0        
         self.totalrows = len(self.cachedata)
         table.setRowCount(self.totalrows)
-        self.timer.start(5)
+        self.timer.start(150)
     
         
     def timer_timeout(self):
         if self.table_initialized == False:
             self.timer_initload()
-        else:
-            self.timer_populatetable()
+        self.timer_populatetable()
         
     def timer_initload(self):
         table = self.form.ui.table
@@ -119,8 +129,6 @@ class MasterScript(object):
         self.nrow = 0        
         self.rowsperfecth = 50
         
-        self.datathread = DataLoaderThread()
-        self.datathread.parent = self
         self.datathread.start()
         
         #self.fetchresult = self.cursor.method.fetch(self.rowsperfecth)
