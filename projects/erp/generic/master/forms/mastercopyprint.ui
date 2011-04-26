@@ -39,7 +39,7 @@
         </property>
         <property name="icon">
          <iconset>
-          <normaloff>icons/new.png</normaloff>icons/new.png</iconset>
+          <normaloff>../../icons/new.png</normaloff>../../icons/new.png</iconset>
         </property>
         <property name="toolButtonStyle">
          <enum>Qt::ToolButtonTextBesideIcon</enum>
@@ -56,7 +56,7 @@
         </property>
         <property name="icon">
          <iconset>
-          <normaloff>icons/edit.png</normaloff>icons/edit.png</iconset>
+          <normaloff>../../icons/edit.png</normaloff>../../icons/edit.png</iconset>
         </property>
         <property name="toolButtonStyle">
          <enum>Qt::ToolButtonTextBesideIcon</enum>
@@ -73,7 +73,7 @@
         </property>
         <property name="icon">
          <iconset>
-          <normaloff>icons/delete.png</normaloff>icons/delete.png</iconset>
+          <normaloff>../../icons/delete.png</normaloff>../../icons/delete.png</iconset>
         </property>
         <property name="toolButtonStyle">
          <enum>Qt::ToolButtonTextBesideIcon</enum>
@@ -90,7 +90,7 @@
         </property>
         <property name="icon">
          <iconset>
-          <normaloff>icons/browse.png</normaloff>icons/browse.png</iconset>
+          <normaloff>../../icons/browse.png</normaloff>../../icons/browse.png</iconset>
         </property>
         <property name="toolButtonStyle">
          <enum>Qt::ToolButtonTextBesideIcon</enum>
@@ -107,7 +107,7 @@
         </property>
         <property name="icon">
          <iconset>
-          <normaloff>icons/copy.png</normaloff>icons/copy.png</iconset>
+          <normaloff>../../icons/copy.png</normaloff>../../icons/copy.png</iconset>
         </property>
         <property name="toolButtonStyle">
          <enum>Qt::ToolButtonTextBesideIcon</enum>
@@ -128,6 +128,23 @@
        </spacer>
       </item>
       <item>
+       <widget class="QToolButton" name="btnPrint">
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
+        <property name="text">
+         <string>Print</string>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>../../icons/print.png</normaloff>../../icons/print.png</iconset>
+        </property>
+        <property name="toolButtonStyle">
+         <enum>Qt::ToolButtonTextBesideIcon</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
        <spacer name="horizontalSpacer_2">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -145,6 +162,15 @@
    </item>
    <item>
     <widget class="QTableWidget" name="table">
+     <property name="editTriggers">
+      <set>QAbstractItemView::NoEditTriggers</set>
+     </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::SingleSelection</enum>
+     </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectRows</enum>
+     </property>
      <row>
       <property name="text">
        <string>New Row</string>

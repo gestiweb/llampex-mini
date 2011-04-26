@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>542</width>
     <height>300</height>
    </rect>
   </property>
@@ -30,72 +30,87 @@
        <number>1</number>
       </property>
       <item>
-       <widget class="QToolButton" name="toolButton">
+       <widget class="QToolButton" name="btnNew">
         <property name="focusPolicy">
          <enum>Qt::NoFocus</enum>
         </property>
         <property name="text">
-         <string>...</string>
+         <string>New</string>
         </property>
         <property name="icon">
          <iconset>
           <normaloff>icons/new.png</normaloff>icons/new.png</iconset>
         </property>
+        <property name="toolButtonStyle">
+         <enum>Qt::ToolButtonTextBesideIcon</enum>
+        </property>
        </widget>
       </item>
       <item>
-       <widget class="QToolButton" name="toolButton_2">
+       <widget class="QToolButton" name="btnEdit">
         <property name="focusPolicy">
          <enum>Qt::NoFocus</enum>
         </property>
         <property name="text">
-         <string>...</string>
+         <string>Edit</string>
         </property>
         <property name="icon">
          <iconset>
           <normaloff>icons/edit.png</normaloff>icons/edit.png</iconset>
         </property>
+        <property name="toolButtonStyle">
+         <enum>Qt::ToolButtonTextBesideIcon</enum>
+        </property>
        </widget>
       </item>
       <item>
-       <widget class="QToolButton" name="toolButton_3">
+       <widget class="QToolButton" name="btnDelete">
         <property name="focusPolicy">
          <enum>Qt::NoFocus</enum>
         </property>
         <property name="text">
-         <string>...</string>
+         <string>Delete</string>
         </property>
         <property name="icon">
          <iconset>
           <normaloff>icons/delete.png</normaloff>icons/delete.png</iconset>
         </property>
+        <property name="toolButtonStyle">
+         <enum>Qt::ToolButtonTextBesideIcon</enum>
+        </property>
        </widget>
       </item>
       <item>
-       <widget class="QToolButton" name="toolButton_5">
+       <widget class="QToolButton" name="btnBrowse">
         <property name="focusPolicy">
          <enum>Qt::NoFocus</enum>
         </property>
         <property name="text">
-         <string>...</string>
+         <string>Browse</string>
         </property>
         <property name="icon">
          <iconset>
           <normaloff>icons/browse.png</normaloff>icons/browse.png</iconset>
         </property>
+        <property name="toolButtonStyle">
+         <enum>Qt::ToolButtonTextBesideIcon</enum>
+        </property>
        </widget>
       </item>
       <item>
-       <widget class="QToolButton" name="toolButton_6">
+       <widget class="QToolButton" name="btnCopy">
         <property name="focusPolicy">
          <enum>Qt::NoFocus</enum>
         </property>
         <property name="text">
-         <string>...</string>
+         <string>Copy</string>
         </property>
         <property name="icon">
          <iconset>
           <normaloff>icons/copy.png</normaloff>icons/copy.png</iconset>
+        </property>
+        <property name="toolButtonStyle">
+         <enum>Qt::ToolButtonTextBesideIcon</enum>
         </property>
        </widget>
       </item>
@@ -113,16 +128,19 @@
        </spacer>
       </item>
       <item>
-       <widget class="QToolButton" name="toolButton_7">
+       <widget class="QToolButton" name="btnPrint">
         <property name="focusPolicy">
          <enum>Qt::NoFocus</enum>
         </property>
         <property name="text">
-         <string>...</string>
+         <string>Print</string>
         </property>
         <property name="icon">
          <iconset>
           <normaloff>icons/print.png</normaloff>icons/print.png</iconset>
+        </property>
+        <property name="toolButtonStyle">
+         <enum>Qt::ToolButtonTextBesideIcon</enum>
         </property>
        </widget>
       </item>
@@ -143,7 +161,16 @@
     </widget>
    </item>
    <item>
-    <widget class="QTableWidget" name="tableWidget">
+    <widget class="QTableWidget" name="table">
+     <property name="editTriggers">
+      <set>QAbstractItemView::NoEditTriggers</set>
+     </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::SingleSelection</enum>
+     </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectRows</enum>
+     </property>
      <row>
       <property name="text">
        <string>New Row</string>

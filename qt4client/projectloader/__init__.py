@@ -3,6 +3,45 @@ import os.path, os
 import yaml
 import re
 
+"""
+    Handling paths:
+    
+    All paths are relative from the YAML file that were read from. For example:
+    
+    icon: icons/customer.png
+    
+    is a file inside a subfolder relative to the yaml filepath.
+    You can also specify the ".." directory to refer parent folders:
+    
+    icon: ../../customer.png
+    
+    If you want to refer to the root of project you can use either absolute paths
+    or :project:/ paths. 
+    
+    icon: /generic/icons/edit.png
+    script: :project:/generic/icons/edit.png
+    
+    You cannot exit out of project path by using ../ or :project: aliases.
+    
+    Also, you have other aliases as well depending on it is placed your yaml 
+    file (or when it is loaded).
+    
+    :project:/ -> project root
+    :area:/ -> area content folder
+    :module:/ -> module content folder
+    :group:/ -> group content folder
+    
+    :area: -> area yaml file folder
+    :module: -> module yaml file folder
+    :group: -> group yaml file folder
+    :action: -> action yaml file folder
+    
+    Some of them should point to the same place. 
+    The recommended format is :folder:/
+    
+    
+"""
+
 class BaseLlampexObject(yaml.YAMLObject):
     yaml_tag = u'!LlampexBASE' 
     tagorder = []
@@ -96,15 +135,52 @@ class ProjectLoader(object):
 class LlampexBaseFile(BaseLlampexObject):
     tagorder = ["code","name","version","icon","shortcut","weight"]
     childtype = None
+    filetype = None
     
+    def __init__(self,*args,**kwargs):
+        super(LlampexBaseFile,self).__init__()
+        self.dictpath = {}
+        
     def require_attribute(self, key):
         if not hasattr(self,key): raise AttributeError, "%s attribute not found!" % repr(key)
         
     def default_attribute(self, key, val):
         if not hasattr(self,key): setattr(self,key,val)
         
-    def filedir(self, x):
-        return os.path.join(self.filepath,x)
+    def filedir(self, fname):
+        x = fname
+        if os.path.isabs(x): x = ":project:" + x
+        ftype = None
+        if x[0] == ":":
+            typeend = x.find(":",1)
+            ftype = x[1:typeend]
+            x = x[typeend+1:]
+            if os.path.isabs(x):
+                ftype+="/"
+                x = x[1:]
+                
+        path = None
+        if ftype is None:
+            path = self.filepath
+        else:
+            try:
+                path = self.dictpath[ftype]
+            except KeyError:
+                print "ERROR: Path %s invalid at %s" % (fname,self.filepath)
+        
+        if path is None:
+            path = self.filepath
+            print "WARN: rewritting path %s" % (x)
+            
+        ret = os.path.join(path,x)
+        ret = os.path.normpath(ret)
+        try:
+            loaderpath = self.loader.path
+            if loaderpath[-1] != "/": loaderpath+="/"
+            assert(ret.startswith(loaderpath))
+        except AssertionError:
+            raise ValueError, "ERROR: Path %s invalid at %s. Path exits out of project!" % (fname,self.filepath)
+        return ret
         
     def contentdir(self, x):
         return os.path.join(self.fullpath,x)
@@ -118,6 +194,7 @@ class LlampexBaseFile(BaseLlampexObject):
         self.default_attribute("shortcut", None)
         self.default_attribute("weight", "zzz")
         self.weight = unicode(self.weight)
+        self.dictpath = {}
 
     def load(self,loader,root,path):
         if self.childtype is None:
@@ -131,12 +208,16 @@ class LlampexBaseFile(BaseLlampexObject):
         files = self.loader.getfilelist(self.path,"%s.yaml" % self.childtype)
         fullpath = os.path.join(self.root, self.path)
         self.fullpath = fullpath
+        if self.filetype:
+            self.dictpath[self.filetype+"/"] = self.fullpath
         
         tmplist = []
         for fname in sorted(files):
             fullname = os.path.join(fullpath, fname)
             child = self.loader.loadfile(fullname)
-            
+            child.loader = self.loader
+            child.dictpath = self.dictpath.copy()
+            child.dictpath[self.childtype] = self.fullpath
             tmplist.append( (child.weight, child.code, child) )
         
         self.child_list = []
@@ -160,11 +241,13 @@ class LlampexBaseFile(BaseLlampexObject):
 class LlampexProject(LlampexBaseFile):
     yaml_tag = u'!LlampexProject' 
     tagorder = LlampexBaseFile.tagorder + []
+    filetype = "project"
     childtype = "area"
 
 class LlampexArea(LlampexBaseFile):
     yaml_tag = u'!LlampexArea' 
     tagorder = LlampexBaseFile.tagorder + []
+    filetype = "area"
     childtype = "module"
     def yaml_afterload(self):
         super(LlampexArea,self).yaml_afterload()
@@ -173,16 +256,19 @@ class LlampexArea(LlampexBaseFile):
 class LlampexModule(LlampexBaseFile):
     yaml_tag = u'!LlampexModule' 
     tagorder = LlampexBaseFile.tagorder + []
+    filetype = "module"
     childtype = "group"
 
 class LlampexGroup(LlampexBaseFile):
     yaml_tag = u'!LlampexGroup' 
     tagorder = LlampexBaseFile.tagorder + []
+    filetype = "group"
     childtype = "action"
 
 class LlampexAction(LlampexBaseFile):
     yaml_tag = u'!LlampexAction' 
     tagorder = LlampexBaseFile.tagorder + []
+    filetype = "action"
     def yaml_afterload(self):
         super(LlampexAction,self).yaml_afterload()
         self.require_attribute("table")
