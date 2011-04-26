@@ -81,7 +81,7 @@ class MasterScript(object):
         
         self.sqlquery = "SELECT * FROM \"%s\"" % self.table
         if where_str:
-            self.sqlquery += " WHERE %s" % (self.table," AND ".join(where_str))
+            self.sqlquery += " WHERE %s" % (" AND ".join(where_str))
         
         self.table_initialized = False
         self.timer.start(5)
