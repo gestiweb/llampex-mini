@@ -9,8 +9,8 @@ record:
     script: familias
     form: familias
 master:
-    script: familias
-    form: master/forms/masterprint.ui
+    script: /generic/master/scripts/masterbasic
+    form: /generic/master/forms/masterprint.ui
 
 description: "Las familias de artículos permiten agrupar artículos por determinados criterios comunes"
 

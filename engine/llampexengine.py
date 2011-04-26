@@ -4,6 +4,23 @@ from optparse import OptionParser
 from database import connect, create_all
 from config import Config
 import engine
+import sys
+
+try:
+    import bjsonrpc
+except ImportError:
+    print "ERROR: Unable to import bjsonrpc (bidirectional JSON-RPC protocol)."
+    print " * * * Please install bjsonrpc package * * *"    
+    sys.exit(1)
+
+bjsonrpc_required_release = '0.2.0'
+try:
+    assert(bjsonrpc.__release__ >= bjsonrpc_required_release)
+except AssertionError:
+    print "ERROR: bjsonrpc release is %s , and llampex engine requires at least %s" % (bjsonrpc.__release__, bjsonrpc_required_release)
+    print " * * * Please Upgrade BJSONRPC * * * "
+    sys.exit(1)
+
 
 global options
 options = None

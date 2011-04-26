@@ -9,7 +9,7 @@ record:
     script: empresa
     form: empresa
 master:
-    script: masterempresa
+    script: /generic/master/scripts/masterbasic
     form: /generic/master/forms/masterbase.ui
 
 description: "La gestión de la empresa..."

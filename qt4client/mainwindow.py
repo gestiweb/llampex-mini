@@ -51,8 +51,9 @@ class LlampexMainWindow(QtGui.QMainWindow):
     def prjdir(self, x):
         return os.path.join(self.projectpath,x)
         
-    def __init__(self, projectpath, projectfiles):
+    def __init__(self, projectpath, projectfiles, prjconn):
         QtGui.QMainWindow.__init__(self)
+        self.prjconn = prjconn # rpc connection for project.
         self.mainmenu = llampexmainmenu.LlampexDockMainMenu()
         self.setWindowTitle("Llampex Qt4 Client")
         self.projectpath = projectpath
@@ -173,7 +174,7 @@ class LlampexMainWindow(QtGui.QMainWindow):
             del self.modulesubwindow[subwindowkey]
          
         
-        widget = LlampexMasterForm(key,actionobj)
+        widget = LlampexMasterForm(key,actionobj, self.prjconn)
         
         scrollarea = QtGui.QScrollArea()
         scrollarea.setWidget(widget)

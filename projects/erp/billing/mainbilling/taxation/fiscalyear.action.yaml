@@ -9,7 +9,7 @@ record:
     script: ejercicios
     form: ejercicios
 master:
-    script: masterempresa
+    script: /generic/master/scripts/masterbasic
     form: /generic/master/forms/mastercopy.ui
 
 description: "Ejercicios fiscales"
