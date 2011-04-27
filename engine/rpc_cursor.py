@@ -42,9 +42,13 @@ def withrlock(function):
 
 
 class RPCCursor(BaseHandler):
+    globaldata = { 'cursornumber' : 1 }
     def __init__(self, rpc, prjmanager):
         BaseHandler.__init__(self,rpc)
         self.pm = prjmanager
+        cursornumber = self.globaldata['cursornumber']
+        self.globaldata['cursornumber'] += 1
+        self.curname = "rpccursor_%04x" % cursornumber
         self.cur = self.pm.conn.cursor()
         self.rlock = threading.RLock()
 
@@ -56,18 +60,20 @@ class RPCCursor(BaseHandler):
     @withrlock    
     def fields(self):
         "Returns field list"
-        fields = [l[0] for l in self.cur.description]
+        descrip = self.cur.description
+        if descrip is None: return None
+        fields = [l[0] for l in descrip]
         return fields
     
     @withrlock    
     def commit(self):
         "Commits the current transaction."
-        self.cur.commit()
+        self.pm.conn.commit()
     
     @withrlock    
     def rollback(self):
         "Rollbacks the changes for the current transaction."
-        self.cur.rollback()
+        self.pm.conn.rollback()
     
     @withrlock    
     def close(self):

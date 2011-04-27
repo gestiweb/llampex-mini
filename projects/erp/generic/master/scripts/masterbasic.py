@@ -10,18 +10,24 @@ import threading
 class DataLoaderThread(threading.Thread):
     def run(self):
         p = self.parent
-        p.cachedata[:] = []
-        results = []
-        for i in range(5):
-            results.append( p.cursor.method.fetch(p.rowsperfecth) )
-            
         while True:
-            newresult = p.cursor.method.fetch(p.rowsperfecth)
-            rows = results.pop(0).value
-            results.append(newresult)
-            if not rows:
+            rowcount = 0
+            results = []
+            for i in range(3):
+                results.append( p.cursor.method.fetch(p.rowsperfecth) )
+            
+            while True:
+                newresult = p.cursor.method.fetch(p.rowsperfecth)
+                rows = results.pop(0).value
+                rowcount += len(rows)
+                results.append(newresult)
+                if not rows:
+                    break
+                p.cachedata += rows
+            if rowcount == 0: 
+                p.execute(1)
                 break
-            p.cachedata += rows
+            p.execute(5000)
 
 class MasterScript(object):
     def __init__(self, form):
@@ -39,6 +45,7 @@ class MasterScript(object):
         self.datathread = None
         self.cachedata = []
         self.data_reload()
+        self.maxtablerows = 500
     
     def table_cellDoubleClicked(self, row, col):
         if col not in self.filterdata:
@@ -86,16 +93,18 @@ class MasterScript(object):
         table.setRowCount(0)
         table.setColumnCount(1)
         table.setHorizontalHeaderLabels(["wait, loading data . . . "])
-        self.maxcolumns = 16
+        self.maxcolumns = 32
         self.starttime = time.time()
-        print "started init for", self.table
+        print "started full reload for", self.table
+        self.totalrows = 0
         self.update_sqlquery()
         
         self.datathread = DataLoaderThread()
         self.datathread.parent = self
+        self.datathread.daemon = True
         self.datathread.sql = self.sqlquery
         self.table_initialized = False
-        self.timer.start(150)
+        self.timer.start(10)
 
     def data_softreload(self):
         table = self.form.ui.table
@@ -103,8 +112,9 @@ class MasterScript(object):
         print "started soft reload for", self.table
         self.nrows = 0
         self.nrow = 0        
+        self.omitted = 0  
         self.totalrows = len(self.cachedata)
-        table.setRowCount(self.totalrows)
+        table.setRowCount(min([self.totalrows,self.maxtablerows]))
         self.timer.start(150)
     
         
@@ -113,26 +123,41 @@ class MasterScript(object):
             self.timer_initload()
         self.timer_populatetable()
         
+    def execute(self,rows):
+        offset = len(self.cachedata)
+        limit = rows
+        try:
+            self.cursor.call.execute(self.sqlquery + " LIMIT %d OFFSET %d" % (limit,offset))
+        except Exception, e:
+            print repr(e)
+            self.cursor.call.rollback()
+            self.timer.stop()
+            return
+        self.totalrows += self.cursor.call.rowcount()
+        print "%s: %d rows" % (self.table,self.totalrows)
+        
     def timer_initload(self):
         table = self.form.ui.table
-        self.cursor.call.execute(self.sqlquery)
-        self.totalrows = self.cursor.call.rowcount()
-        print "%s: %d rows" % (self.table,self.totalrows)
+        self.execute(self.maxtablerows)
         field_list = self.cursor.call.fields()[:self.maxcolumns]
         table.setColumnCount(len(field_list))
         table.setHorizontalHeaderLabels(field_list)
         
-        table.setRowCount(self.totalrows)
+        table.setRowCount(min([self.totalrows,self.maxtablerows]))
         
         self.lastreporttime = time.time()
         self.nrows = 0
-        self.nrow = 0        
+        self.nrow = 0      
+        self.omitted = 0  
         self.rowsperfecth = 50
-        
+        self.cachedata[:] = []
+
         self.datathread.start()
         
         #self.fetchresult = self.cursor.method.fetch(self.rowsperfecth)
         self.table_initialized = True
+        self.timer.start(150)
+
     
     
     
@@ -156,14 +181,15 @@ class MasterScript(object):
             return 
             
         self.nrows += len(rowlist)
-        #table.setRowCount(self.nrows)
         self.table_loaddata(rowlist)
     
     def table_loaddata(self, rowlist):
         table = self.form.ui.table
         omittedrows = 0
+        table.setRowCount(self.nrow+len(rowlist))
         for rowdata in rowlist:
             includerow = True
+            if self.nrow > self.maxtablerows: includerow = False
             for col, regex in self.filterdata.iteritems():
                 if col < 0 or col >= len(rowdata): continue
                 result1 = re.match(self.filter_regex,regex)
@@ -176,19 +202,22 @@ class MasterScript(object):
                     
             if not includerow: 
                 omittedrows += 1
+                self.omitted += 1  
                 continue
             for ncol, value in enumerate(rowdata[:self.maxcolumns]):
                 item = QtGui.QTableWidgetItem(unicode(value))
                 table.setItem(self.nrow, ncol, item)
             self.nrow += 1
-        self.totalrows -= omittedrows
-        if self.totalrows < 1: self.totalrows = 1
-        table.setRowCount(self.totalrows)
+        if self.nrow == 0:
+            table.setRowCount(1)
+        else:
+            table.setRowCount(self.nrow)
+        #table.setRowCount(min([self.totalrows,self.maxtablerows]))
 
         if time.time() - self.lastreporttime > 1:
             self.lastreporttime = time.time()
-            print "loading table %s: %d rows (%.2f%%)" % (self.table, 
-                self.nrow, float(self.nrow)*100.0/float(self.totalrows))
+            print "loading table %s: %d rows (+%d hidden) (%.2f%%)" % (self.table, 
+                self.nrow, self.omitted, float(self.nrow+self.omitted)*100.0/float(self.totalrows))
 
         
         

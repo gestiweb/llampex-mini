@@ -1,0 +1,16 @@
+!LlampexAction
+code: baselecitems
+name: BaselecItems
+icon: icons/items.png # path to icon
+weight: A.1.1
+
+table: baselec
+record:
+    script: articulos
+    form: articulos
+master:
+    script: /generic/master/scripts/masterbasic
+    form: /generic/master/forms/masterprint.ui
+
+description: "Los artículos soportan información completa de precios de venta y compra por proveedor, precios por cliente y por tarifa y control de stocks"
+
