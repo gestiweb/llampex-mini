@@ -136,6 +136,7 @@ class LlampexBaseFile(BaseLlampexObject):
     tagorder = ["code","name","version","icon","shortcut","weight"]
     childtype = None
     filetype = None
+    childrensubfolder = {}
     
     def __init__(self,*args,**kwargs):
         super(LlampexBaseFile,self).__init__()
@@ -210,9 +211,10 @@ class LlampexBaseFile(BaseLlampexObject):
         self.root = root
         self.path = path
         self.loader = loader
-
-        files = self.loader.getfilelist(self.path,"%s.yaml" % childtype)
-        fullpath = os.path.join(self.root, self.path)
+        if childtype in self.childrensubfolder:
+            path = os.path.join(self.path,self.childrensubfolder[childtype])
+        files = self.loader.getfilelist(path,"%s.yaml" % childtype)
+        fullpath = os.path.join(self.root, path)
         self.fullpath = fullpath
         if self.filetype:
             self.dictpath[self.filetype+"/"] = self.fullpath
@@ -264,6 +266,7 @@ class LlampexModule(LlampexBaseFile):
     tagorder = LlampexBaseFile.tagorder + []
     filetype = "module"
     childtype = ["group","table"]
+    childrensubfolder = { "table" : "tables" }
 
 class LlampexGroup(LlampexBaseFile):
     yaml_tag = u'!LlampexGroup' 
