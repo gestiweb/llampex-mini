@@ -224,9 +224,13 @@ class LlampexBaseFile(BaseLlampexObject):
             fullname = os.path.join(fullpath, fname)
             try:
                 child = self.loader.loadfile(fullname)
-            except Exception, e:
+            except yaml.YAMLError, e:
                 print traceback.format_exc(0)
-                print "FATAL: Error trying to load %s:" % fullname 
+                print "FATAL: Error scanning yaml %s:" % fullname 
+                continue
+            except Exception, e:
+                print traceback.format_exc()
+                print "PANIC: Unexpected error when loading %s:" % fullname 
                 continue
             child.loader = self.loader
             child.dictpath = self.dictpath.copy()
@@ -295,7 +299,7 @@ class LlampexTable(LlampexBaseFile):
     tagorder = LlampexBaseFile.tagorder + []
     filetype = "table"
     def yaml_afterload(self):
-        super(LlampexAction,self).yaml_afterload()
+        super(LlampexTable,self).yaml_afterload()
         self.require_attribute("fields")
 
         
