@@ -52,6 +52,7 @@ class MasterScript(object):
         self.cachedata = []
         self.data_reload()
         self.maxtablerows = 1000
+        self.firstfetch = 50
     
     def table_cellDoubleClicked(self, row, col):
         print "Clicked", row,col
@@ -157,7 +158,7 @@ class MasterScript(object):
     def timer_initload(self):
         table = self.form.ui.table
         self.cachedata[:] = []
-        self.execute(self.maxtablerows)
+        self.execute(self.firstfetch)
         field_list = self.cursor.call.fields()[:self.maxcolumns]
         table.setColumnCount(len(field_list))
         table.setHorizontalHeaderLabels(field_list)
