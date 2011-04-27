@@ -10,6 +10,7 @@ import threading
 class DataLoaderThread(threading.Thread):
     def run(self):
         p = self.parent
+        self.abort = False
         while True:
             rowcount = 0
             results = []
@@ -17,6 +18,7 @@ class DataLoaderThread(threading.Thread):
                 results.append( p.cursor.method.fetch(p.rowsperfecth) )
             
             while True:
+                if self.abort: return
                 newresult = p.cursor.method.fetch(p.rowsperfecth)
                 rows = results.pop(0).value
                 rowcount += len(rows)
@@ -27,6 +29,7 @@ class DataLoaderThread(threading.Thread):
             if rowcount == 0: 
                 p.execute(1)
                 break
+            if self.abort: return
             p.execute(5000)
 
 class MasterScript(object):
@@ -89,6 +92,15 @@ class MasterScript(object):
             self.sqlquery += " WHERE %s" % (" AND ".join(where_str))
     
     def data_reload(self):
+        if self.datathread:
+            if self.datathread.isAlive():
+                self.datathread.abort = True
+                self.datathread.join(0.5)
+                if self.datathread.isAlive():
+                    print "WARN: DataThreadLoader still alive."
+                del self.datathread
+                self.datathread = None
+                
         table = self.form.ui.table
         table.setRowCount(0)
         table.setColumnCount(1)
@@ -150,7 +162,7 @@ class MasterScript(object):
         self.nrows = 0
         self.nrow = 0      
         self.omitted = 0  
-        self.rowsperfecth = 50
+        self.rowsperfecth = 20
 
         self.datathread.start()
         
