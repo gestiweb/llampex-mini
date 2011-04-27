@@ -41,6 +41,9 @@ class MasterScript(object):
         self.timer = QtCore.QTimer(self.form)
         self.form.connect(self.timer, QtCore.SIGNAL("timeout()"), self.timer_timeout)
         self.form.connect(self.form.ui.table, QtCore.SIGNAL("cellDoubleClicked(int,int)"), self.table_cellDoubleClicked)
+        tableheader = self.form.ui.table.horizontalHeader()
+        self.form.connect(tableheader, QtCore.SIGNAL("sectionClicked(int)"), self.table_sectionClicked)
+        
         self.filterdata = {}
         self.filter_regex = r"(\w+)[ ]*(~|=|>|<|LIKE|ILIKE|>=|<=)[ ]*'(.+)'"
         
@@ -48,9 +51,12 @@ class MasterScript(object):
         self.datathread = None
         self.cachedata = []
         self.data_reload()
-        self.maxtablerows = 500
+        self.maxtablerows = 1000
     
     def table_cellDoubleClicked(self, row, col):
+        print "Clicked", row,col
+        
+    def table_sectionClicked(self, col):
         if col not in self.filterdata:
             line1 = "No filter declared yet for column %d" % col
             txt = ""
@@ -155,6 +161,12 @@ class MasterScript(object):
         field_list = self.cursor.call.fields()[:self.maxcolumns]
         table.setColumnCount(len(field_list))
         table.setHorizontalHeaderLabels(field_list)
+        
+        tableheader = self.form.ui.table.horizontalHeader()
+        # tableheader.setClickable(False)  # default is True
+        tableheader.setSortIndicatorShown(True)
+        tableheader.setMovable(True)
+        tableheader.setStretchLastSection(True)
         
         table.setRowCount(min([self.totalrows,self.maxtablerows]))
         
