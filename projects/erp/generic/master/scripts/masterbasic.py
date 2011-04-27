@@ -39,9 +39,15 @@ class MasterScript(object):
         self.cursor = self.rpc.call.newCursor()
         self.table = self.form.actionobj.table
         self.timer = QtCore.QTimer(self.form)
+
+        table = self.form.ui.table
+        table.setRowCount(0)
+        table.setColumnCount(1)
+        table.setHorizontalHeaderLabels(["wait, loading data . . . "])
+        
         self.form.connect(self.timer, QtCore.SIGNAL("timeout()"), self.timer_timeout)
-        self.form.connect(self.form.ui.table, QtCore.SIGNAL("cellDoubleClicked(int,int)"), self.table_cellDoubleClicked)
-        tableheader = self.form.ui.table.horizontalHeader()
+        self.form.connect(table, QtCore.SIGNAL("cellDoubleClicked(int,int)"), self.table_cellDoubleClicked)
+        tableheader = table.horizontalHeader()
         self.form.connect(tableheader, QtCore.SIGNAL("sectionClicked(int)"), self.table_sectionClicked)
         
         self.filterdata = {}
@@ -108,10 +114,6 @@ class MasterScript(object):
                 del self.datathread
                 self.datathread = None
                 
-        table = self.form.ui.table
-        table.setRowCount(0)
-        table.setColumnCount(1)
-        table.setHorizontalHeaderLabels(["wait, loading data . . . "])
         self.maxcolumns = 32
         self.starttime = time.time()
         print "started full reload for", self.table
@@ -139,7 +141,8 @@ class MasterScript(object):
         
     def timer_timeout(self):
         if self.table_initialized == False:
-            self.timer_initload()
+            if not self.timer_initload():
+                return
         self.timer_populatetable()
         
     def execute(self,rows):
@@ -148,17 +151,20 @@ class MasterScript(object):
         try:
             self.cursor.call.execute(self.sqlquery + " LIMIT %d OFFSET %d" % (limit,offset))
         except Exception, e:
-            print repr(e)
+            print "FATAL: Cursor Execute failed with:", repr(e)
             self.cursor.call.rollback()
             self.timer.stop()
-            return
+            return False
         self.totalrows += self.cursor.call.rowcount()
-        print "%s: %d rows" % (self.table,self.totalrows)
+        # print "%s: %d rows" % (self.table,self.totalrows)
+        return True
         
     def timer_initload(self):
         table = self.form.ui.table
         self.cachedata[:] = []
-        self.execute(self.firstfetch)
+        if not self.execute(self.firstfetch):
+            table.setRowCount(0)
+            return False
         field_list = self.cursor.call.fields()[:self.maxcolumns]
         table.setColumnCount(len(field_list))
         table.setHorizontalHeaderLabels(field_list)
