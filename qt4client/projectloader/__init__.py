@@ -197,15 +197,21 @@ class LlampexBaseFile(BaseLlampexObject):
         self.dictpath = {}
 
     def load(self,loader,root,path):
-        if self.childtype is None:
-            #print "Class %s has no childs" % (self.__class__.__name__)
-            return
+        if self.childtype is None: return
+        if self.childtype is []: return
+        if isinstance(self.childtype, list):
+            for child in self.childtype:
+                self.loadchildtype(loader,root,path,child)
+        else:                
+            self.loadchildtype(loader,root,path,self.childtype)
+            
+    def loadchildtype(self,loader,root,path,childtype):
         path = os.path.normpath(path)
         self.root = root
         self.path = path
         self.loader = loader
 
-        files = self.loader.getfilelist(self.path,"%s.yaml" % self.childtype)
+        files = self.loader.getfilelist(self.path,"%s.yaml" % childtype)
         fullpath = os.path.join(self.root, self.path)
         self.fullpath = fullpath
         if self.filetype:
@@ -217,14 +223,14 @@ class LlampexBaseFile(BaseLlampexObject):
             child = self.loader.loadfile(fullname)
             child.loader = self.loader
             child.dictpath = self.dictpath.copy()
-            child.dictpath[self.childtype] = self.fullpath
+            child.dictpath[childtype] = self.fullpath
             tmplist.append( (child.weight, child.code, child) )
         
         self.child_list = []
         self.child = {}
         
         if not tmplist:
-            print "WARN: %s has no childs of type %s" % (self.__class__.__name__, self.childtype)
+            print "WARN: %s at %s has no childs of type %s" % (self.__class__.__name__, self.path, childtype)
         
         for w,c,child in sorted(tmplist):
             self.child_list.append(c)
@@ -233,8 +239,8 @@ class LlampexBaseFile(BaseLlampexObject):
             if hasattr(child,"load"):
                 child.load(loader, root, os.path.join(path,c))
         
-        setattr(self,"%s" % self.childtype, self.child)
-        setattr(self,"%s_list" % self.childtype, self.child_list)
+        setattr(self,"%s" % childtype, self.child)
+        setattr(self,"%s_list" % childtype, self.child_list)
         
         
         
@@ -257,7 +263,7 @@ class LlampexModule(LlampexBaseFile):
     yaml_tag = u'!LlampexModule' 
     tagorder = LlampexBaseFile.tagorder + []
     filetype = "module"
-    childtype = "group"
+    childtype = ["group","table"]
 
 class LlampexGroup(LlampexBaseFile):
     yaml_tag = u'!LlampexGroup' 
