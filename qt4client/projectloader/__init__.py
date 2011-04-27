@@ -281,6 +281,14 @@ class LlampexAction(LlampexBaseFile):
         self.require_attribute("record")
         self.require_attribute("master")
         self.require_attribute("description")
+        
+class LlampexTable(LlampexBaseFile):
+    yaml_tag = u'!LlampexTable' 
+    tagorder = LlampexBaseFile.tagorder + []
+    filetype = "table"
+    def yaml_afterload(self):
+        super(LlampexAction,self).yaml_afterload()
+        self.require_attribute("fields")
 
         
         
