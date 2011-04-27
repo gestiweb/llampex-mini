@@ -297,10 +297,12 @@ class LlampexAction(LlampexBaseFile):
 class LlampexTable(LlampexBaseFile):
     yaml_tag = u'!LlampexTable' 
     tagorder = LlampexBaseFile.tagorder + []
+    tableindex = {}
     filetype = "table"
     def yaml_afterload(self):
         super(LlampexTable,self).yaml_afterload()
         self.require_attribute("fields")
+        self.tableindex[self.code] = self
 
         
         
