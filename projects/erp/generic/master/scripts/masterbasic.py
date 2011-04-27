@@ -138,6 +138,7 @@ class MasterScript(object):
         
     def timer_initload(self):
         table = self.form.ui.table
+        self.cachedata[:] = []
         self.execute(self.maxtablerows)
         field_list = self.cursor.call.fields()[:self.maxcolumns]
         table.setColumnCount(len(field_list))
@@ -150,7 +151,6 @@ class MasterScript(object):
         self.nrow = 0      
         self.omitted = 0  
         self.rowsperfecth = 50
-        self.cachedata[:] = []
 
         self.datathread.start()
         
