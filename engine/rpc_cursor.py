@@ -12,6 +12,22 @@ psycopg2.extensions.register_type(psycopg2.extensions.UNICODEARRAY)
 from bjsonrpc.exceptions import ServerError
 from bjsonrpc.handlers import BaseHandler
 
+def tuplenormalization(rows):
+    retrows = []
+    for row in rows:
+        retrow = []
+        for field in row:
+            if field is None:
+                retfield = None
+            elif type(field) is bool:
+                retfield = field
+            else:
+                retfield = unicode(field)
+            retrow.append(retfield)
+        retrows.append(retrow)
+    return retrows
+    
+
 def withrlock(function):
     def lockfn(self,*args,**kwargs):
         if self.cur is None: raise ServerError, "Cursor not Open!"
@@ -73,9 +89,9 @@ class RPCCursor(BaseHandler):
     def fetch(self, size=20):
         "Fetches many rows. Use -1 or None for querying all available rows."
         if size is None or size <= 0:
-            return self.cur.fetchall()
+            return tuplenormalization(self.cur.fetchall())
         else:
-            return self.cur.fetchmany(size)
+            return tuplenormalization(self.cur.fetchmany(size))
         
     @withrlock    
     def scroll(self, value, mode = 'relative'):
