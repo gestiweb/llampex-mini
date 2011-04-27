@@ -1,7 +1,7 @@
 # encoding: UTF-8
 import os.path, os
 import yaml
-import re
+import re, traceback
 
 """
     Handling paths:
@@ -222,7 +222,12 @@ class LlampexBaseFile(BaseLlampexObject):
         tmplist = []
         for fname in sorted(files):
             fullname = os.path.join(fullpath, fname)
-            child = self.loader.loadfile(fullname)
+            try:
+                child = self.loader.loadfile(fullname)
+            except Exception, e:
+                print traceback.format_exc(0)
+                print "FATAL: Error trying to load %s:" % fullname 
+                continue
             child.loader = self.loader
             child.dictpath = self.dictpath.copy()
             child.dictpath[childtype] = self.fullpath
