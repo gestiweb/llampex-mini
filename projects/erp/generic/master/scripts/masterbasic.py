@@ -8,13 +8,15 @@ import re
 import threading
 
 class DataLoaderThread(threading.Thread):
+    maxrowscached = 100000
     def run(self):
         p = self.parent
         self.abort = False
+        self.totalrowcount = 0
         while True:
             rowcount = 0
             results = []
-            for i in range(3):
+            for i in range(2):
                 results.append( p.cursor.method.fetch(p.rowsperfecth) )
             
             while True:
@@ -26,7 +28,10 @@ class DataLoaderThread(threading.Thread):
                 if not rows:
                     break
                 p.cachedata += rows
-            if rowcount == 0: 
+            self.totalrowcount += rowcount
+            if rowcount == 0 or self.totalrowcount > self.maxrowscached: 
+                if self.totalrowcount > self.maxrowscached:
+                    print "WARN: Stopped caching data because loader has reached %d rows" % (self.totalrowcount)
                 p.execute(1)
                 break
             if self.abort: return
@@ -57,7 +62,7 @@ class MasterScript(object):
         self.datathread = None
         self.cachedata = []
         self.data_reload()
-        self.maxtablerows = 1000
+        self.maxtablerows = 5000
         self.firstfetch = 50
     
     def table_cellDoubleClicked(self, row, col):
@@ -181,7 +186,7 @@ class MasterScript(object):
         self.nrows = 0
         self.nrow = 0      
         self.omitted = 0  
-        self.rowsperfecth = 20
+        self.rowsperfecth = 10
 
         self.datathread.start()
         
