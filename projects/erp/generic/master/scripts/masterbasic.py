@@ -15,39 +15,51 @@ class DataLoaderThread(threading.Thread):
         self.totalrowcount = 0
         self.rowsperfecth = p.rowsperfecth
         self.paralellqueries = 1
+        self.queried = 0
         while True:
+            self.rowlimit = p.execute_rowlimit
             rowcount = 0
             results = []
+            self.queried = 0
             def newfetch():
+                qsize = 0
                 while len(results) < self.paralellqueries:
                     results.append(p.cursor.method.fetch(self.rowsperfecth))
-                    
+                    qsize += 1
+                self.queried += qsize * self.rowsperfecth
+                rowsremaining = self.rowlimit - self.queried
+                print "Queried: %d rows +(%d rows * %d times) (%d threads running) (%d - %d = %d rows remaining)" % (self.queried,self.rowsperfecth,qsize, len(results), self.rowlimit, self.queried, rowsremaining)
                 self.rowsperfecth += p.rowsperfecth
                 if self.rowsperfecth > p.maxrowsperfecth:
                     self.rowsperfecth = p.maxrowsperfecth
+                    
                 
-                self.paralellqueries += 1
+                self.paralellqueries = int(rowsremaining / self.rowsperfecth) + 1
+                if self.paralellqueries < 2:
+                    self.paralellqueries = 1
             
             newfetch()
             
             while True:
                 if self.abort: return
-                    
-                th1 = threading.Thread(target=newfetch)
-                th1.start()
+                if results:    
+                    th1 = threading.Thread(target=newfetch)
+                    th1.start()
+                else:
+                    newfetch()
                 rows = results.pop(0).value
                 rowcount += len(rows)
                 if not rows:
                     break
                 p.cachedata += rows
             self.totalrowcount += rowcount
-            if rowcount == 0 or self.totalrowcount > self.maxrowscached: 
+            if rowcount == 0 or rowcount < self.rowlimit or self.totalrowcount > self.maxrowscached: 
                 if self.totalrowcount > self.maxrowscached:
                     print "WARN: Stopped caching data because loader has reached %d rows" % (self.totalrowcount)
                 p.execute(1)
                 break
             if self.abort: return
-            p.execute(5000)
+            p.execute(p.maxtablerows)
 
 class MasterScript(object):
     def __init__(self, form):
@@ -75,7 +87,7 @@ class MasterScript(object):
         self.cachedata = []
         self.data_reload()
         self.maxtablerows = 5000
-        self.firstfetch = 50
+        self.firstfetch = 100
         self.rowsperfecth = 10
         self.maxrowsperfecth = 150
         
@@ -168,6 +180,7 @@ class MasterScript(object):
     def execute(self,rows):
         offset = len(self.cachedata)
         limit = rows
+        self.execute_rowlimit = limit
         try:
             self.cursor.call.execute(self.sqlquery + " LIMIT %d OFFSET %d" % (limit,offset))
         except Exception, e:
@@ -269,6 +282,5 @@ class MasterScript(object):
             print "loading table %s: %d rows (+%d hidden) (%.2f%%)" % (self.table, 
                 self.nrow, self.omitted, float(self.nrow+self.omitted)*100.0/float(self.totalrows))
 
-        
         
         
