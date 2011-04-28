@@ -39,6 +39,7 @@ class LlampexMasterForm(QtGui.QWidget):
 
             self.layout.addStretch()
             self.setLayout(self.layout)
+            return
             
         try:
             if "script" in self.actionobj.master:
