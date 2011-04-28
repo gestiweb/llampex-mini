@@ -34,7 +34,7 @@ class DataLoaderThread(threading.Thread):
                     self.rowsperfecth = p.maxrowsperfecth
                     
                 
-                self.paralellqueries = int(rowsremaining / self.rowsperfecth) + 1
+                self.paralellqueries = int(rowsremaining / self.rowsperfecth / 5) + 1
                 if self.paralellqueries < 2:
                     self.paralellqueries = 1
             
