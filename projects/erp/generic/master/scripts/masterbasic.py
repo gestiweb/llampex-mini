@@ -77,7 +77,7 @@ class MasterScript(object):
         self.maxtablerows = 5000
         self.firstfetch = 50
         self.rowsperfecth = 10
-        self.maxrowsperfecth = 80
+        self.maxrowsperfecth = 150
         
     
     def table_cellDoubleClicked(self, row, col):
@@ -237,7 +237,7 @@ class MasterScript(object):
         table = self.form.ui.table
         omittedrows = 0
         table.setRowCount(self.nrow+len(rowlist))
-        for rowdata in rowlist[:100]:
+        for rowdata in rowlist:
             includerow = True
             if self.nrow > self.maxtablerows: includerow = False
             for col, regex in self.filterdata.iteritems():
