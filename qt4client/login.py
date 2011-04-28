@@ -101,8 +101,10 @@ class ConnectionDialog(QtGui.QDialog):
         settings.setargv("host","127.0.0.1")
         settings.setargv("port","10123")
         settings.setargv("remember",False, cast=str2bool)
+        settings.setargv("debug",False, cast=str2bool)
         settings.setargv("project","")
         self.project = settings.project
+        self.debug = settings.debug
         self.ui.user.setText(settings.username)
         self.ui.password.setText(settings.password)
         try:
@@ -147,6 +149,7 @@ class ConnectionDialog(QtGui.QDialog):
             
         try:
             self.conn = bjsonrpc.connect(host=host,port=port)
+            self.conn._debug_socket = self.debug
         except Exception, e:
             msgBox = QtGui.QMessageBox()
             msgBox.setText("Error trying to connect to %s:%d: %s: %s\n" % (host,port,e.__class__.__name__ ,repr(e.args)))
@@ -375,11 +378,15 @@ class SplashDialog(QtGui.QDialog):
             self.rprj.project_childs = self.rprj.filetree.call.getChildSignature()
             self.rprj.files = {}
             sz = len(self.rprj.project_childs)
+            pparts = {}
             for i,k in enumerate(self.rprj.project_childs):
+                pparts[k] = self.rprj.filetree.method.getNodeHashValue([k])
+            
+            for i,k in enumerate(pparts):
                 p = i*100/sz
                 self.status_extra = "%d%%" % (p)
                 self.progress_extra = p
-                nodevalues = self.rprj.filetree.call.getNodeHashValue([k])
+                nodevalues = pparts[k].value
                 for nodehash, nodeval in nodevalues.iteritems():
                     digest = nodeval['digest']
                     name = nodeval['name']

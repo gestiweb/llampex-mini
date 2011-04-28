@@ -13,18 +13,30 @@ class DataLoaderThread(threading.Thread):
         p = self.parent
         self.abort = False
         self.totalrowcount = 0
+        self.rowsperfecth = p.rowsperfecth
+        self.paralellqueries = 1
         while True:
             rowcount = 0
             results = []
-            for i in range(2):
-                results.append( p.cursor.method.fetch(p.rowsperfecth) )
+            def newfetch():
+                while len(results) < self.paralellqueries:
+                    results.append(p.cursor.method.fetch(self.rowsperfecth))
+                    
+                self.rowsperfecth += p.rowsperfecth
+                if self.rowsperfecth > p.maxrowsperfecth:
+                    self.rowsperfecth = p.maxrowsperfecth
+                
+                self.paralellqueries += 1
+            
+            newfetch()
             
             while True:
                 if self.abort: return
-                newresult = p.cursor.method.fetch(p.rowsperfecth)
+                    
+                th1 = threading.Thread(target=newfetch)
+                th1.start()
                 rows = results.pop(0).value
                 rowcount += len(rows)
-                results.append(newresult)
                 if not rows:
                     break
                 p.cachedata += rows
@@ -64,6 +76,9 @@ class MasterScript(object):
         self.data_reload()
         self.maxtablerows = 5000
         self.firstfetch = 50
+        self.rowsperfecth = 10
+        self.maxrowsperfecth = 80
+        
     
     def table_cellDoubleClicked(self, row, col):
         print "Clicked", row,col
@@ -186,13 +201,12 @@ class MasterScript(object):
         self.nrows = 0
         self.nrow = 0      
         self.omitted = 0  
-        self.rowsperfecth = 10
 
         self.datathread.start()
         
         #self.fetchresult = self.cursor.method.fetch(self.rowsperfecth)
         self.table_initialized = True
-        self.timer.start(150)
+        self.timer.start(50)
 
     
     
@@ -223,7 +237,7 @@ class MasterScript(object):
         table = self.form.ui.table
         omittedrows = 0
         table.setRowCount(self.nrow+len(rowlist))
-        for rowdata in rowlist:
+        for rowdata in rowlist[:100]:
             includerow = True
             if self.nrow > self.maxtablerows: includerow = False
             for col, regex in self.filterdata.iteritems():
