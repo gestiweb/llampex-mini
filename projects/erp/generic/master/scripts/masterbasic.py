@@ -29,9 +29,9 @@ class DataLoaderThread(threading.Thread):
             def newfetch():
                 qsize = 0
                 rowsremaining = self.rowlimit - self.queried
-                #self.paralellqueries = int(rowsremaining / self.rowsperfecth/3) 
-                #if self.paralellqueries < 2:
-                self.paralellqueries = 4
+                self.paralellqueries = int(rowsremaining / self.rowsperfecth/2) 
+                if self.paralellqueries < 5:
+                    self.paralellqueries = 5
                     
                 while len(results) < self.paralellqueries:
                     results.append(p.cursor.method.fetch(self.rowsperfecth))
@@ -114,7 +114,7 @@ class MasterScript(object):
         self.cachedata = []
         self.maxtablerows = 5000
         self.firstfetch = 500
-        self.rowsperfecth = 20
+        self.rowsperfecth = 50
         self.maxrowsperfecth = 150
 
 
@@ -262,7 +262,7 @@ class MasterScript(object):
         if not rowlist and not self.datathread.isAlive():
             
             print "finished loading data for %s (%d/%d rows) in %.3f seconds" % (
-                self.table, self.nrows, self.totalrows, time.time() - self.starttime)
+                self.table, self.nrow, self.totalrows, time.time() - self.starttime)
             #x = self.fetchresult.value #get and drop.
             #assert( not x ) # should be empty
             self.timer.stop() 
