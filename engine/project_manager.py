@@ -331,7 +331,7 @@ def compute_password(userpass, hashmethod = "sha1", saltsize = 4):
     
         
 def compute_password_hexhash(userpass, hashmethod, binsalt):
-    saltedpass = binsalt + userpass
+    saltedpass = binsalt + str(userpass)
     m = None
     if hashmethod == "md5":
         m = hashlib.md5()
