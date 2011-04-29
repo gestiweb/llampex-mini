@@ -16,26 +16,31 @@ class DataLoaderThread(threading.Thread):
         self.rowsperfecth = p.rowsperfecth
         self.paralellqueries = 1
         self.queried = 0
+        start = time.time()
+        t1 = start
         while True:
             self.rowlimit = p.execute_rowlimit
+            t2 = time.time()
+            print "Expecting: %d rows (%.3fs delay)" % (self.rowlimit,t2-t1)
             rowcount = 0
             results = []
             self.queried = 0
+            
             def newfetch():
                 qsize = 0
-                self.paralellqueries = int(rowsremaining / self.rowsperfecth / 5) + 1
+                rowsremaining = self.rowlimit - self.queried
+                self.paralellqueries = int(rowsremaining / self.rowsperfecth) 
                 if self.paralellqueries < 2:
-                    self.paralellqueries = 2
+                    self.paralellqueries = 1
                     
                 while len(results) < self.paralellqueries:
                     results.append(p.cursor.method.fetch(self.rowsperfecth))
                     qsize += 1
                 self.queried += qsize * self.rowsperfecth
-                rowsremaining = self.rowlimit - self.queried
                 #print "Queried: %d rows +(%d rows * %d times) (%d threads running) (%d - %d = %d rows remaining)" % (self.queried,self.rowsperfecth,qsize, len(results), self.rowlimit, self.queried, rowsremaining)
-                self.rowsperfecth += p.rowsperfecth
-                if self.rowsperfecth > p.maxrowsperfecth:
-                    self.rowsperfecth = p.maxrowsperfecth
+                #self.rowsperfecth += p.rowsperfecth
+                #if self.rowsperfecth > p.maxrowsperfecth:
+                #    self.rowsperfecth = p.maxrowsperfecth
                     
                 
             
@@ -53,14 +58,22 @@ class DataLoaderThread(threading.Thread):
                 if not rows:
                     break
                 p.cachedata += rows
+                print self.totalrowcount, rowcount, "%.3fs" % (time.time()-start), "(%d t)" % len(results)
+                if rowcount >= self.rowlimit: 
+                    break
             self.totalrowcount += rowcount
+            print "Got %d rows (total: %d)" % (rowcount,self.totalrowcount)
             if rowcount == 0 or rowcount < self.rowlimit or self.totalrowcount > self.maxrowscached: 
                 if self.totalrowcount > self.maxrowscached:
                     print "WARN: Stopped caching data because loader has reached %d rows" % (self.totalrowcount)
                 p.execute(1)
                 break
             if self.abort: return
+            self.rowsperfecth = p.maxrowsperfecth
+            t1 = time.time()
             p.execute(p.maxtablerows)
+            
+        print "END:", self.totalrowcount, rowcount, "%.3fs" % (time.time()-start), "(%d t)" % len(results)
 
 class MasterScript(object):
     def __init__(self, form):
@@ -83,48 +96,22 @@ class MasterScript(object):
         self.filterdata = {}
         self.filter_regex = r"(\w+)[ ]*(~|=|>|<|LIKE|ILIKE|>=|<=)[ ]*'(.+)'"
         
-        self.sqlquery = None
+        self.sqlquery = None # obsolete
+        self.wherefilters = []
+        self.orderbyfields = []
+        
+        
         self.datathread = None
         self.cachedata = []
         self.data_reload()
         self.maxtablerows = 5000
-        self.firstfetch = 100
-        self.rowsperfecth = 10
+        self.firstfetch = 500
+        self.rowsperfecth = 20
         self.maxrowsperfecth = 150
-        
-    
-    def table_cellDoubleClicked(self, row, col):
-        print "Clicked", row,col
-        
-    def table_sectionClicked(self, col):
-        if col not in self.filterdata:
-            line1 = "No filter declared yet for column %d" % col
-            txt = ""
-        else:
-            line1 = "Replacing filter for column %d: %s" % (col, self.filterdata[col])
-            txt = unicode(self.filterdata[col])
-        rettext, ok = QtGui.QInputDialog.getText(self.form, "Filter By",
-            line1 + "\nWrite New filter (RegEx):", QtGui.QLineEdit.Normal, txt)
-        rettext = unicode(rettext)
-        if ok:
-            print "New filter:", repr(rettext)
-            if rettext == u"":
-                if col in self.filterdata:
-                    del self.filterdata[col]
-            else:
-                self.filterdata[col] = rettext
-            fullreload = False
-            self.update_sqlquery()
-            if self.datathread is None: fullreload = True
-            else:
-                if self.sqlquery != self.datathread.sql: fullreload = True
-                
-            if fullreload:
-                self.data_reload()
-            else:
-                self.data_softreload()
-    
+
     def update_sqlquery(self):
+        # Obsolete:
+        """
         where_str = []
         for col, regex in self.filterdata.iteritems():
             result1 = re.match(self.filter_regex,regex)
@@ -136,6 +123,20 @@ class MasterScript(object):
         self.sqlquery = "SELECT * FROM \"%s\"" % self.table
         if where_str:
             self.sqlquery += " WHERE %s" % (" AND ".join(where_str))
+        """
+        self.wherefilters = self.getwherefilter()
+        self.orderbyfields = []
+    
+    def getwherefilter(self):
+        wherefilter = []
+        for col, regex in self.filterdata.iteritems():
+            result1 = re.match(self.filter_regex,regex)
+            if result1:
+                fieldname, operator, regexvalue = result1.group(1), result1.group(2), result1.group(3)
+                wherefilter.append( {'fieldname' : fieldname, 'op' : operator, 'value' : value} )
+        return wherefilter
+                
+
     
     def data_reload(self):
         if self.datathread:
@@ -183,13 +184,20 @@ class MasterScript(object):
         limit = rows
         self.execute_rowlimit = limit
         try:
-            self.cursor.call.execute(self.sqlquery + " LIMIT %d OFFSET %d" % (limit,offset))
+            #self.cursor.call.execute(self.sqlquery + " LIMIT %d OFFSET %d" % (limit,offset))
+            self.sqlinfo = self.cursor.call.selecttable(self.table, 
+                wherelist=self.wherefilters, 
+                orderby=self.orderbyfields, 
+                limit = limit, 
+                offset = offset)
+                
         except Exception, e:
             print "FATAL: Cursor Execute failed with:", repr(e)
             self.cursor.call.rollback()
             self.timer.stop()
             return False
-        self.totalrows += self.cursor.call.rowcount()
+        self.execute_rowlimit = self.sqlinfo["count"]
+        self.totalrows += self.sqlinfo["count"]
         # print "%s: %d rows" % (self.table,self.totalrows)
         return True
         
@@ -199,7 +207,7 @@ class MasterScript(object):
         if not self.execute(self.firstfetch):
             table.setRowCount(0)
             return False
-        field_list = self.cursor.call.fields()[:self.maxcolumns]
+        field_list = self.sqlinfo["fields"][:self.maxcolumns]
         table.setColumnCount(len(field_list))
         table.setHorizontalHeaderLabels(field_list)
         
@@ -251,7 +259,7 @@ class MasterScript(object):
         table = self.form.ui.table
         omittedrows = 0
         table.setRowCount(self.nrow+len(rowlist))
-        for rowdata in rowlist:
+        for rowdata in rowlist[:150]:
             includerow = True
             if self.nrow > self.maxtablerows: includerow = False
             for col, regex in self.filterdata.iteritems():
@@ -284,4 +292,36 @@ class MasterScript(object):
                 self.nrow, self.omitted, float(self.nrow+self.omitted)*100.0/float(self.totalrows))
 
         
+    
+    def table_cellDoubleClicked(self, row, col):
+        print "Clicked", row,col
+        
+    def table_sectionClicked(self, col):
+        if col not in self.filterdata:
+            line1 = "No filter declared yet for column %d" % col
+            txt = ""
+        else:
+            line1 = "Replacing filter for column %d: %s" % (col, self.filterdata[col])
+            txt = unicode(self.filterdata[col])
+        rettext, ok = QtGui.QInputDialog.getText(self.form, "Filter By",
+            line1 + "\nWrite New filter (RegEx):", QtGui.QLineEdit.Normal, txt)
+        rettext = unicode(rettext)
+        if ok:
+            print "New filter:", repr(rettext)
+            if rettext == u"":
+                if col in self.filterdata:
+                    del self.filterdata[col]
+            else:
+                self.filterdata[col] = rettext
+            fullreload = False
+            self.update_sqlquery()
+            if self.datathread is None: fullreload = True
+            else:
+                if self.sqlquery != self.datathread.sql: fullreload = True
+                
+            if fullreload:
+                self.data_reload()
+            else:
+                self.data_softreload()
+            
         
