@@ -114,8 +114,8 @@ class MasterScript(object):
         self.cachedata = []
         self.maxtablerows = 5000
         self.firstfetch = 500
-        self.rowsperfecth = 50
-        self.maxrowsperfecth = 150
+        self.rowsperfecth = 20
+        self.maxrowsperfecth = 250
 
 
         self.data_reload()
@@ -256,7 +256,7 @@ class MasterScript(object):
         #rowlist = self.fetchresult.value
         #self.fetchresult = self.cursor.method.fetch(self.rowsperfecth)
         if self.nrows < 100: maxsize = 10 
-        else: maxsize = 500
+        else: maxsize = 50
         rowlist = self.cachedata[self.nrows:self.nrows+maxsize]
         table = self.form.ui.table
         if not rowlist and not self.datathread.isAlive():
@@ -332,10 +332,9 @@ class MasterScript(object):
             else:
                 self.filterdata[col] = rettext
             fullreload = False
-            self.update_sqlquery()
+            if self.wherefilters != self.getwherefilter(): fullreload = True
             if self.datathread is None: fullreload = True
-            else:
-                if self.sqlquery != self.datathread.sql: fullreload = True
+            
                 
             if fullreload:
                 self.data_reload()
