@@ -120,7 +120,7 @@ class RPCCursor(BaseHandler):
             if not txt: raise ServerError, "WhereClauseEmpty"
             txtwhere.append(txt)
         
-        if not txtwhere: txtwhere = ["1"]
+        if not txtwhere: txtwhere = ["TRUE"]
         self._sqlparams["where"] = " AND ".join(txtwhere)
         
 
@@ -136,7 +136,7 @@ class RPCCursor(BaseHandler):
         
         self._sqlinfo["fields"] = [l[0] for l in descrip]
         if not orderby:
-            orderby = self._sqlinfo["fields"]
+            orderby = self._sqlinfo["fields"][:1]
             
         self._sqlparams["orderby"] = ", ".join(orderby)
         return self.getmoredata(limit)
@@ -145,14 +145,19 @@ class RPCCursor(BaseHandler):
     def getmoredata(self, amount = 5000):
         
         self._sqlparams["limit"] = amount
-        self.cur.execute(""" 
+        sql = """ 
             SELECT COUNT(*) as c FROM (
                 SELECT 0
                 FROM %(table)s 
                 WHERE %(where)s 
-                LIMIT %(limit)d, %(offset)d 
+                LIMIT %(limit)d OFFSET %(offset)d 
             ) a
-            """ % self._sqlparams)
+            """ % self._sqlparams
+        try:
+            self.cur.execute(sql)
+        except Exception:
+            print "SQL::" + sql
+            raise
         row = self.cur.fetchone()
         self._sqlinfo["count"] = row[0] 
         
@@ -163,7 +168,7 @@ class RPCCursor(BaseHandler):
                 FROM %(table)s 
                 WHERE %(where)s 
                 ORDER BY %(orderby)s 
-                LIMIT %(limit)d, %(offset)d
+                LIMIT %(limit)d OFFSET %(offset)d
                 """ % self._sqlparams)
             self.rlock.release()
             self._sqlparams["offset"] += self._sqlparams["limit"]
