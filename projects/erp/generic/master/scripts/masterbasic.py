@@ -23,20 +23,21 @@ class DataLoaderThread(threading.Thread):
             self.queried = 0
             def newfetch():
                 qsize = 0
+                self.paralellqueries = int(rowsremaining / self.rowsperfecth / 5) + 1
+                if self.paralellqueries < 2:
+                    self.paralellqueries = 2
+                    
                 while len(results) < self.paralellqueries:
                     results.append(p.cursor.method.fetch(self.rowsperfecth))
                     qsize += 1
                 self.queried += qsize * self.rowsperfecth
                 rowsremaining = self.rowlimit - self.queried
-                print "Queried: %d rows +(%d rows * %d times) (%d threads running) (%d - %d = %d rows remaining)" % (self.queried,self.rowsperfecth,qsize, len(results), self.rowlimit, self.queried, rowsremaining)
+                #print "Queried: %d rows +(%d rows * %d times) (%d threads running) (%d - %d = %d rows remaining)" % (self.queried,self.rowsperfecth,qsize, len(results), self.rowlimit, self.queried, rowsremaining)
                 self.rowsperfecth += p.rowsperfecth
                 if self.rowsperfecth > p.maxrowsperfecth:
                     self.rowsperfecth = p.maxrowsperfecth
                     
                 
-                self.paralellqueries = int(rowsremaining / self.rowsperfecth / 5) + 1
-                if self.paralellqueries < 2:
-                    self.paralellqueries = 1
             
             newfetch()
             

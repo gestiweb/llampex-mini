@@ -90,6 +90,91 @@ class RPCCursor(BaseHandler):
             return self.cur.execute(sql,params)
         else:
             return self.cur.execute(sql)
+        
+    @withrlock    
+    def selecttable(self, tablename, fieldlist = ["*"], wherelist = [], orderby = [], limit = 5000, offset = 0):
+        """
+            Selects the specified table with the specified columns and filtered with the specified values
+            returns the field list and some other info.
+        """
+        self._sqlparams = {
+            'fields' : ",".join(fieldlist),
+            'table' : tablename,
+            'limit' : limit,
+            'offset' : offset
+            }
+        txtwhere = []
+        for where1 in wherelist:
+            txt = ""
+            if type(where1) is not dict: raise ServerError, "WhereClauseNotObject"
+            fieldname = where1.get("fieldname")
+            op = where1.get("op")
+            value = where1.get("value")
+            if not op and not fieldname:
+                txt = self.cur.mogrify("%s", [value])
+            elif op in "< > = >= <= LIKE ILIKE IN ~".split():
+                txt = self.cur.mogrify(fieldname + " " + op + " %s", [value])
+            else:
+                raise ServerError, "WhereClauseBadFormatted: " + repr(where1)
+            
+            if not txt: raise ServerError, "WhereClauseEmpty"
+            txtwhere.append(txt)
+        
+        if not txtwhere: txtwhere = ["1"]
+        self._sqlparams["where"] = " AND ".join(txtwhere)
+        
+
+        self.cur.execute(""" 
+            SELECT %(fields)s 
+            FROM %(table)s 
+            LIMIT 0
+            """ % self._sqlparams)
+        
+        descrip = self.cur.description
+        if descrip is None: raise ServerError, "UnexpectedQueryError"
+        self._sqlinfo = {}
+        
+        self._sqlinfo["fields"] = [l[0] for l in descrip]
+        if not orderby:
+            orderby = self._sqlinfo["fields"]
+            
+        self._sqlparams["orderby"] = ", ".join(orderby)
+        return self.getmoredata(limit)
+    
+    @withrlock    
+    def getmoredata(self, amount = 5000):
+        
+        self._sqlparams["limit"] = amount
+        self.cur.execute(""" 
+            SELECT COUNT(*) as c FROM (
+                SELECT 0
+                FROM %(table)s 
+                WHERE %(where)s 
+                LIMIT %(limit)d, %(offset)d 
+            ) a
+            """ % self._sqlparams)
+        row = self.cur.fetchone()
+        self._sqlinfo["count"] = row[0] 
+        
+        def thread_moredata():
+            self.rlock.acquire() # Will wait until parent call finishes.
+            self.cur.execute(""" 
+                SELECT %(fields)s 
+                FROM %(table)s 
+                WHERE %(where)s 
+                ORDER BY %(orderby)s 
+                LIMIT %(limit)d, %(offset)d
+                """ % self._sqlparams)
+            self.rlock.release()
+            self._sqlparams["offset"] += self._sqlparams["limit"]
+            
+        
+        th1 = threading.Thread(target = thread_moredata)
+        th1.start()
+        
+        return self._sqlinfo
+        
+        
 
     @withrlock    
     def fetch(self, size=20):
