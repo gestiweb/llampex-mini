@@ -21,7 +21,7 @@ class DataLoaderThread(threading.Thread):
         while True:
             self.rowlimit = p.execute_rowlimit
             t2 = time.time()
-            print "Expecting: %d rows (%.3fs delay)" % (self.rowlimit,t2-t1)
+            #print "Expecting: %d rows (%.3fs delay)" % (self.rowlimit,t2-t1)
             rowcount = 0
             results = []
             self.queried = 0
@@ -29,9 +29,9 @@ class DataLoaderThread(threading.Thread):
             def newfetch():
                 qsize = 0
                 rowsremaining = self.rowlimit - self.queried
-                self.paralellqueries = int(rowsremaining / self.rowsperfecth) 
-                if self.paralellqueries < 2:
-                    self.paralellqueries = 1
+                #self.paralellqueries = int(rowsremaining / self.rowsperfecth/3) 
+                #if self.paralellqueries < 2:
+                self.paralellqueries = 4
                     
                 while len(results) < self.paralellqueries:
                     results.append(p.cursor.method.fetch(self.rowsperfecth))
@@ -44,7 +44,10 @@ class DataLoaderThread(threading.Thread):
                     
                 
             
+            t3 = time.time()
             newfetch()
+            t4 = time.time()
+            #print "(%.3fs delay A ,%.3fs delay B )" % (t3-t2,t4-t3)
             
             while True:
                 if self.abort: return
@@ -52,17 +55,23 @@ class DataLoaderThread(threading.Thread):
                     th1 = threading.Thread(target=newfetch)
                     th1.start()
                 else:
+                    #print "querying new results."
                     newfetch()
+                t5 = time.time()
                 rows = results.pop(0).value
+                t6 = time.time()
                 rowcount += len(rows)
                 if not rows:
                     break
                 p.cachedata += rows
-                print self.totalrowcount, rowcount, "%.3fs" % (time.time()-start), "(%d t)" % len(results)
+                #print self.totalrowcount, rowcount, "%.3fs" % (time.time()-start), "(%d t) (%.3fs delay)" % (len(results),t6-t5)
+                self.hasdata.set()
                 if rowcount >= self.rowlimit: 
+                    while results:
+                        rows = results.pop(0).value
                     break
             self.totalrowcount += rowcount
-            print "Got %d rows (total: %d)" % (rowcount,self.totalrowcount)
+            #print "Got %d rows (total: %d)" % (rowcount,self.totalrowcount)
             if rowcount == 0 or rowcount < self.rowlimit or self.totalrowcount > self.maxrowscached: 
                 if self.totalrowcount > self.maxrowscached:
                     print "WARN: Stopped caching data because loader has reached %d rows" % (self.totalrowcount)
@@ -103,11 +112,13 @@ class MasterScript(object):
         
         self.datathread = None
         self.cachedata = []
-        self.data_reload()
         self.maxtablerows = 5000
         self.firstfetch = 500
         self.rowsperfecth = 20
         self.maxrowsperfecth = 150
+
+
+        self.data_reload()
 
     def update_sqlquery(self):
         # Obsolete:
@@ -133,12 +144,14 @@ class MasterScript(object):
             result1 = re.match(self.filter_regex,regex)
             if result1:
                 fieldname, operator, regexvalue = result1.group(1), result1.group(2), result1.group(3)
-                wherefilter.append( {'fieldname' : fieldname, 'op' : operator, 'value' : value} )
+                wherefilter.append( {'fieldname' : fieldname, 'op' : operator, 'value' : regexvalue} )
         return wherefilter
                 
 
     
     def data_reload(self):
+        self.timer.stop()
+
         if self.datathread:
             if self.datathread.isAlive():
                 self.datathread.abort = True
@@ -157,9 +170,13 @@ class MasterScript(object):
         self.datathread = DataLoaderThread()
         self.datathread.parent = self
         self.datathread.daemon = True
+        self.datathread.hasdata = threading.Event()
         self.datathread.sql = self.sqlquery
         self.table_initialized = False
-        self.timer.start(10)
+        self.timer_initload()
+        self.datathread.hasdata.wait(1)
+        self.timer_populatetable()
+        self.timer.start(1)
 
     def data_softreload(self):
         table = self.form.ui.table
@@ -170,7 +187,7 @@ class MasterScript(object):
         self.omitted = 0  
         self.totalrows = len(self.cachedata)
         table.setRowCount(min([self.totalrows,self.maxtablerows]))
-        self.timer.start(150)
+        self.timer.start(10)
     
         
     def timer_timeout(self):
@@ -219,7 +236,7 @@ class MasterScript(object):
         
         table.setRowCount(min([self.totalrows,self.maxtablerows]))
         
-        self.lastreporttime = time.time()
+        self.lastreporttime = 0
         self.nrows = 0
         self.nrow = 0      
         self.omitted = 0  
@@ -228,7 +245,7 @@ class MasterScript(object):
         
         #self.fetchresult = self.cursor.method.fetch(self.rowsperfecth)
         self.table_initialized = True
-        self.timer.start(50)
+        self.timer.start(10)
 
     
     
@@ -238,13 +255,14 @@ class MasterScript(object):
         #if self.fetchresult.response is None: return
         #rowlist = self.fetchresult.value
         #self.fetchresult = self.cursor.method.fetch(self.rowsperfecth)
-        
-        rowlist = self.cachedata[self.nrows:]
+        if self.nrows < 100: maxsize = 10 
+        else: maxsize = 500
+        rowlist = self.cachedata[self.nrows:self.nrows+maxsize]
         table = self.form.ui.table
         if not rowlist and not self.datathread.isAlive():
             
-            print "finished loading data for %s (%d rows) in %.3f seconds" % (
-                self.table, self.totalrows, time.time() - self.starttime)
+            print "finished loading data for %s (%d/%d rows) in %.3f seconds" % (
+                self.table, self.nrows, self.totalrows, time.time() - self.starttime)
             #x = self.fetchresult.value #get and drop.
             #assert( not x ) # should be empty
             self.timer.stop() 
@@ -259,7 +277,7 @@ class MasterScript(object):
         table = self.form.ui.table
         omittedrows = 0
         table.setRowCount(self.nrow+len(rowlist))
-        for rowdata in rowlist[:150]:
+        for rowdata in rowlist:
             includerow = True
             if self.nrow > self.maxtablerows: includerow = False
             for col, regex in self.filterdata.iteritems():
@@ -288,8 +306,8 @@ class MasterScript(object):
 
         if time.time() - self.lastreporttime > 1:
             self.lastreporttime = time.time()
-            print "loading table %s: %d rows (+%d hidden) (%.2f%%)" % (self.table, 
-                self.nrow, self.omitted, float(self.nrow+self.omitted)*100.0/float(self.totalrows))
+            print "loading table %s: %d rows (+%d hidden) (%.2f%%) (%.3f s)" % (self.table, 
+                self.nrow, self.omitted, float(self.nrow+self.omitted)*100.0/float(self.totalrows), time.time() - self.starttime)
 
         
     
