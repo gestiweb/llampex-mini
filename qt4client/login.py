@@ -162,7 +162,16 @@ class ConnectionDialog(QtGui.QDialog):
             if not logresult: raise ValueError
             global selectionwindow
             selectionwindow = ProjectSelectionDialog(self.conn)
-            selectionwindow.show()
+            
+            availableprojects  = self.conn.call.getAvailableProjects()
+            if len(availableprojects) == 1:
+                print "Only 1"
+                for row,rowdict in enumerate(availableprojects):
+                    self.project = rowdict['code']
+            else:
+                print "Multiple or None"
+                selectionwindow.show()
+            
             if self.project:
                 selectionwindow.open_project(self.project)
             self.close()
