@@ -1,7 +1,8 @@
 import model
 from model import RowProject, RowUser,RowProjectUser
 
-import project_manager 
+import project_manager
+import manage_projects
 
 import bjsonrpc
 from bjsonrpc.handlers import BaseHandler
@@ -51,6 +52,9 @@ class ServerHandler(BaseHandler):
         # TODO: Limit user access for this project
         
         return project_manager.connect_project(self,projectrow, self.username)
+        
+    def getManageProjects(self):        
+        return manage_projects.getManageProjects(self)
         
         
 

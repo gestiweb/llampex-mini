@@ -29,7 +29,8 @@ except AssertionError:
     print " * * * Please Upgrade BJSONRPC * * * "
     sys.exit(1)
 from mainwindow import LlampexMainWindow
-from widgets import llampexmainmenu 
+from widgets import llampexmainmenu
+from manage_dialog import ManageDialog
 
 __version__ = "0.0.1"
 diskwrite_lock = threading.Lock()
@@ -128,8 +129,22 @@ class ConnectionDialog(QtGui.QDialog):
         self.ui.project.setCurrentRow(selected)
         """    
     def manage_clicked(self):
+        host = unicode(self.ui.host.text())
+        port = unicode(self.ui.port.text())
+        port = int(port)
+        
+        try:
+            self.conn = bjsonrpc.connect(host=host,port=port)
+            self.conn._debug_socket = self.debug
+        except Exception, e:
+            msgBox = QtGui.QMessageBox()
+            msgBox.setText("Error trying to connect to %s:%d: %s: %s\n" % (host,port,e.__class__.__name__ ,repr(e.args)))
+            msgBox.setIcon(QtGui.QMessageBox.Critical)
+            msgBox.exec_()
+            return
+        
         global managewindow
-        managewindow = ManageDialog()
+        managewindow = ManageDialog(self.conn, filedir("forms/manage.ui"))
         managewindow.show()
         self.close()
         
@@ -229,15 +244,7 @@ class ConnectionDialog(QtGui.QDialog):
         f1 = open(filedir(".settings.yaml"),"w")
         f1.write(yaml.dump(settings))
         event.accept()
-        #event.ignore()
-
-class ManageDialog(QtGui.QDialog):
-    def __init__(self):
-        QtGui.QDialog.__init__(self)
-            
-        ui_filepath = filedir("forms/manage.ui") # convertimos la ruta a absoluta
-        self.ui = uic.loadUi(ui_filepath,self) # Cargamos un fichero UI externo    
-
+        #event.ignore()      
 
 class ProjectSelectionDialog(QtGui.QDialog):
     def __init__(self, conn):
