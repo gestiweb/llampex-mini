@@ -4,7 +4,6 @@ from sqlalchemy.orm import relation as relationship
 
 from . import Base
 
-
 class RowUser(Base):
     __tablename__ = 'users'
     
@@ -12,10 +11,12 @@ class RowUser(Base):
     username = Column(String(64), nullable=False, unique=True)
     password = Column(String(255))
     active = Column(Boolean, nullable=False, default=True)
+    admin = Column(Boolean, nullable=False, default=False)
     
     def __str__(self):
         return "<RowUser(%s) username=%s active=%s>" % (
             repr(self.id),
             repr(self.username), 
-            repr(self.active) 
+            repr(self.active),
+            repr(self.admin)
             )

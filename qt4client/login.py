@@ -144,7 +144,7 @@ class ConnectionDialog(QtGui.QDialog):
             return
         
         global managewindow
-        managewindow = ManageDialog(self.conn, filedir("forms/manage.ui"))
+        managewindow = ManageDialog(self.conn, filedir("forms/manage.ui"), filedir("forms/addProject.ui"))
         managewindow.show()
         self.close()
         
