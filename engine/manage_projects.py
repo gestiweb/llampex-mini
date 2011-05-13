@@ -10,6 +10,17 @@ from project_manager import compute_password
 class ManageProjects(BaseHandler):
     def __init__(self, rpc):
         BaseHandler.__init__(self,rpc)
+        
+    
+    def do_Commit(self):
+        try:  
+            model.session.commit()
+        except:
+            model.session.rollback()
+            return False
+        else:
+            return True
+        
 
     ########### USERS ###########
     def getUsers(self):
@@ -26,13 +37,13 @@ class ManageProjects(BaseHandler):
         user.admin = user_row[2]
         if user_row[0] != user_row[3]:
             user.username = user_row[0]
-            
-        model.session.commit()
+        
+        return self.do_Commit()
     
     def modifyUserPass(self, username, newPass):
         user = model.session.query(RowUser).filter(RowUser.username == username).first()
         user.password = compute_password(newPass)
-        model.session.commit()
+        return self.do_Commit()
         
     def newUser(self, username, password, active, admin):
         user = RowUser()
@@ -42,7 +53,7 @@ class ManageProjects(BaseHandler):
         user.admin = admin
             
         model.session.add(user)
-        model.session.commit()
+        return self.do_Commit()
         
     def delUser(self, username):
         user = model.session.query(RowUser).filter(RowUser.username == username).first()
@@ -53,7 +64,7 @@ class ManageProjects(BaseHandler):
             model.session.delete(row)
             
         model.session.delete(user)
-        model.session.commit()
+        return self.do_Commit()
         
     ########### PROJECTS ###########
     def getProjects(self):
@@ -78,7 +89,7 @@ class ManageProjects(BaseHandler):
         if proj_row[0] != proj_row[8]:
             proj.code = proj_row[0]
             
-        model.session.commit()
+        return self.do_Commit()
         
     def modifyProjPass(self, code, newPass, encrypt):
         #TODO: Implementate encryption
@@ -86,7 +97,7 @@ class ManageProjects(BaseHandler):
         if encrypt == "None":
             project.password = newPass
             project.passwdcipher = None
-        model.session.commit()
+        return self.do_Commit()
         
     def newProject(self, code, desc, db, path, host, port, user, password, encrypt, active):
         project = RowProject()
@@ -105,7 +116,7 @@ class ManageProjects(BaseHandler):
             project.passwdcipher = None
             
         model.session.add(project)
-        model.session.commit()
+        return self.do_Commit()
         
     def delProject(self, code):
         project = model.session.query(RowProject).filter(RowProject.code == code).first()
@@ -116,7 +127,7 @@ class ManageProjects(BaseHandler):
             model.session.delete(row)
         
         model.session.delete(project)
-        model.session.commit()
+        return self.do_Commit()
 
 
     ########### USERS/PROJECTS ###########
@@ -143,14 +154,14 @@ class ManageProjects(BaseHandler):
         userProj.project = model.session.query(RowProject).filter(RowProject.code == project).one()
         userProj.user = model.session.query(RowUser).filter(RowUser.username == user).one()
         model.session.add(userProj)
-        model.session.commit()
+        return self.do_Commit()
     
     def delUserFromProject(self,user,project):
         usr = model.session.query(RowUser).filter(RowUser.username == user).one()
         proj = model.session.query(RowProject).filter(RowProject.code == project).one()
         userProj = model.session.query(RowProjectUser).filter(RowProjectUser.user == usr).filter(RowProjectUser.project == proj).one()
         model.session.delete(userProj)
-        model.session.commit()
+        return self.do_Commit()
         
         
 def getManageProjects(rpc):

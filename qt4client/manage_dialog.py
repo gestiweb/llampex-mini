@@ -50,6 +50,10 @@ class ManageDialog(QtGui.QDialog):
         self.ui.connect(self.comboProjects, QtCore.SIGNAL("currentIndexChanged(const QString&)"), self.comboProjects_changed)
         self.ui.connect(self.btnRight, QtCore.SIGNAL("clicked(bool)"), self.rightPerformed)
         self.ui.connect(self.btnLeft, QtCore.SIGNAL("clicked(bool)"), self.leftPerformed)
+        self.ui.connect(self.btnAllRight, QtCore.SIGNAL("clicked(bool)"), self.allRightPerformed)
+        self.ui.connect(self.btnAllLeft, QtCore.SIGNAL("clicked(bool)"), self.allLeftPerformed)
+        self.ui.connect(self.listActive, QtCore.SIGNAL("itemChanged (QListWidgetItem *)"), self.movedToActive)
+        self.ui.connect(self.listInactive, QtCore.SIGNAL("itemChanged (QListWidgetItem *)"), self.movedToInactive)
         
     
     def fillTable(self, table, rows):
@@ -129,7 +133,7 @@ class ManageDialog(QtGui.QDialog):
                 listOfNames = self.getCol(self.tableUsers,col)
                 del listOfNames[row]
                 if name in listOfNames:
-                    self.showMessageBox("Error","The name can't be repeated",QtGui.QMessageBox.Critical)
+                    self.showMessageBox("Error","The name can't be repeated",QtGui.QMessageBox.Warning)
                     print "Error: The name can't be repeated"
                     validate = False
             if not validate:
@@ -139,7 +143,9 @@ class ManageDialog(QtGui.QDialog):
                 user.append(self.oldUserNames[row])
                 
                 #rpc
-                self.manageProjects.call.modifyUser(user)
+                if not self.manageProjects.call.modifyUser(user):
+                    self.showMessageBox("Fatal Error","There is an unexpected error in the database. Exiting...",QtGui.QMessageBox.Critical)
+                    self.close()
                 
                 # renovate the oldUserNames
                 self.oldUserNames = self.getCol(self.tableUsers,0)
@@ -161,13 +167,13 @@ class ManageDialog(QtGui.QDialog):
         
         if ok:
             if name == "":
-                self.showMessageBox("Error","The name is required",QtGui.QMessageBox.Critical)
+                self.showMessageBox("Error","The name is required",QtGui.QMessageBox.Warning)
                 print "Error: The name is required"
                 validate = False
             else:
                 listOfNames = self.getCol(self.tableUsers,0)
                 if name in listOfNames:
-                    self.showMessageBox("Error","This username already exists",QtGui.QMessageBox.Critical)
+                    self.showMessageBox("Error","This username already exists",QtGui.QMessageBox.Warning)
                     print "Error: The name can't be repeated"
                     validate = False
         else:
@@ -177,7 +183,7 @@ class ManageDialog(QtGui.QDialog):
             password, ok = QtGui.QInputDialog.getText(self, 'New User', 'Enter password:', QtGui.QLineEdit.Password)
             if ok:
                 if password == "":
-                    self.showMessageBox("Error","The password is required",QtGui.QMessageBox.Critical)
+                    self.showMessageBox("Error","The password is required",QtGui.QMessageBox.Warning)
                     print "Error: The password is required"
                     validate = False
             else:
@@ -212,7 +218,9 @@ class ManageDialog(QtGui.QDialog):
         if validate: #All right!
             
             #rpc!
-            self.manageProjects.call.newUser(unicode(name),unicode(password),active,unicode(admin))
+            if not self.manageProjects.call.newUser(unicode(name),unicode(password),active,unicode(admin)):
+                self.showMessageBox("Fatal Error","There is an unexpected error in the database. Exiting...",QtGui.QMessageBox.Critical)
+                self.close()
             
             # renovate the oldUserNames
             self.oldUserNames.append(unicode(name))
@@ -233,25 +241,30 @@ class ManageDialog(QtGui.QDialog):
     def changePassUser(self, b):
         row = self.tableUsers.currentRow()
         if row == -1:
-            self.showMessageBox("Change Password","You must select a user",QtGui.QMessageBox.Critical)
+            self.showMessageBox("Change Password","You must select a user",QtGui.QMessageBox.Warning)
         else:
             name = unicode(self.tableUsers.item(row,0).text())
             password, ok = QtGui.QInputDialog.getText(self, 'Change Password', 'Enter new password for '+name+':', QtGui.QLineEdit.Password)
             if ok and password != "":
-                self.manageProjects.call.modifyUserPass(unicode(name),unicode(password))
+                if not self.manageProjects.call.modifyUserPass(unicode(name),unicode(password)):
+                    self.showMessageBox("Fatal Error","There is an unexpected error in the database. Exiting...",QtGui.QMessageBox.Critical)
+                    self.close()
+                    
                 self.showMessageBox("Info","Password changed correctly",QtGui.QMessageBox.Information)
                 
     def del_user(self, b):
         row = self.tableUsers.currentRow()
         if row == -1:
-            self.showMessageBox("Delete User","You must select a user",QtGui.QMessageBox.Critical)
+            self.showMessageBox("Delete User","You must select a user",QtGui.QMessageBox.Warning)
         else:
             name = unicode(self.tableUsers.item(row,0).text())
             ok = QtGui.QMessageBox.question(self, "Delete User", "Are you sure you want to delete "+name+"?", 1, 2)
             
             if ok == 1:
                 #rpc
-                self.manageProjects.call.delUser(name)
+                if not self.manageProjects.call.delUser(name):
+                    self.showMessageBox("Fatal Error","There is an unexpected error in the database. Exiting...",QtGui.QMessageBox.Critical)
+                    self.close()
                 
                 # delete the row
                 self.forceNoChange = True
@@ -276,7 +289,7 @@ class ManageDialog(QtGui.QDialog):
                 listOfCodes = self.getCol(self.tableProjects,col)
                 del listOfCodes[row]
                 if code in listOfCodes:
-                    self.showMessageBox("Error","The code can't be repeated",QtGui.QMessageBox.Critical)
+                    self.showMessageBox("Error","The code can't be repeated",QtGui.QMessageBox.Warning)
                     print "Error: The code can't be repeated"
                     validate = False
                     self.tableProjects.item(row,col).setText(self.oldCodes[row])
@@ -285,7 +298,7 @@ class ManageDialog(QtGui.QDialog):
                 try:
                     int(self.tableProjects.item(row,col).text())
                 except ValueError:
-                    self.showMessageBox("Error","The port must be a number",QtGui.QMessageBox.Critical)
+                    self.showMessageBox("Error","The port must be a number",QtGui.QMessageBox.Warning)
                     validate = False
                     self.forceNoChange = True
                     self.tableProjects.item(row,col).setText("0")
@@ -296,7 +309,9 @@ class ManageDialog(QtGui.QDialog):
                 proj.append(self.oldCodes[row])
                 
                 #rpc
-                self.manageProjects.call.modifyProject(proj)
+                if not self.manageProjects.call.modifyProject(proj):
+                    self.showMessageBox("Fatal Error","There is an unexpected error in the database. Exiting...",QtGui.QMessageBox.Critical)
+                    self.close()
                 
                 # renovate the oldCodes
                 self.oldCodes = self.getCol(self.tableProjects,0)
@@ -311,25 +326,30 @@ class ManageDialog(QtGui.QDialog):
     def changePassProject(self,b):
         row = self.tableProjects.currentRow()
         if row == -1:
-            self.showMessageBox("Change Password","You must select a project",QtGui.QMessageBox.Critical)
+            self.showMessageBox("Change Password","You must select a project",QtGui.QMessageBox.Warning)
         else:
             code = unicode(self.tableProjects.item(row,0).text())
             password, ok = QtGui.QInputDialog.getText(self, 'Change Password', 'Enter new password for '+code+' project:', QtGui.QLineEdit.Password)
             if ok and password != "":
-                self.manageProjects.call.modifyProjPass(unicode(code),unicode(password),"None")
+                if not self.manageProjects.call.modifyProjPass(unicode(code),unicode(password),"None"):
+                    self.showMessageBox("Fatal Error","There is an unexpected error in the database. Exiting...",QtGui.QMessageBox.Critical)
+                    self.close()
+                    
                 self.showMessageBox("Info","Password changed correctly",QtGui.QMessageBox.Information)
         
     def del_project(self,b):
         row = self.tableProjects.currentRow()
         if row == -1:
-            self.showMessageBox("Delete Project","You must select a project",QtGui.QMessageBox.Critical)
+            self.showMessageBox("Delete Project","You must select a project",QtGui.QMessageBox.Warning)
         else:
             code = unicode(self.tableProjects.item(row,0).text())
             ok = QtGui.QMessageBox.question(self, "Delete Project", "Are you sure you want to delete "+code+"?", 1, 2)
             
             if ok == 1:
                 #rpc
-                self.manageProjects.call.delProject(code)
+                if not self.manageProjects.call.delProject(code):
+                    self.showMessageBox("Fatal Error","There is an unexpected error in the database. Exiting...",QtGui.QMessageBox.Critical)
+                    self.close()
                 
                 # delete the row
                 self.forceNoChange = True
@@ -368,34 +388,63 @@ class ManageDialog(QtGui.QDialog):
     def comboProjects_changed(self, project):
         # refill the Lists
         self.fillListsUsers(project)
+        
+    def addUserToProject(self,item):
+        user = unicode(item.text())
+        code = unicode(self.comboProjects.currentText())
+        
+        #rpc
+        if not self.manageProjects.call.addUserToProject(user,code):
+            self.showMessageBox("Fatal Error","There is an unexpected error in the database. Exiting...",QtGui.QMessageBox.Critical)
+            self.close()
     
+    def delUserFromProject(self,item):
+        user = unicode(item.text())
+        code = unicode(self.comboProjects.currentText())
+        #rpc
+        if not self.manageProjects.call.delUserFromProject(user,code):
+            self.showMessageBox("Fatal Error","There is an unexpected error in the database. Exiting...",QtGui.QMessageBox.Critical)
+            self.close()
+        
     def rightPerformed(self,b):
         item = self.listActive.takeItem(self.listActive.currentRow())
         if item == None:
-            self.showMessageBox("Manage Users and Projects","You must select a user on Active List",QtGui.QMessageBox.Critical)
+            self.showMessageBox("Manage Users and Projects","You must select a user on Active List",QtGui.QMessageBox.Warning)
         else:
-            user = unicode(item.text())
-            code = unicode(self.comboProjects.currentText())
-            
-            #rpc
-            self.manageProjects.call.delUserFromProject(user,code)
-            
+            self.delUserFromProject(item)
             #move item
             self.listInactive.addItem(item)
     
     def leftPerformed(self,b):
         item = self.listInactive.takeItem(self.listInactive.currentRow())
         if item == None:
-            self.showMessageBox("Manage Users and Projects","You must select a user on Inactive List",QtGui.QMessageBox.Critical)
+            self.showMessageBox("Manage Users and Projects","You must select a user on Inactive List",QtGui.QMessageBox.Warning)
         else:
-            user = unicode(item.text())
-            code = unicode(self.comboProjects.currentText())
-            
-            #rpc
-            self.manageProjects.call.addUserToProject(user,code)
-            
+            self.addUserToProject(item)            
             #move item
             self.listActive.addItem(item)
+            
+    def movedToActive(self,item):
+        self.addUserToProject(item)
+    
+    def movedToInactive(self,item):
+        self.delUserFromProject(item)
+    
+    def allRightPerformed(self,b):
+        for i in range(self.listActive.count()):
+            item = self.listActive.takeItem(0)
+            if not item == None:
+                self.delUserFromProject(item)
+                #move item
+                self.listInactive.addItem(item)
+    
+    def allLeftPerformed(self,b):
+        for i in range(self.listInactive.count()):
+            item = self.listInactive.takeItem(0)
+            if not item == None:
+                self.addUserToProject(item)
+                #move item
+                self.listActive.addItem(item)
 
 
         
@@ -442,9 +491,11 @@ class NewProjectDialog(QtGui.QDialog):
             
             
             #rpc!
-            self.manageProjects.call.newProject(unicode(self.code.text()), unicode(self.name.text()),
+            if  not self.manageProjects.call.newProject(unicode(self.code.text()), unicode(self.name.text()),
             unicode(self.db.text()), unicode(self.path.text()), unicode(self.host.text()), self.port.value(),
-            unicode(self.user.text()), unicode(self.password.text()), unicode(self.encrypt.currentText()), active)
+            unicode(self.user.text()), unicode(self.password.text()), unicode(self.encrypt.currentText()), active):
+                self.showMessageBox("Fatal Error","There is an unexpected error in the database. Exiting...",QtGui.QMessageBox.Critical)
+                self.close()
             
             # renovate the oldCodes
             self.manageForm.oldCodes.append(unicode(self.code.text()))
