@@ -246,17 +246,26 @@
            <layout class="QVBoxLayout" name="verticalLayout_5">
             <item>
              <widget class="QListWidget" name="listActive">
+              <property name="showDropIndicator" stdset="0">
+               <bool>false</bool>
+              </property>
               <property name="dragEnabled">
-               <bool>true</bool>
+               <bool>false</bool>
+              </property>
+              <property name="dragDropOverwriteMode">
+               <bool>false</bool>
               </property>
               <property name="dragDropMode">
-               <enum>QAbstractItemView::DragDrop</enum>
+               <enum>QAbstractItemView::NoDragDrop</enum>
               </property>
               <property name="defaultDropAction">
-               <enum>Qt::MoveAction</enum>
+               <enum>Qt::CopyAction</enum>
               </property>
               <property name="alternatingRowColors">
                <bool>false</bool>
+              </property>
+              <property name="selectionMode">
+               <enum>QAbstractItemView::ExtendedSelection</enum>
               </property>
              </widget>
             </item>
@@ -324,17 +333,26 @@
            <layout class="QVBoxLayout" name="verticalLayout_6">
             <item>
              <widget class="QListWidget" name="listInactive">
+              <property name="showDropIndicator" stdset="0">
+               <bool>false</bool>
+              </property>
               <property name="dragEnabled">
-               <bool>true</bool>
+               <bool>false</bool>
+              </property>
+              <property name="dragDropOverwriteMode">
+               <bool>false</bool>
               </property>
               <property name="dragDropMode">
-               <enum>QAbstractItemView::DragDrop</enum>
+               <enum>QAbstractItemView::NoDragDrop</enum>
               </property>
               <property name="defaultDropAction">
-               <enum>Qt::MoveAction</enum>
+               <enum>Qt::CopyAction</enum>
               </property>
               <property name="alternatingRowColors">
                <bool>false</bool>
+              </property>
+              <property name="selectionMode">
+               <enum>QAbstractItemView::ExtendedSelection</enum>
               </property>
              </widget>
             </item>

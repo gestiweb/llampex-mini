@@ -52,8 +52,6 @@ class ManageDialog(QtGui.QDialog):
         self.ui.connect(self.btnLeft, QtCore.SIGNAL("clicked(bool)"), self.leftPerformed)
         self.ui.connect(self.btnAllRight, QtCore.SIGNAL("clicked(bool)"), self.allRightPerformed)
         self.ui.connect(self.btnAllLeft, QtCore.SIGNAL("clicked(bool)"), self.allLeftPerformed)
-        self.ui.connect(self.listActive, QtCore.SIGNAL("itemChanged (QListWidgetItem *)"), self.movedToActive)
-        self.ui.connect(self.listInactive, QtCore.SIGNAL("itemChanged (QListWidgetItem *)"), self.movedToInactive)
         
     
     def fillTable(self, table, rows):
@@ -407,28 +405,27 @@ class ManageDialog(QtGui.QDialog):
             self.close()
         
     def rightPerformed(self,b):
-        item = self.listActive.takeItem(self.listActive.currentRow())
-        if item == None:
-            self.showMessageBox("Manage Users and Projects","You must select a user on Active List",QtGui.QMessageBox.Warning)
-        else:
-            self.delUserFromProject(item)
-            #move item
-            self.listInactive.addItem(item)
+        i = 0
+        while i <= self.listActive.count():
+            if self.listActive.isItemSelected(self.listActive.item(i)):
+                item = self.listActive.takeItem(i)
+                self.delUserFromProject(item)
+                #move item
+                self.listInactive.addItem(item)
+            else:
+                i+=1
+                
     
     def leftPerformed(self,b):
-        item = self.listInactive.takeItem(self.listInactive.currentRow())
-        if item == None:
-            self.showMessageBox("Manage Users and Projects","You must select a user on Inactive List",QtGui.QMessageBox.Warning)
-        else:
-            self.addUserToProject(item)            
-            #move item
-            self.listActive.addItem(item)
-            
-    def movedToActive(self,item):
-        self.addUserToProject(item)
-    
-    def movedToInactive(self,item):
-        self.delUserFromProject(item)
+        i = 0
+        while i <= self.listInactive.count():
+            if self.listInactive.isItemSelected(self.listInactive.item(i)):
+                item = self.listInactive.takeItem(i)
+                self.addUserToProject(item) 
+                #move item
+                self.listActive.addItem(item)
+            else:
+                i+=1
     
     def allRightPerformed(self,b):
         for i in range(self.listActive.count()):
