@@ -9,6 +9,7 @@ from bjsonrpc.exceptions import ServerError
 from bjsonrpc.handlers import BaseHandler
 from base64 import b64encode, b64decode
 import rpc_cursor
+import qsqlrpcdriver.servercursor as servercursor
 
 verbose = False
 b64digest_filecache = {}
@@ -189,6 +190,9 @@ class ProjectManager(BaseHandler):
         newcur = rpc_cursor.RPCCursor(self.rpc, self)
         self.cursors.append(newcur)
         return newcur
+        
+    def getCursor(self):
+        return servercursor.CursorSQL(self)
             
     def isLoaded(self): 
         return self.is_loaded    
