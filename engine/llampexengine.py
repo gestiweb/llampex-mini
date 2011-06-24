@@ -49,18 +49,20 @@ def main():
                       help="PostgreSQL Password for User", metavar="DBUSER")
     parser.add_option("--createtables", dest="createtables", action="store_true",
                       help="Creates the needed tables if aren't in the database yet")
-                      
+    parser.add_option("-q", "--quiet",
+                      action="store_false", dest="verbose", default=True,
+                      help="don't print status messages to stdout")                      
 
     (options, args) = parser.parse_args()
     dboptions = {}
     for key in dir(options):
         if key.startswith("db"):
             dboptions[key] = getattr(options,key)
-    connect(dboptions)
+    connect(dboptions,options.verbose)
     if options.createtables:
         create_all()
         
-    engine.start()
+    engine.start(options.verbose)
     engine.wait()
     
 if __name__ == "__main__":

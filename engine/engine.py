@@ -62,11 +62,11 @@ def handler(signum, frame):
     print 'Received signal number', signum
     raise KeyboardInterrupt
 
-def start():
+def start(verbose = False):
     global thread_server
     #signal.signal(signal.SIGINT, handler)
     rpcserver = bjsonrpc.createserver(host="0.0.0.0", port=10123, handler_factory=ServerHandler)        
-    rpcserver.debug_socket(True)
+    rpcserver.debug_socket(verbose)
     thread_server = threading.Thread(target=rpcserver.serve)
     thread_server.daemon = True
     thread_server.start()

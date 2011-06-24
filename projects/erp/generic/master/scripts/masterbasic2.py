@@ -18,15 +18,21 @@ class MasterScript(object):
             self.rpc.qtdriver = qtdriver.QSqlLlampexDriver(self.rpc)
             self.rpc.qtdb = QtSql.QSqlDatabase.addDatabase(self.rpc.qtdriver, "llampex-qsqlrpcdriver")
             assert(self.rpc.qtdb.open("",""))
-            qtdriver.DEBUG_MODE = False
+            #qtdriver.DEBUG_MODE = False
         self.db = self.rpc.qtdb
         self.table = self.form.actionobj.table
         self.model = None
 
         
         table = self.form.ui.table
-        #tableheader = table.horizontalHeader()
-        self.form.ui.update()
+        
+        table.setSortingEnabled( True )
+        
+        tableheader = table.horizontalHeader()
+        tableheader.setSortIndicator(0,0)
+        
+        self.form.connect(tableheader, QtCore.SIGNAL("sortIndicatorChanged(int,Qt::SortOrder)"), self.table_sortIndicatorChanged)
+        self.form.connect(tableheader, QtCore.SIGNAL("customContextMenuRequested(QPoint &)"),self.table_headerCustomContextMenuRequested)
         
         self.model = QtSql.QSqlTableModel(None,self.db)
         self.modelReady = threading.Event()
@@ -34,14 +40,20 @@ class MasterScript(object):
         QtCore.QTimer.singleShot(5,self.settablemodel)
         thread1 = threading.Thread(target=self.reload_data)
         thread1.start()
+    
+    def table_headerCustomContextMenuRequested(self, point):
+        print point
         
+    def table_sortIndicatorChanged(self, column, order):
+        print column, order
         
     def reload_data(self):
         #table = self.form.ui.table
         print "Model table:", self.table
         self.model.setTable(self.table)
+        self.model.setSort(0,0)
         print "ok"
-        self.model.setEditStrategy(QtSql.QSqlTableModel.OnManualSubmit)
+        self.model.setEditStrategy(QtSql.QSqlTableModel.OnRowChange)
         self.modelReady.set()
         self.modelSet.wait()
         # QtCore.QTimer.singleShot(100,self.settablemodel)
