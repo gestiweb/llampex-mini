@@ -17,12 +17,17 @@ class MasterScript(object):
     def __init__(self, form):
         self.form = form
         self.rpc = self.form.prjconn
+        
+        # This code is obsolete! >>>>
         if not hasattr(self.rpc,"qtdriver"):
+            print "####### LOADING QT-SQL DRIVER IN PROJECT CODE !!! #####"
             qtdriver.DEBUG_MODE = True
             self.rpc.qtdriver = qtdriver.QSqlLlampexDriver(self.rpc)
             self.rpc.qtdb = QtSql.QSqlDatabase.addDatabase(self.rpc.qtdriver, "llampex-qsqlrpcdriver")
             assert(self.rpc.qtdb.open("",""))
             qtdriver.DEBUG_MODE = False
+        # <<< This code is obsolete!
+        
         self.db = self.rpc.qtdb
         self.table = self.form.actionobj.table
         self.model = None
