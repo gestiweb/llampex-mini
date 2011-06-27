@@ -7,7 +7,7 @@ import yaml, hashlib, bz2, zlib
 from base64 import b64decode, b64encode
 
 try:
-    from PyQt4 import QtGui, QtCore, uic
+    from PyQt4 import QtGui, QtCore, QtSql, uic
 except ImportError:
     print "ERROR: Unable to import PyQt4 (Qt4 for Python)."
     print " * * * Please install PyQt4 / python-qt4 package * * *"    
@@ -20,7 +20,6 @@ except ImportError:
     print " * * * Please install bjsonrpc package * * *"    
     sys.exit(1)
 
-from bjsonrpc.exceptions import ServerError
 bjsonrpc_required_release = '0.2.0'
 try:
     assert(bjsonrpc.__release__ >= bjsonrpc_required_release)
@@ -28,6 +27,9 @@ except AssertionError:
     print "ERROR: bjsonrpc release is %s , and llampex mini qt4client requires at least %s" % (bjsonrpc.__release__, bjsonrpc_required_release)
     print " * * * Please Upgrade BJSONRPC * * * "
     sys.exit(1)
+from bjsonrpc.exceptions import ServerError
+import qsqlrpcdriver.qtdriver as qtdriver
+
 from mainwindow import LlampexMainWindow
 from widgets import llampexmainmenu
 from manage_dialog import ManageDialog
@@ -511,6 +513,13 @@ class SplashDialog(QtGui.QDialog):
             
     def finishLoad(self): 
         global mainwin
+        if not hasattr(self.prjconn,"qtdriver"):
+            qtdriver.DEBUG_MODE = True
+            self.prjconn.qtdriver = qtdriver.QSqlLlampexDriver(self.prjconn)
+            self.prjconn.qtdb = QtSql.QSqlDatabase.addDatabase(self.prjconn.qtdriver, "llampex-qsqlrpcdriver")
+            assert(self.prjconn.qtdb.open("",""))
+            qtdriver.DEBUG_MODE = False
+        
         mainwin = LlampexMainWindow(self.projectpath, self.rprj.files,self.prjconn)
         mainwin.setWindowIcon(llampex_icon)
         mainwin.show()

@@ -8,6 +8,8 @@ import re
 import qsqlrpcdriver.qtdriver as qtdriver
 import threading
 
+from projectloader import LlampexTable
+
 def h(*args): return os.path.realpath(os.path.join(os.path.dirname(os.path.abspath( __file__ )), *args))
     
 
@@ -15,16 +17,31 @@ class MasterScript(object):
     def __init__(self, form):
         self.form = form
         self.rpc = self.form.prjconn
+        
+        # This code is obsolete! >>>>
         if not hasattr(self.rpc,"qtdriver"):
+            print "####### LOADING QT-SQL DRIVER IN PROJECT CODE !!! #####"
             qtdriver.DEBUG_MODE = True
             self.rpc.qtdriver = qtdriver.QSqlLlampexDriver(self.rpc)
             self.rpc.qtdb = QtSql.QSqlDatabase.addDatabase(self.rpc.qtdriver, "llampex-qsqlrpcdriver")
             assert(self.rpc.qtdb.open("",""))
             qtdriver.DEBUG_MODE = False
+        # <<< This code is obsolete!
+        
         self.db = self.rpc.qtdb
         self.table = self.form.actionobj.table
         self.model = None
-
+        print
+        try:
+            tmd=LlampexTable.tableindex[self.table]
+            
+            print tmd
+            print "PKey:", tmd.primarykey
+            print tmd.fields
+            print "Nombre:", tmd.field.nombre
+        except Exception, e:
+            print "Error loading table metadata:", e
+        print
         
         table = self.form.ui.table
         
