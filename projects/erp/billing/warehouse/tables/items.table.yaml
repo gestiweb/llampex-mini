@@ -1,0 +1,31 @@
+!LlampexTable
+code: articulos
+name: Items
+
+fields:
+    referencia:
+        alias: "Referencia"
+        type: vchar(18)
+        pk: true
+        "null": false
+        relations: [] #TODO Add relatios
+    descripcion:
+        alias: "Descripción"
+        type: vchar(100)
+        pk: false
+        "null": false
+    pvp:
+        alias: "Precio de venta"
+        type: number(6,2)
+        pk: false
+        "null": true
+    secompra:
+        alias: "Se compra"
+        type: bool
+        pk: false
+        "null": true
+    sevende:
+        alias: "Se vende"
+        type: bool
+        pk: false
+        "null": true

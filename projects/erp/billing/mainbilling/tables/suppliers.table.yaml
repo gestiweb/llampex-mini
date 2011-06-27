@@ -1,10 +1,10 @@
 !LlampexTable
-code: clientes
-name: Customers
+code: proveedores
+name: Suppliers
 
 fields:
-    codcliente:
-        alias: "Código Cliente"
+    codproveedor:
+        alias: "Código"
         type: vchar(6)
         pk: true
         "null": false
@@ -24,8 +24,8 @@ fields:
         type: vchar(30)
         pk: false
         "null": true
-    debaja:
-        alias: "De baja"
-        type: bool
+    email:
+        alias: "E-mail"
+        type: vchar(100)
         pk: false
-        "null": false
+        "null": true
