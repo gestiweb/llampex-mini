@@ -8,6 +8,8 @@ import re
 import qsqlrpcdriver.qtdriver as qtdriver
 import threading
 
+from projectloader import LlampexTable
+
 def h(*args): return os.path.realpath(os.path.join(os.path.dirname(os.path.abspath( __file__ )), *args))
     
 
@@ -24,7 +26,17 @@ class MasterScript(object):
         self.db = self.rpc.qtdb
         self.table = self.form.actionobj.table
         self.model = None
-
+        print
+        try:
+            tmd=LlampexTable.tableindex[self.table]
+            
+            print tmd
+            print "PKey:", tmd.primarykey
+            print tmd.fields
+            print "Nombre:", tmd.field.nombre
+        except Exception, e:
+            print "Error loading table metadata:", e
+        print
         
         table = self.form.ui.table
         

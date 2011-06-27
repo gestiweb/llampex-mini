@@ -293,6 +293,9 @@ class LlampexAction(LlampexBaseFile):
         self.require_attribute("record")
         self.require_attribute("master")
         self.require_attribute("description")
+
+class EmptyTemplate(object):
+    pass
         
 class LlampexTable(LlampexBaseFile):
     yaml_tag = u'!LlampexTable' 
@@ -303,6 +306,16 @@ class LlampexTable(LlampexBaseFile):
         super(LlampexTable,self).yaml_afterload()
         self.require_attribute("fields")
         self.tableindex[self.code] = self
+        self.field = EmptyTemplate()
+        for name, field in self.fields.iteritems():
+            setattr(self.field, name, field)
+        
+    @property
+    def primarykey(self):
+        for name, field in self.fields.iteritems():
+            if field['pk']: return name
+        return None
+        
 
         
         
