@@ -296,6 +296,19 @@ class LlampexAction(LlampexBaseFile):
 
 class EmptyTemplate(object):
     pass
+    
+class FieldsObject(object):
+    def __init__(self, parent):
+        self.parent = parent
+    
+    def __getitem__(self, idx):
+        try:
+            fieldname = self.parent.fieldlist[int(idx)]
+        except ValueError:
+            fieldname = idx
+        return self.parent.fields[fieldname]
+        
+        
         
 class LlampexTable(LlampexBaseFile):
     yaml_tag = u'!LlampexTable' 
@@ -306,10 +319,11 @@ class LlampexTable(LlampexBaseFile):
         super(LlampexTable,self).yaml_afterload()
         self.require_attribute("fields")
         self.tableindex[self.code] = self
-        self.field = EmptyTemplate()
+        self.field = FieldsObject(self)
         field_ordering_list = []
         for name, field in self.fields.iteritems():
             setattr(self.field, name, field)
+            field["name"] = name
             default_weight=9999
             if field.get("pk"): default_weight=0
             if field.get("unique"): default_weight=50

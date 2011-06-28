@@ -7,7 +7,7 @@ import time
 import re
 import qsqlrpcdriver.qtdriver as qtdriver
 import threading
-
+import traceback
 from projectloader import LlampexTable
 
 def h(*args): return os.path.realpath(os.path.join(os.path.dirname(os.path.abspath( __file__ )), *args))
@@ -39,9 +39,12 @@ class MasterScript(object):
             print "PKey:", tmd.primarykey
             print tmd.fieldlist
             print tmd.fields
+            print "f0:", tmd.field[0]
+            print "f1:", tmd.field[1]
             print "Nombre:", tmd.field.nombre
         except Exception, e:
-            print "Error loading table metadata:", e
+            print "Error loading table metadata:"
+            print traceback.format_exc()
         print
         
         table = self.form.ui.table
