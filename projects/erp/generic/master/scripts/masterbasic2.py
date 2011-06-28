@@ -37,6 +37,7 @@ class MasterScript(object):
             
             print tmd
             print "PKey:", tmd.primarykey
+            print tmd.fieldlist
             print tmd.fields
             print "Nombre:", tmd.field.nombre
         except Exception, e:
