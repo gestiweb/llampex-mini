@@ -68,13 +68,20 @@ class MasterScript(object):
         
         self.form.connect(tableheader, QtCore.SIGNAL("sortIndicatorChanged(int,Qt::SortOrder)"), self.table_sortIndicatorChanged)
         self.form.connect(tableheader, QtCore.SIGNAL("customContextMenuRequested(QPoint &)"),self.table_headerCustomContextMenuRequested)
-        
+        self.form.connect(self.form.ui.btnNew, QtCore.SIGNAL("clicked()"), self.btnNew_clicked)
         self.model = QtSql.QSqlTableModel(None,self.db)
         self.modelReady = threading.Event()
         self.modelSet = threading.Event()
         QtCore.QTimer.singleShot(5,self.settablemodel)
         thread1 = threading.Thread(target=self.reload_data)
         thread1.start()
+        
+    def btnNew_clicked(self):
+        print "Button New clicked"
+        dialog = QtGui.QDialog(self.form)
+        dialog.setWindowTitle("Insert new record")
+        ret = dialog.exec_()
+        print ret
     
     def action_addfilter_triggered(self, checked):
         print "Add Filter triggered:", checked
