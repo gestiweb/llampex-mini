@@ -307,8 +307,15 @@ class LlampexTable(LlampexBaseFile):
         self.require_attribute("fields")
         self.tableindex[self.code] = self
         self.field = EmptyTemplate()
+        field_ordering_list = []
         for name, field in self.fields.iteritems():
             setattr(self.field, name, field)
+            default_weight=9999
+            if field.get("pk"): default_weight=0
+            if field.get("unique"): default_weight=50
+            if field.get("ck"): default_weight=100
+            field_ordering_list.append( (field.get("weight",default_weight), name) )
+        self.fieldlist = [ name for weight, name in sorted(field_ordering_list) ]
         
     @property
     def primarykey(self):
