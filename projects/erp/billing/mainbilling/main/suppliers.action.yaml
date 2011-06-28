@@ -9,7 +9,7 @@ record:
     script: proveedores
     form: proveedores
 master:
-    script: /generic/master/scripts/masterbasic2
+    script: /generic/master/scripts/masterbasic3
     form: /generic/master/forms/mastercopyprint2.ui
 
 description: "La gestión de proveedores (...)"

@@ -19,13 +19,16 @@ fields:
         type: vchar(20)
         pk: false
         "null": false
+        weight: 100
     telefono1:
         alias: "Teléfono 1"
         type: vchar(30)
         pk: false
         "null": true
+        weight: 50
     email:
         alias: "E-mail"
         type: vchar(100)
         pk: false
         "null": true
+        weight: 200
