@@ -1,0 +1,16 @@
+!LlampexAction
+code: accounts
+name: Accounts
+icon: icons/accounts.png # path to icon
+weight: B.1
+
+table: co_cuentas
+record:
+    script: co_cuentas
+    form: co_cuentas
+master:
+    script: /generic/master/scripts/masterbasic
+    form: /generic/master/forms/masterbase.ui
+
+description: "Accounts are aggrupations of..."
+

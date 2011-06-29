@@ -1,0 +1,16 @@
+!LlampexAction
+code: groups
+name: Groups
+icon: icons/groups.png # path to icon
+weight: B.1
+
+table: co_gruposepigrafes
+record:
+    script: co_gruposepigrafes
+    form: co_gruposepigrafes
+master:
+    script: /generic/master/scripts/masterbasic
+    form: /generic/master/forms/masterbase.ui
+
+description: ""
+

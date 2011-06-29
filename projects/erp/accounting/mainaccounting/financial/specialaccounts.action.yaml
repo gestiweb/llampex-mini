@@ -1,0 +1,16 @@
+!LlampexAction
+code: specialaccounts
+name: Special Accounts
+icon: icons/specialaccounts.png # path to icon
+weight: B.1
+
+table: co_cuentasesp
+record:
+    script: co_cuentasesp
+    form: co_cuentasesp
+master:
+    script: /generic/master/scripts/masterbasic
+    form: /generic/master/forms/masterbase.ui
+
+description: "Accounts can be defined of a special type..."
+

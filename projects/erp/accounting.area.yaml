@@ -1,0 +1,8 @@
+!LlampexArea
+code: accounting
+shortcut: Ctrl+A
+name: Accounting
+icon: accounting.png
+weight: 2
+description: Manages processes related to accounting
+

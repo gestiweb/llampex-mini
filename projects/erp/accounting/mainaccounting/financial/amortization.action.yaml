@@ -1,0 +1,16 @@
+!LlampexAction
+code: amortization
+name: Amortization
+icon: icons/amortization.png # path to icon
+weight: B.1
+
+table: co_amortizaciones
+record:
+    script: co_amortizaciones
+    form: co_amortizaciones
+master:
+    script: /generic/master/scripts/masterbasic
+    form: /generic/master/forms/masterbase.ui
+
+description: "Show the amortizations of..."
+

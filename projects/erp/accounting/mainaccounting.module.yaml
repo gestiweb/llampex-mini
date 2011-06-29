@@ -1,0 +1,6 @@
+!LlampexModule
+version: v0.1 # module version
+code: mainaccounting
+name: Main
+icon: mainaccounting.png
+weight: M

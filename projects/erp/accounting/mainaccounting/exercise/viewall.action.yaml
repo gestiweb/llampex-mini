@@ -1,0 +1,17 @@
+!LlampexAction
+code: viewall
+name: View All
+icon: icons/viewall.png # path to icon
+weight: B.1
+
+# 'What daemons' do the Exercise actions? :O
+table: clientes
+record:
+    script: clientes
+    form: clientes
+master:
+    script: /generic/master/scripts/masterbasic
+    form: /generic/master/forms/masterbase.ui
+
+description: "Ejercicios fiscales"
+

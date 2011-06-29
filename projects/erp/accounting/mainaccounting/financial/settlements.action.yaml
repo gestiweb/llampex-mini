@@ -1,0 +1,16 @@
+!LlampexAction
+code: settlements
+name: Settlements
+icon: icons/settlements.png # path to icon
+weight: B.1
+
+table: co_partidas
+record:
+    script: co_partidas
+    form: co_partidas
+master:
+    script: /generic/master/scripts/masterbasic
+    form: /generic/master/forms/masterbase.ui
+
+description: "Every settlement relfex a..."
+

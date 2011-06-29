@@ -1,0 +1,16 @@
+!LlampexAction
+code: pre-settlements
+name: Predefined Settlements
+icon: icons/pre-settlements.png # path to icon
+weight: B.1
+
+table: co_partidaspre
+record:
+    script: co_partidaspre
+    form: co_partidaspre
+master:
+    script: /generic/master/scripts/masterbasic
+    form: /generic/master/forms/masterbase.ui
+
+description: "Some of the most used settlements..."
+
