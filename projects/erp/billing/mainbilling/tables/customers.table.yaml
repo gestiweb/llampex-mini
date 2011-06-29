@@ -10,28 +10,27 @@ fields:
         "null": false
         relations: [] #TODO Add relatios
         tableCheckable: true
-        tableSelectable: false
     nombre:
         alias: Nombre
         type: vchar(100)
         pk: false
         "null": false
-        tableSelectable: false
+        tableEditable: true
     cifnif:
         alias: "C.I.F./N.I.F."
         type: vchar(20)
         pk: false
         "null": false
-        tableSelectable: false
+        tableEditable: true
     telefono1:
         alias: "Teléfono 1"
         type: vchar(30)
         pk: false
         "null": true
-        tableSelectable: false
+        tableEditable: true
     debaja:
         alias: "De baja"
         type: bool
         pk: false
         "null": false
-        tableSelectable: false
+        tableEditable: true

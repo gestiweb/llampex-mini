@@ -41,28 +41,33 @@ class MasterScript(object):
         table = self.form.ui.table
         
         table.setSortingEnabled( True )
-        
-        tableheader = table.horizontalHeader()
-        tableheader.setSortIndicator(0,0)
-        tableheader.setContextMenuPolicy( QtCore.Qt.ActionsContextMenu )
-        action_addfilter = QtGui.QAction(
-                    QtGui.QIcon(h("../../icons/page-zoom.png")),
-                    "Add &Filter...", tableheader)
-        action_showcolumns = QtGui.QAction(
-                    QtGui.QIcon(h("../../icons/preferences-actions.png")), 
-                    "Show/Hide &Columns...", tableheader)
-        action_hidecolumn = QtGui.QAction("&Hide this Column", tableheader)
-        action_addfilter.setIconVisibleInMenu(True)
-        action_showcolumns.setIconVisibleInMenu(True)
-        tableheader.addAction(action_addfilter)
-        tableheader.addAction(action_showcolumns)
-        tableheader.addAction(action_hidecolumn)
-        tableheader.setStretchLastSection(True)
+        try:
+            tableheader = table.horizontalHeader()
+            tableheader.setSortIndicator(0,0)
+            tableheader.setContextMenuPolicy( QtCore.Qt.ActionsContextMenu )
+
+            action_addfilter = QtGui.QAction(
+                        QtGui.QIcon(h("../../icons/page-zoom.png")),
+                        "Add &Filter...", tableheader)
+            action_showcolumns = QtGui.QAction(
+                        QtGui.QIcon(h("../../icons/preferences-actions.png")), 
+                        "Show/Hide &Columns...", tableheader)
+            action_hidecolumn = QtGui.QAction("&Hide this Column", tableheader)
+            action_addfilter.setIconVisibleInMenu(True)
+            action_showcolumns.setIconVisibleInMenu(True)
+            tableheader.addAction(action_addfilter)
+            tableheader.addAction(action_showcolumns)
+            tableheader.addAction(action_hidecolumn)
+            tableheader.setStretchLastSection(True)
+            
+            self.form.connect(tableheader, QtCore.SIGNAL("sortIndicatorChanged(int,Qt::SortOrder)"), self.table_sortIndicatorChanged)
+            self.form.connect(tableheader, QtCore.SIGNAL("customContextMenuRequested(QPoint &)"),self.table_headerCustomContextMenuRequested)
+            self.form.connect(action_addfilter, QtCore.SIGNAL("triggered(bool)"), self.action_addfilter_triggered)
+            
+        except Exception, e:
+            print e
          
-        self.form.connect(action_addfilter, QtCore.SIGNAL("triggered(bool)"), self.action_addfilter_triggered)
         
-        self.form.connect(tableheader, QtCore.SIGNAL("sortIndicatorChanged(int,Qt::SortOrder)"), self.table_sortIndicatorChanged)
-        self.form.connect(tableheader, QtCore.SIGNAL("customContextMenuRequested(QPoint &)"),self.table_headerCustomContextMenuRequested)
         self.form.connect(self.form.ui.btnNew, QtCore.SIGNAL("clicked()"), self.btnNew_clicked)
         self.model = QSqlMetadataModel(None,self.db, tmd)
         self.modelReady = threading.Event()
