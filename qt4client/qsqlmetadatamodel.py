@@ -7,6 +7,15 @@ import sys
 from PyQt4 import QtGui, QtCore, uic, QtSql
 
 class QSqlMetadataModel(QtSql.QSqlQueryModel):
+    color_red = QtGui.QColor(255,0,0)
+    color_green = QtGui.QColor(0,200,0)
+    color_blue = QtGui.QColor(0,0,255)
+    color_black = QtGui.QColor(0,0,0)
+    brush_red = QtGui.QBrush(color_red)
+    brush_green = QtGui.QBrush(color_green)
+    brush_blue = QtGui.QBrush(color_blue)
+    brush_black = QtGui.QBrush(color_black)
+    
     def __init__(self, parent, db, tmd = None):
         QtSql.QSqlQueryModel.__init__(self, parent)
         self.db = db
@@ -49,6 +58,34 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
     
     def data(self, index, role = None):
         if role is None: role = QtCore.Qt.DisplayRole
+        if role == QtCore.Qt.ForegroundRole:
+            ret = QtSql.QSqlQueryModel.data(self,index,QtCore.Qt.DisplayRole)
+            field = self.tmd.field[index.column()]
+            ftype = field.get("type", "vchar")
+            if role == QtCore.Qt.DisplayRole and ret.isNull(): return None
+            try:            
+                if ftype == "bool": 
+                    ret = ret.toBool()
+                    if bool(ret): 
+                        return self.brush_black
+                    else:
+                        return self.brush_red
+                        
+                if ftype == "date": ret = ret.toDate()
+                if ftype == "datetime": ret = ret.toDateTime()
+                if ftype == "double": ret, ok = ret.toDouble()
+                if ftype == "float": 
+                    ret, ok = ret.toDouble()
+                    if float(ret) < 0: return self.brush_red
+                if ftype == "int": 
+                    ret, ok = ret.toInt()
+                    if float(ret) < 0: return self.brush_red
+                if ftype == "string" or ftype.startswith("vchar"): ret = ret.toString()
+                if ftype == "time": ret = ret.toTime()
+            except ValueError: 
+                ret = None
+            
+            # # return self.brush_black
         if role == QtCore.Qt.CheckStateRole: 
             field = self.tmd.field[index.column()]
             if field.get("tableCheckable", False):
@@ -61,7 +98,10 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
             ftype = field.get("type", "vchar")
             if role == QtCore.Qt.DisplayRole and ret.isNull(): return None
             try:            
-                if ftype == "bool": ret = ret.toBool()
+                if ftype == "bool": 
+                    ret = ret.toBool()
+                    if role == QtCore.Qt.DisplayRole:
+                        ret = u"Sí" if ret else u"No"
                 if ftype == "date": ret = ret.toDate()
                 if ftype == "datetime": ret = ret.toDateTime()
                 if ftype == "double": ret, ok = ret.toDouble()
