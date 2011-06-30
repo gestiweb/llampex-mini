@@ -15,6 +15,9 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
     brush_green = QtGui.QBrush(color_green)
     brush_blue = QtGui.QBrush(color_blue)
     brush_black = QtGui.QBrush(color_black)
+    color_beige = QtGui.QColor(245,255,190)
+    brush_beige = QtGui.QBrush(color_beige)
+    
     
     def __init__(self, parent, db, tmd = None):
         QtSql.QSqlQueryModel.__init__(self, parent)
@@ -58,7 +61,12 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
     
     def data(self, index, role = None):
         if role is None: role = QtCore.Qt.DisplayRole
-        if role == QtCore.Qt.ForegroundRole:
+        if role == QtCore.Qt.BackgroundRole:
+            row = index.row()
+            if self.checkstate.get( (row,0), False):
+                return self.brush_beige
+            
+        elif role == QtCore.Qt.ForegroundRole:
             ret = QtSql.QSqlQueryModel.data(self,index,QtCore.Qt.DisplayRole)
             field = self.tmd.field[index.column()]
             ftype = field.get("type", "vchar")

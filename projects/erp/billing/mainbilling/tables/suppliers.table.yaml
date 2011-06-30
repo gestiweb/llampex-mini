@@ -9,6 +9,7 @@ fields:
         pk: true
         "null": false
         relations: [] #TODO Add relatios
+        tableCheckable: true
     nombre:
         alias: Nombre
         type: vchar(100)
