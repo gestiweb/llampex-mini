@@ -18,12 +18,12 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
     color_beige = QtGui.QColor(245,255,190)
     brush_beige = QtGui.QBrush(color_beige)
     
-    
     def __init__(self, parent, db, tmd = None):
         QtSql.QSqlQueryModel.__init__(self, parent)
         self.db = db
         self.tmd = None
         self.checkstate = {}
+        self.decorations = {}
         if tmd: self.setMetaData(tmd)
         
     def setMetaData(self,tmd):
@@ -61,6 +61,21 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
     
     def data(self, index, role = None):
         if role is None: role = QtCore.Qt.DisplayRole
+        if role == QtCore.Qt.DecorationRole:
+            ret = QtSql.QSqlQueryModel.data(self,index,QtCore.Qt.DisplayRole)
+            field = self.tmd.field[index.column()]
+            ftype = field.get("type", "vchar")
+            k = None
+            if ret.isNull(): k = "null"
+            else:
+                if ftype == "bool": 
+                    ret = ret.toBool()
+                    if bool(ret): k = "true"
+                    else: k = "false"
+            decoration = self.decorations.get(k)
+            if decoration: return decoration
+            
+            
         if role == QtCore.Qt.BackgroundRole:
             row = index.row()
             if self.checkstate.get( (row,0), False):
@@ -75,7 +90,7 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
                 if ftype == "bool": 
                     ret = ret.toBool()
                     if bool(ret): 
-                        return self.brush_black
+                        return self.brush_green
                     else:
                         return self.brush_red
                         

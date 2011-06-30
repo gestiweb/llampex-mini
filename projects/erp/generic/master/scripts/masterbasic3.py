@@ -37,7 +37,6 @@ class MasterScript(object):
             print "Error loading table metadata:"
             print traceback.format_exc()
         print
-        
         table = self.form.ui.table
         
         table.setSortingEnabled( True )
@@ -66,10 +65,14 @@ class MasterScript(object):
             
         except Exception, e:
             print e
-         
+        
         
         self.form.connect(self.form.ui.btnNew, QtCore.SIGNAL("clicked()"), self.btnNew_clicked)
         self.model = QSqlMetadataModel(None,self.db, tmd)
+        self.model.decorations["null"] = QtGui.QIcon(h("../../icons/null.png"))
+        self.model.decorations["true"] = QtGui.QIcon(h("../../icons/true.png"))
+        self.model.decorations["false"] = QtGui.QIcon(h("../../icons/false.png"))
+        
         self.modelReady = threading.Event()
         self.modelSet = threading.Event()
         self.reload_data()
