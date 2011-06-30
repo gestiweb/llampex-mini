@@ -9,7 +9,7 @@ import qsqlrpcdriver.qtdriver as qtdriver
 import threading
 import traceback
 from projectloader import LlampexTable
-from qsqlmetadatamodel import QSqlMetadataModel
+from qsqlmetadatamodel import QSqlMetadataModel, ItemComboDelegate
 
 def h(*args): return os.path.realpath(os.path.join(os.path.dirname(os.path.abspath( __file__ )), *args))
     
@@ -107,5 +107,7 @@ class MasterScript(object):
     
     def settablemodel(self):
         self.form.ui.table.setModel(self.model)
+        self.model.autoDelegate(self.form.ui.table)
+
             
         

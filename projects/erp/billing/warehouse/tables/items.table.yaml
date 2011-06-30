@@ -9,23 +9,28 @@ fields:
         pk: true
         "null": false
         relations: [] #TODO Add relatios
+        tableCheckable: true
     descripcion:
         alias: "Descripción"
         type: vchar(100)
         pk: false
         "null": false
+        tableEditable: true
     pvp:
-        alias: "Precio de venta"
+        alias: "P.V.P."
         type: number(6,2)
         pk: false
         "null": true
+        tableEditable: true
     secompra:
         alias: "Se compra"
         type: bool
         pk: false
         "null": true
+        tableEditable: true
     sevende:
         alias: "Se vende"
         type: bool
         pk: false
         "null": true
+        tableEditable: true
