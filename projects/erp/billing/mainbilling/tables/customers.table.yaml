@@ -38,3 +38,5 @@ fields:
         optionlist: [true, false, null]
         valuelist:  [Baja, Activo, "Activo."]
         colorlist:  ["#900", "#007", "#007"]
+        iconlist: [false, true, true]
+        

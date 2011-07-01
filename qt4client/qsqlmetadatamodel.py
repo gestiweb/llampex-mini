@@ -146,18 +146,23 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
     def data(self, index, role = None):
         if role is None: role = QtCore.Qt.DisplayRole
         if role == QtCore.Qt.DecorationRole:
-            ret = QtSql.QSqlQueryModel.data(self,index,QtCore.Qt.DisplayRole)
+            ret = self.data(index,QtCore.Qt.EditRole)
             field = self.tmd.field[index.column()]
-            ftype = field.get("type", "vchar")
-            k = None
-            if ret.isNull(): k = "null"
-            else:
-                if ftype == "bool": 
-                    ret = ret.toBool()
-                    if bool(ret): k = "true"
-                    else: k = "false"
-            decoration = self.decorations.get(k)
-            if decoration: return decoration
+            ctype = self.colType(index)
+            optionlist = field.get("optionlist",None)
+            iconlist = field.get("iconlist",None)
+            if not optionlist:
+                if ctype == "b": 
+                    optionlist = [True,False,None]
+            if not iconlist and optionlist:
+                    iconlist = optionlist
+
+            if optionlist and iconlist:
+                idx = optionlist.index(ret)
+                if idx >= 0: 
+                    icon = iconlist[idx]
+                decoration = self.decorations.get(icon)
+                if decoration: return decoration
             
             
         if role == QtCore.Qt.BackgroundRole:
