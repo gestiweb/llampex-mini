@@ -12,7 +12,37 @@ from projectloader import LlampexTable
 from qsqlmetadatamodel import QSqlMetadataModel, ItemComboDelegate
 
 def h(*args): return os.path.realpath(os.path.join(os.path.dirname(os.path.abspath( __file__ )), *args))
+
+class MyWidget(QtGui.QWidget):
+    def setup(self):
+        self.itemindex = None
+        S = QtGui.QStyle
+        self.option = QtGui.QStyleOptionViewItemV4()
+        self.option.rect = QtCore.QRect(0,0,300,24)
+        self.option.state = S.State_Active | S.State_Enabled
+        self.delegate = QtGui.QStyledItemDelegate(self)
     
+    def mouseDoubleClickEvent(self, event):
+        S = QtGui.QStyle
+        self.option.state |= S.State_Editing
+        self.update()
+
+    def sizeHint(self):
+        if self.itemindex:
+            return self.delegate.sizeHint(self.option, self.itemindex)
+        else:
+            sz = QtCore.QSize(120,24)
+            return sz
+        
+    def setItemIndex(self, itemindex):
+        self.itemindex = itemindex
+        self.update()
+        
+    def paintEvent(self, pEvent):
+        painter = QtGui.QPainter(self);
+        if self.itemindex:
+            self.delegate.paint(painter, self.option, self.itemindex)
+        
 
 class MasterScript(object):
     def __init__(self, form):
@@ -67,6 +97,8 @@ class MasterScript(object):
             print e
         
         
+        self.form.connect(table, QtCore.SIGNAL("activated(QModelIndex)"),self.table_cellActivated)
+        self.form.connect(table, QtCore.SIGNAL("clicked(QModelIndex)"),self.table_cellActivated)
         self.form.connect(self.form.ui.btnNew, QtCore.SIGNAL("clicked()"), self.btnNew_clicked)
         self.model = QSqlMetadataModel(None,self.db, tmd)
         self.model.decorations[None] = QtGui.QIcon(h("../../icons/null.png"))
@@ -78,7 +110,16 @@ class MasterScript(object):
         self.reload_data()
         self.select_data()
         self.settablemodel()
+        self.mywidget = MyWidget(self.form.ui)
+        self.mywidget.setup()
+        layout = self.form.ui.layout()
+        layout.addWidget(self.mywidget)
         
+    def table_cellActivated(self, itemindex):
+        print "Cell:", itemindex.row(), itemindex.column()
+        self.mywidget.setItemIndex(itemindex)
+    
+    
     def btnNew_clicked(self):
         print "Button New clicked"
         dialog = QtGui.QDialog(self.form)

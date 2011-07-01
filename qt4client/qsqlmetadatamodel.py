@@ -133,10 +133,10 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
                 sz = itemview.sizeHintForIndex(midx)
                 widths.append(sz.width())
             widths.sort()
-            x = len(widths) / 2
+            x = len(widths) / 4 + 1
             m = widths[x:]
             lm = len(m)
-            w = sum(m) / lm + 25
+            w = sum(m) / lm + 10
             #w = itemview.sizeHintForColumn(i)
             fnSetColumnWidth(i, w)
             
@@ -199,7 +199,8 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
                 
             if brush is None:
                 if ctype == "n": 
-                    if float(ret) < 0: brush = self.getBrush("#B00")
+                    if ret is None: brush = self.getBrush("#00B")
+                    elif float(ret) < 0: brush = self.getBrush("#B00")
             if brush is not None:
                 return brush
             
@@ -237,11 +238,14 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
                     ret = None
             
             if role == QtCore.Qt.DisplayRole:
-                if optionlist:
-                    idx = optionlist.index(ret)
-                    if idx >= 0: ret = valuelist[idx]
-                elif format:
-                    ret = format % ret
+                try:
+                    if optionlist:
+                        idx = optionlist.index(ret)
+                        if idx >= 0: ret = valuelist[idx]
+                    elif format:
+                        ret = format % ret
+                except Exception, e:
+                    pass
                     
             
             return ret
