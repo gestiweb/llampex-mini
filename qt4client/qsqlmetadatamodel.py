@@ -305,9 +305,7 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
         fieldname=""
         for i, fname in enumerate(self.tmd.fieldlist):
             field = self.tmd.field[i]
-            print "Comparando "+unicode(field['alias'])+" y "+unicode(alias)
             if unicode(field['alias']) == unicode(alias):
-                print "bien :)"
                 fieldname = fname
                 break
             
