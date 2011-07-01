@@ -32,19 +32,20 @@ class ItemComboDelegate(QtGui.QItemDelegate):
         
 
 class QSqlMetadataModel(QtSql.QSqlQueryModel):
-    color_red = QtGui.QColor(255,0,0)
-    color_green = QtGui.QColor(0,200,0)
-    color_blue = QtGui.QColor(0,0,255)
-    color_black = QtGui.QColor(0,0,0)
-    brush_red = QtGui.QBrush(color_red)
-    brush_green = QtGui.QBrush(color_green)
-    brush_blue = QtGui.QBrush(color_blue)
-    brush_black = QtGui.QBrush(color_black)
-    color_beige = QtGui.QColor(255,245,190)
-    brush_beige = QtGui.QBrush(color_beige)
+    colors = {}
+    brushes = {}
     
-    color_beige2 = QtGui.QColor(255,225,180)
-    brush_beige2 = QtGui.QBrush(color_beige2)
+    @classmethod
+    def getColor(self, color):
+        if color not in self.colors: 
+            self.colors[color] = QtGui.QColor(color)
+        return self.colors[color]
+        
+    @classmethod
+    def getBrush(self, color):
+        if color not in self.brushes: 
+            self.brushes[color] = QtGui.QBrush(self.getColor(color))
+        return self.brushes[color]
     
     def __init__(self, parent, db, tmd = None):
         QtSql.QSqlQueryModel.__init__(self, parent)
@@ -111,9 +112,19 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
         delegate_bool.values = [True,False,None]
         fnSetColumnWidth = getattr(itemview,"setColumnWidth",None)
         for i, name in enumerate(self.tmd.fieldlist):
+            field = self.tmd.field[i]
             ctype = self.colType(i)
             delegate = None
+            optionlist = field.get("optionlist",None)
+            valuelist = field.get("valuelist",optionlist)
+            
             if ctype == "b": delegate = delegate_bool
+            if optionlist:
+                delegate_adhoc = ItemComboDelegate(itemview)
+                delegate_adhoc.items = valuelist
+                delegate_adhoc.values = optionlist
+                delegate = delegate_adhoc
+                
             if delegate:
                 itemview.setItemDelegateForColumn(i, delegate)   
             widths = [50]
@@ -153,35 +164,35 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
             row = index.row()
             c = self.checkstate.get( (row,0), 0)
             if c == 2:
-                return self.brush_beige2
+                return self.getBrush("#FB9")
             elif c == 1:
-                return self.brush_beige
+                return self.getBrush("#FEA")
             
         elif role == QtCore.Qt.ForegroundRole:
-            ret = QtSql.QSqlQueryModel.data(self,index,QtCore.Qt.DisplayRole)
+            ret = self.data(index,QtCore.Qt.EditRole)
             ctype = self.colType(index)
             field = self.tmd.field[index.column()]
-            ftype = field.get("type", "vchar")
-            if role == QtCore.Qt.DisplayRole and ret.isNull(): return None
-            try:            
-                if ftype == "bool": 
-                    ret = ret.toBool()
-                    if bool(ret): 
-                        return self.brush_green
-                    else:
-                        return self.brush_red
-                        
-                if ftype == "date": ret = ret.toDate()
-                if ftype == "datetime": ret = ret.toDateTime()
+            optionlist = field.get("optionlist",None)
+            colorlist = field.get("colorlist",None)
+            if not optionlist:
+                if ctype == "b": 
+                    optionlist = [True,False,None]
+                    colorlist = ["#0B0","#B00","#644"]
+            elif not colorlist:
+                colorlist = [ None for x in optionlist ]
                 
+            brush = None
+            if optionlist and colorlist:
+                idx = optionlist.index(ret)
+                if idx >= 0: color = colorlist[idx]
+                if color: brush = self.getBrush(color)
+                
+                
+            if brush is None:
                 if ctype == "n": 
-                    ret, ok = ret.toDouble()
-                    if float(ret) < 0: return self.brush_red
-                    
-                if ctype == "s": ret = ret.toString()
-                if ftype == "time": ret = ret.toTime()
-            except ValueError: 
-                ret = None
+                    if float(ret) < 0: brush = self.getBrush("#B00")
+            if brush is not None:
+                return brush
             
             # # return self.brush_black
         if role == QtCore.Qt.CheckStateRole: 
@@ -194,22 +205,30 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
             ret = QtSql.QSqlQueryModel.data(self,index,role)
             field = self.tmd.field[index.column()]
             ftype = field.get("type", "vchar")
-            if ret.isNull(): return None
-            try:            
+            optionlist = field.get("optionlist",None)
+            valuelist = field.get("valuelist",optionlist)
+            if not optionlist:
                 if ftype == "bool": 
-                    ret = ret.toBool()
-                    if role == QtCore.Qt.DisplayRole:
-                        ret = u"Sí" if ret else u"No"
-                if ftype == "date": ret = ret.toDate()
-                if ftype == "datetime": ret = ret.toDateTime()
-                if ftype == "double": ret, ok = ret.toDouble()
-                if ftype == "float": ret, ok = ret.toDouble()
-                if ftype.startswith("number"): ret, ok = ret.toDouble()
-                if ftype == "int": ret, ok = ret.toInt()
-                if ftype == "string" or ftype.startswith("vchar"): ret = ret.toString()
-                if ftype == "time": ret = ret.toTime()
-            except ValueError: 
-                ret = None
+                    optionlist = [True,False,None]
+                    valuelist = [u"Sí",u"No","--"]
+            if ret.isNull(): ret = None
+            else:
+                try:            
+                    if ftype == "bool": ret = ret.toBool()
+                    if ftype == "date": ret = ret.toDate()
+                    if ftype == "datetime": ret = ret.toDateTime()
+                    if ftype == "double": ret, ok = ret.toDouble()
+                    if ftype == "float": ret, ok = ret.toDouble()
+                    if ftype.startswith("number"): ret, ok = ret.toDouble()
+                    if ftype == "int": ret, ok = ret.toInt()
+                    if ftype == "string" or ftype.startswith("vchar"): ret = ret.toString()
+                    if ftype == "time": ret = ret.toTime()
+                except ValueError: 
+                    ret = None
+            
+            if role == QtCore.Qt.DisplayRole and optionlist:
+                idx = optionlist.index(ret)
+                if idx >= 0: ret = valuelist[idx]
             
             return ret
         return QtSql.QSqlQueryModel.data(self,index,role)

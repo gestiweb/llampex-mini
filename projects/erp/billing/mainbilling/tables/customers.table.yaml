@@ -35,3 +35,6 @@ fields:
         pk: false
         "null": false
         tableEditable: true
+        optionlist: [true, false, null]
+        valuelist:  [Baja, Activo, "Activo."]
+        colorlist:  ["#900", "#007", "#007"]

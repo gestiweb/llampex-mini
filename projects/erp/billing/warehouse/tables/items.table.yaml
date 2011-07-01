@@ -34,3 +34,12 @@ fields:
         pk: false
         "null": true
         tableEditable: true
+    codimpuesto:
+        alias: "IVA"
+        type: vchar(16)
+        pk: false
+        "null": false
+        tableEditable: true
+        optionlist: [IVA16, IVA7, IVA4, IVA0]
+        valuelist:  [16%  , 7%  , 4%  , "0"]
+        
