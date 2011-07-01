@@ -9,8 +9,8 @@ record:
     script: clientes
     form: clientes
 master:
-    script: /generic/master/scripts/masterbasic3
-    form: /generic/master/forms/mastercopyprint2b.ui
+    script: /generic/master/scripts/masterbasicAngel
+    form: /generic/master/forms/mastercopyprintAngel.ui
 
 description: "La gestión de clientes soporta un completo conjunto de datos generales y comerciales (forma de pago, divisa, agente comercial, cuentas bancarias, etc). Para cada cliente es posible registrar una serie de direcciones y contactos. El formulario de clientes ofrece además listados de todos los documentos referentes al cliente (presupuestos, pedidos, albaranes, facturas y recibos). Cuando se trabaja con contabilidad integrada, se puede establecer la subcuenta contable del cliente y consultar su libro mayor."
 

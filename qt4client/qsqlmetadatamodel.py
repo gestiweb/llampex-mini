@@ -53,6 +53,7 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
         self.tmd = None
         self.checkstate = {}
         self.decorations = {}
+        self.filter = None
         if tmd: self.setMetaData(tmd)
         
     def setMetaData(self,tmd):
@@ -140,8 +141,13 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
             #w = itemview.sizeHintForColumn(i)
             fnSetColumnWidth(i, w)
             
-        
-        
+            
+    def getHeaderAlias(self):
+        header = []
+        for i, fname in enumerate(self.tmd.fieldlist):
+            field = self.tmd.field[i]
+            header.append(field['alias'])
+        return header
             
     def data(self, index, role = None):
         if role is None: role = QtCore.Qt.DisplayRole
@@ -286,9 +292,28 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
         query.addBindValue(value)
         query.addBindValue(pkvalue)
         return query.exec_()
+        
+    def setBasicFilter(self,alias,text):
+        if text=="":
+            self.filter = None
+            return
+        
+        fieldname=""
+        for i, fname in enumerate(self.tmd.fieldlist):
+            field = self.tmd.field[i]
+            print "Comparando "+unicode(field['alias'])+" y "+unicode(alias)
+            if unicode(field['alias']) == unicode(alias):
+                print "bien :)"
+                fieldname = fname
+                break
+            
+        self.filter = "WHERE "+fieldname+" ILIKE '%"+text+"%' "
 
     def refresh(self):
-        self.setQuery('select %s from %s order by %s' % (", ".join(self.tmd.fieldlist), self.table, self.pk )  , self.db)
+        query = "select %s from %s " %  (", ".join(self.tmd.fieldlist), self.table)
+        if self.filter: query+=self.filter
+        query+="order by %s" % (self.pk)
+        self.setQuery(query, self.db)
         for i, fname in enumerate(self.tmd.fieldlist):
             field = self.tmd.field[i]
             self.setHeaderData(i, QtCore.Qt.Horizontal, field['alias'])
