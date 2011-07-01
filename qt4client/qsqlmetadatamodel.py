@@ -117,11 +117,15 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
             if delegate:
                 itemview.setItemDelegateForColumn(i, delegate)   
             widths = [50]
-            for row in range(min(10, self.rowCount())):
+            for row in range(min(20, self.rowCount())):
                 midx = self.index(row,i)
                 sz = itemview.sizeHintForIndex(midx)
                 widths.append(sz.width())
-            w = max(widths)
+            widths.sort()
+            x = len(widths) / 2
+            m = widths[x:]
+            lm = len(m)
+            w = sum(m) / lm + 25
             #w = itemview.sizeHintForColumn(i)
             fnSetColumnWidth(i, w)
             
