@@ -164,7 +164,11 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
                 decoration = self.decorations.get(icon)
                 if decoration: return decoration
             
-            
+        if role == QtCore.Qt.TextAlignmentRole:   
+            field = self.tmd.field[index.column()]
+            ctype = self.colType(index)
+            if ctype == "n":
+                return QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter
         if role == QtCore.Qt.BackgroundRole:
             row = index.row()
             c = self.checkstate.get( (row,0), 0)
@@ -212,6 +216,7 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
             ftype = field.get("type", "vchar")
             optionlist = field.get("optionlist",None)
             valuelist = field.get("valuelist",optionlist)
+            format = field.get("format",None)
             if not optionlist:
                 if ftype == "bool": 
                     optionlist = [True,False,None]
@@ -231,9 +236,13 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
                 except ValueError: 
                     ret = None
             
-            if role == QtCore.Qt.DisplayRole and optionlist:
-                idx = optionlist.index(ret)
-                if idx >= 0: ret = valuelist[idx]
+            if role == QtCore.Qt.DisplayRole:
+                if optionlist:
+                    idx = optionlist.index(ret)
+                    if idx >= 0: ret = valuelist[idx]
+                elif format:
+                    ret = format % ret
+                    
             
             return ret
         return QtSql.QSqlQueryModel.data(self,index,role)

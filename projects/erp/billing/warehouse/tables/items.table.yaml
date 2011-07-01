@@ -19,6 +19,7 @@ fields:
     pvp:
         alias: "P.V.P."
         type: number(6,2)
+        format: "%.2f€"
         pk: false
         "null": true
         tableEditable: true
@@ -42,4 +43,5 @@ fields:
         tableEditable: true
         optionlist: [IVA16, IVA7, IVA4, IVA0]
         valuelist:  [16%  , 7%  , 4%  , "0"]
+        colorlist:  ["#00B", "#0A9", "#0B4", "#0C0"]
         
