@@ -18,6 +18,7 @@ class MyItemView(QtGui.QAbstractItemView):
         print "setup"
         self.row = 0
         self.col = 0
+        self.margin = (5,5,5,5)
         self.item = None
         self.delegate = QtGui.QStyledItemDelegate(self)
         self.setSizePolicy(QtGui.QSizePolicy.Preferred,QtGui.QSizePolicy.Minimum)
@@ -68,8 +69,7 @@ class MyItemView(QtGui.QAbstractItemView):
         else:
             option.state &= ~S.State_MouseOver
         painter = QtGui.QStylePainter(self.viewport())
-        option.rect = self.rect()
-        #option.rect.adjust(35,15,-35,-15)
+        option.rect = self.visualRect(item)
         #painter.save()
         
         #painter.setClipRegion(QtGui.QRegion(option.rect))
@@ -88,7 +88,10 @@ class MyItemView(QtGui.QAbstractItemView):
         
     # virtual QRect	visualRect ( const QModelIndex & index ) const = 0
     def visualRect(self, index):
-        return self.rect()
+        rect = self.rect()
+        margin = self.margin
+        rect.adjust(margin[0],margin[1],-margin[2],-margin[3])
+        return rect 
     
     
     # *** PROTECTED *** / INTERNAL FUNCTIONS::
@@ -238,8 +241,8 @@ class MasterScript(object):
         self.model.decorations[None] = QtGui.QIcon(h("../../icons/null.png"))
         self.model.decorations[True] = QtGui.QIcon(h("../../icons/true.png"))
         self.model.decorations[False] = QtGui.QIcon(h("../../icons/false.png"))
-        self.myitemview = MyItemView(self.form.ui)
-        self.myitemview.setup()
+        
+        
         
         self.modelReady = threading.Event()
         self.modelSet = threading.Event()
@@ -247,7 +250,18 @@ class MasterScript(object):
         self.select_data()
         self.settablemodel()
         layout = self.form.ui.layout()
-        layout.addWidget(self.myitemview) 
+
+        
+        self.fieldlayout = QtGui.QHBoxLayout()
+        
+        self.myitemview = MyItemView(self.form.ui)
+        self.myitemview.setup()
+        self.myitemview.setModel(self.model)
+        self.myitemview.setPosition(0,0)
+        
+        self.fieldlayout.addWidget(self.myitemview)
+
+        layout.addLayout( self.fieldlayout )
         
         
     def table_cellActivated(self, itemindex):
@@ -285,8 +299,6 @@ class MasterScript(object):
     def settablemodel(self):
         self.form.ui.table.setModel(self.model)
         self.model.autoDelegate(self.form.ui.table)
-        self.myitemview.setModel(self.model)
-        self.myitemview.setPosition(1,1)
 
             
         
