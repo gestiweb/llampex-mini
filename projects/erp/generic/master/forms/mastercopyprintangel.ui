@@ -239,10 +239,10 @@
       <bool>false</bool>
      </attribute>
      <attribute name="verticalHeaderVisible">
-      <bool>false</bool>
+      <bool>true</bool>
      </attribute>
      <attribute name="verticalHeaderDefaultSectionSize">
-      <number>24</number>
+      <number>16</number>
      </attribute>
      <attribute name="verticalHeaderMinimumSectionSize">
       <number>8</number>

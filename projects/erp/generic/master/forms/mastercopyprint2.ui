@@ -182,8 +182,8 @@
      </property>
      <property name="iconSize">
       <size>
-       <width>16</width>
-       <height>16</height>
+       <width>12</width>
+       <height>12</height>
       </size>
      </property>
      <property name="verticalScrollMode">
@@ -205,10 +205,10 @@
       <bool>false</bool>
      </attribute>
      <attribute name="verticalHeaderVisible">
-      <bool>false</bool>
+      <bool>true</bool>
      </attribute>
      <attribute name="verticalHeaderDefaultSectionSize">
-      <number>24</number>
+      <number>16</number>
      </attribute>
      <attribute name="verticalHeaderMinimumSectionSize">
       <number>8</number>
