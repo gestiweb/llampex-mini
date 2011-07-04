@@ -13,6 +13,140 @@ from qsqlmetadatamodel import QSqlMetadataModel, ItemComboDelegate
 
 def h(*args): return os.path.realpath(os.path.join(os.path.dirname(os.path.abspath( __file__ )), *args))
 
+class MyItemView(QtGui.QAbstractItemView):
+    def setup(self):
+        print "setup"
+        self.row = 0
+        self.col = 0
+        self.item = None
+        self.delegate = QtGui.QStyledItemDelegate(self)
+        self.setSizePolicy(QtGui.QSizePolicy.Preferred,QtGui.QSizePolicy.Minimum)
+    
+    def setDelegate(self, delegate):
+        self.delegate = delegate
+    
+    def setPosition(self,row, col):
+        self.row = row
+        self.col = col
+        model = self.model()
+        self.item = model.index(self.row, self.col)
+        fnAutoDelegate = getattr(model, "autoDelegate", None)
+        if fnAutoDelegate: fnAutoDelegate(self)
+        
+    def sizeHint(self):
+        #sz = QtGui.QAbstractItemView.sizeHint(self)
+        #sz.setHeight(32)
+        sz = None
+        if self.item:
+            sz = self.sizeHintForIndex(self.item)
+        else:
+            sz = QtCore.QSize(120,16)
+        return sz
+    
+    def setDelegateForColumn(self, col, delegate):
+        if col != self.col: return
+        self.delegate = delegate
+    
+    def paintEvent(self, pEvent):
+        if not self.item: return
+        S = QtGui.QStyle
+        
+        focus = self.hasFocus()
+        viewstate = self.state()
+        option = self.viewOptions()
+        state = option.state
+        enabled = bool(state & S.State_Enabled)
+        
+        item = self.item # Element to be drawn
+        if focus:
+            option.state |= S.State_HasFocus
+            if viewstate & S.State_Editing:
+                option.state |= S.State_Editing
+        
+        if viewstate & S.State_MouseOver:
+            option.state |= S.State_MouseOver
+        else:
+            option.state &= ~S.State_MouseOver
+        painter = QtGui.QStylePainter(self.viewport())
+        option.rect = self.rect()
+        #option.rect.adjust(35,15,-35,-15)
+        #painter.save()
+        
+        #painter.setClipRegion(QtGui.QRegion(option.rect))
+        self.delegate.paint(painter, option, item)
+        #painter.restore()
+            
+            
+    
+    # virtual QModelIndex	indexAt ( const QPoint & point ) const = 0        
+    def indexAt(self, point):
+        return self.item
+        
+    # virtual void	scrollTo ( const QModelIndex & index, ScrollHint hint = EnsureVisible ) = 0
+    def scrollTo(self, index, hint):
+        return
+        
+    # virtual QRect	visualRect ( const QModelIndex & index ) const = 0
+    def visualRect(self, index):
+        return self.rect()
+    
+    
+    # *** PROTECTED *** / INTERNAL FUNCTIONS::
+    
+    # virtual int	horizontalOffset () const = 0
+    def horizontalOffset(self):
+        "Returns the horizontal offset of the view"
+        return int(self.col)
+    
+    # virtual int	verticalOffset () const = 0
+    def verticalOffset(self):
+        "Returns the vertical offset of the view"
+        return int(self.row)
+        
+    # virtual bool	isIndexHidden ( const QModelIndex & index ) const = 0
+    def isIndexHidden(self, index):
+        """ 
+        Returns true if the item referred to by the given index is hidden 
+        in the view, otherwise returns false.
+        Hiding is a view specific feature. For example in TableView a column 
+        can be marked as hidden or a row in the TreeView.
+        """
+        row = index.row()
+        col = index.col()
+        if (row,col) == (self.row, self.col): return True
+        else: return False
+    
+    # virtual QModelIndex	moveCursor ( CursorAction cursorAction, Qt::KeyboardModifiers modifiers ) = 0
+    def moveCursor(self, cursorAction, kbmodifiers):
+        """
+        Returns a QModelIndex object pointing to the next object in the 
+        view, based on the given cursorAction and keyboard modifiers 
+        specified by modifiers.
+        """
+        return self.item
+        
+    # virtual void	setSelection ( const QRect & rect, QItemSelectionModel::SelectionFlags flags ) = 0
+    def setSelection(self, rect, flags):
+        """
+        Applies the selection flags to the items in or touched by 
+        the rectangle, rect.
+        When implementing your own itemview setSelection should 
+        call selectionModel()->select(selection, flags) where selection 
+        is either an empty QModelIndex or a QItemSelection that contains 
+        all items that are contained in rect.
+        """
+        # Does nothing.
+        return 
+
+    # virtual QRegion	visualRegionForSelection ( const QItemSelection & selection ) const = 0
+    def visualRegionForSelection(self, selection):
+        """
+        Returns the region from the viewport of the items in the given selection.
+        """
+        # TODO: Implementar esta funcion ?
+        return
+        
+        
 class MyWidget(QtGui.QWidget):
     def setup(self):
         self.itemindex = None
@@ -104,20 +238,22 @@ class MasterScript(object):
         self.model.decorations[None] = QtGui.QIcon(h("../../icons/null.png"))
         self.model.decorations[True] = QtGui.QIcon(h("../../icons/true.png"))
         self.model.decorations[False] = QtGui.QIcon(h("../../icons/false.png"))
+        self.myitemview = MyItemView(self.form.ui)
+        self.myitemview.setup()
         
         self.modelReady = threading.Event()
         self.modelSet = threading.Event()
         self.reload_data()
         self.select_data()
         self.settablemodel()
-        self.mywidget = MyWidget(self.form.ui)
-        self.mywidget.setup()
         layout = self.form.ui.layout()
-        layout.addWidget(self.mywidget)
+        layout.addWidget(self.myitemview) 
+        
         
     def table_cellActivated(self, itemindex):
         print "Cell:", itemindex.row(), itemindex.column()
-        self.mywidget.setItemIndex(itemindex)
+        self.myitemview.setPosition(itemindex.row(), itemindex.column())
+        
     
     
     def btnNew_clicked(self):
@@ -135,10 +271,10 @@ class MasterScript(object):
         self.select_data()
     
     def table_headerCustomContextMenuRequested(self, point):
-        print point
+        print "table_headerCustomContextMenuRequested" , point
         
     def table_sortIndicatorChanged(self, column, order):
-        print column, order
+        print "table_sortIndicatorChanged", column, order
         
     def reload_data(self):
         self.model.setSort(0,0)
@@ -149,6 +285,8 @@ class MasterScript(object):
     def settablemodel(self):
         self.form.ui.table.setModel(self.model)
         self.model.autoDelegate(self.form.ui.table)
+        self.myitemview.setModel(self.model)
+        self.myitemview.setPosition(1,1)
 
             
         
