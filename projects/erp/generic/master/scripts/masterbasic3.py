@@ -16,12 +16,20 @@ def h(*args): return os.path.realpath(os.path.join(os.path.dirname(os.path.abspa
 class MyItemView(QtGui.QAbstractItemView):
     def setup(self):
         print "setup"
+        self.colwidth = {}
         self.row = 0
         self.col = 0
-        self.margin = (5,5,5,5)
+        self.margin = (3,3,3,3)
         self.item = None
         self.delegate = QtGui.QStyledItemDelegate(self)
         self.setSizePolicy(QtGui.QSizePolicy.Preferred,QtGui.QSizePolicy.Minimum)
+        self.setEditTriggers(QtGui.QAbstractItemView.DoubleClicked | QtGui.QAbstractItemView.EditKeyPressed)
+        self.setSelectionMode(QtGui.QAbstractItemView.NoSelection)
+        self.viewport().setSizePolicy(QtGui.QSizePolicy.Preferred,QtGui.QSizePolicy.Minimum)
+
+    def minimumSizeHint(self):
+        return QtCore.QSize(32,32)
+    
     
     def setDelegate(self, delegate):
         self.delegate = delegate
@@ -29,21 +37,48 @@ class MyItemView(QtGui.QAbstractItemView):
     def setPosition(self,row, col):
         self.row = row
         self.col = col
+        self.updatePosition()
+    
+    def setRow(self, row):
+        self.row = row
+        self.updatePosition()
+    
+    def setCol(self, col):
+        self.col = col
+        self.updatePosition()
+        
+    def focusInEvent(self, event):
+        QtGui.QAbstractItemView.focusInEvent(self,event)
+        if self.item:
+            print "focus IN:", self.row, self.col
+    
+    def focusOutEvent(self, event):
+        QtGui.QAbstractItemView.focusOutEvent(self,event)
+        if self.item:
+            print "focus OUT:", self.row, self.col
+    
+    def updatePosition(self):
         model = self.model()
         self.item = model.index(self.row, self.col)
         fnAutoDelegate = getattr(model, "autoDelegate", None)
         if fnAutoDelegate: fnAutoDelegate(self)
+        #szh = self.sizeHint()
+        #szh += QtCore.QSize(15,15)
+        #self.resize(szh)
         
     def sizeHint(self):
         #sz = QtGui.QAbstractItemView.sizeHint(self)
         #sz.setHeight(32)
-        sz = None
+        w = self.colwidth.get(self.col, 50)
+        sz = QtCore.QSize(w,16)
+        return sz
+        
         if self.item:
             sz = self.sizeHintForIndex(self.item)
-        else:
-            sz = QtCore.QSize(120,16)
         return sz
-    
+        
+    def setColumnWidth(self, col, width):
+        self.colwidth[col] = width
     def setDelegateForColumn(self, col, delegate):
         if col != self.col: return
         self.delegate = delegate
@@ -88,9 +123,13 @@ class MyItemView(QtGui.QAbstractItemView):
         
     # virtual QRect	visualRect ( const QModelIndex & index ) const = 0
     def visualRect(self, index):
+        if index != self.item: return QtCore.QRect()
         rect = self.rect()
         margin = self.margin
         rect.adjust(margin[0],margin[1],-margin[2],-margin[3])
+        #szh = self.sizeHint()
+        #print rect, szh
+        
         return rect 
     
     
@@ -147,7 +186,7 @@ class MyItemView(QtGui.QAbstractItemView):
         Returns the region from the viewport of the items in the given selection.
         """
         # TODO: Implementar esta funcion ?
-        return
+        return QtGui.QRegion(self.visualRect(self.item))
         
         
 class MyWidget(QtGui.QWidget):
@@ -192,7 +231,7 @@ class MasterScript(object):
         print
         try:
             tmd=LlampexTable.tableindex[self.table]
-            
+            self.tmd = tmd
             print tmd
             print "PKey:", tmd.primarykey
             print tmd.fieldlist
@@ -253,20 +292,28 @@ class MasterScript(object):
 
         
         self.fieldlayout = QtGui.QHBoxLayout()
+        self.fieldlayout.setSpacing(1)
         
-        self.myitemview = MyItemView(self.form.ui)
-        self.myitemview.setup()
-        self.myitemview.setModel(self.model)
-        self.myitemview.setPosition(0,0)
+        self.fieldviews = []
         
-        self.fieldlayout.addWidget(self.myitemview)
+        for i, name in enumerate(self.tmd.fieldlist):
+        
+            myitemview = MyItemView(self.form.ui)
+            myitemview.setup()
+            myitemview.setModel(self.model)
+            myitemview.setCol(i)
+        
+            self.fieldlayout.addWidget(myitemview)
+            self.fieldviews.append(myitemview)
 
         layout.addLayout( self.fieldlayout )
         
         
     def table_cellActivated(self, itemindex):
-        print "Cell:", itemindex.row(), itemindex.column()
-        self.myitemview.setPosition(itemindex.row(), itemindex.column())
+        row, col = itemindex.row(), itemindex.column()
+        print "Cell:", row, col
+        for fieldview in self.fieldviews:
+            fieldview.setRow(row)
         
     
     
