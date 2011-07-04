@@ -65,6 +65,7 @@ class MasterScript(object):
             self.form.connect(tableheader, QtCore.SIGNAL("sortIndicatorChanged(int,Qt::SortOrder)"), self.table_sortIndicatorChanged)
             self.form.connect(tableheader, QtCore.SIGNAL("customContextMenuRequested(const QPoint&)"),self.table_headerCustomContextMenuRequested)
             self.form.connect(action_addfilter, QtCore.SIGNAL("triggered(bool)"), self.action_addfilter_triggered)
+            self.form.connect(action_hidecolumn, QtCore.SIGNAL("triggered(bool)"), self.action_hidecolumn_triggered)
             
         except Exception, e:
             print e
@@ -119,6 +120,13 @@ class MasterScript(object):
         if ok:
             self.model.setFilter(rettext)
             self.model.refresh()
+            
+    def action_hidecolumn_triggered(self, checked):
+        print "Hide Column triggered:", checked
+        self.model.tmd.fieldlist.pop(self.lastColumnClicked)
+        self.model.refresh()
+        self.form.ui.searchCombo.clear()
+        self.form.ui.searchCombo.addItems(self.model.getHeaderAlias())
     
     def table_headerCustomContextMenuRequested(self, pos):
         print pos
@@ -140,6 +148,3 @@ class MasterScript(object):
     def settablemodel(self):
         self.form.ui.table.setModel(self.model)
         self.model.autoDelegate(self.form.ui.table)
-
-            
-        
