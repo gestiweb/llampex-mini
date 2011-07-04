@@ -54,6 +54,7 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
         self.checkstate = {}
         self.decorations = {}
         self.filter = None
+        self.sort = None
         if tmd: self.setMetaData(tmd)
         
     def setMetaData(self,tmd):
@@ -70,9 +71,25 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
     def setFilter(self):
         pass
     
+    def setBasicFilter(self,alias,text):
+        if text=="":
+            self.filter = None
+            return
+        
+        fieldname=""
+        for i, fname in enumerate(self.tmd.fieldlist):
+            field = self.tmd.field[i]
+            if unicode(field['alias']) == unicode(alias):
+                fieldname = fname
+                break
+            
+        self.filter = "WHERE "+fieldname+" ILIKE '%"+text+"%' "
+    
     def setSort(self, col, desc):
         # sorts column col ascending, or descending if desc == True
-        pass
+        field = self.tmd.fieldlist[col]
+        self.sort = "ORDER BY "+field+" "
+        if (desc==1): self.sort+="DESC"
     
     def flags(self, index):
         assert(self.tmd)
@@ -296,25 +313,15 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
         query.addBindValue(value)
         query.addBindValue(pkvalue)
         return query.exec_()
-        
-    def setBasicFilter(self,alias,text):
-        if text=="":
-            self.filter = None
-            return
-        
-        fieldname=""
-        for i, fname in enumerate(self.tmd.fieldlist):
-            field = self.tmd.field[i]
-            if unicode(field['alias']) == unicode(alias):
-                fieldname = fname
-                break
-            
-        self.filter = "WHERE "+fieldname+" ILIKE '%"+text+"%' "
 
     def refresh(self):
         query = "select %s from %s " %  (", ".join(self.tmd.fieldlist), self.table)
         if self.filter: query+=self.filter
-        query+="order by %s" % (self.pk)
+        if self.sort:
+            query+=self.sort
+        else:
+            query+="order by %s" % (self.pk)
+        print query
         self.setQuery(query, self.db)
         for i, fname in enumerate(self.tmd.fieldlist):
             field = self.tmd.field[i]

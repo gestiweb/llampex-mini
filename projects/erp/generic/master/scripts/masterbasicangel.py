@@ -124,6 +124,8 @@ class MasterScript(object):
         
     def table_sortIndicatorChanged(self, column, order):
         print column, order
+        self.model.setSort(column,order)
+        self.model.refresh()
         
     def reload_data(self):
         self.model.setSort(0,0)
