@@ -44,8 +44,10 @@ class MasterScript(object):
         try:
             tableheader = table.horizontalHeader()
             tableheader.setSortIndicator(0,0)
-            tableheader.setContextMenuPolicy( QtCore.Qt.ActionsContextMenu )
-
+            tableheader.setContextMenuPolicy( QtCore.Qt.CustomContextMenu )
+            
+            self.headerMenu = QtGui.QMenu(tableheader)
+            
             action_addfilter = QtGui.QAction(
                         QtGui.QIcon(h("../../icons/page-zoom.png")),
                         "Add &Filter...", tableheader)
@@ -55,13 +57,13 @@ class MasterScript(object):
             action_hidecolumn = QtGui.QAction("&Hide this Column", tableheader)
             action_addfilter.setIconVisibleInMenu(True)
             action_showcolumns.setIconVisibleInMenu(True)
-            tableheader.addAction(action_addfilter)
-            tableheader.addAction(action_showcolumns)
-            tableheader.addAction(action_hidecolumn)
+            self.headerMenu.addAction(action_addfilter)
+            self.headerMenu.addAction(action_showcolumns)
+            self.headerMenu.addAction(action_hidecolumn)
             tableheader.setStretchLastSection(True)
             
             self.form.connect(tableheader, QtCore.SIGNAL("sortIndicatorChanged(int,Qt::SortOrder)"), self.table_sortIndicatorChanged)
-            self.form.connect(tableheader, QtCore.SIGNAL("customContextMenuRequested(QPoint &)"),self.table_headerCustomContextMenuRequested)
+            self.form.connect(tableheader, QtCore.SIGNAL("customContextMenuRequested(const QPoint&)"),self.table_headerCustomContextMenuRequested)
             self.form.connect(action_addfilter, QtCore.SIGNAL("triggered(bool)"), self.action_addfilter_triggered)
             
         except Exception, e:
@@ -86,9 +88,7 @@ class MasterScript(object):
         self.modelSet = threading.Event()
         self.reload_data()
         self.select_data()
-        self.settablemodel()
-        
-        
+        self.settablemodel()   
         
     def btnNew_clicked(self):
         print "Button New clicked"
@@ -115,12 +115,16 @@ class MasterScript(object):
     def action_addfilter_triggered(self, checked):
         print "Add Filter triggered:", checked
         rettext, ok = QtGui.QInputDialog.getText(self.form, "Add New Filter",
-            "Write New WHERE expression:", QtGui.QLineEdit.Normal, self.model.filter())
-        self.model.setFilter(rettext)
-        self.select_data()
+            "Write New WHERE expression:", QtGui.QLineEdit.Normal, self.model.getFilter())
+        if ok:
+            self.model.setFilter(rettext)
+            self.model.refresh()
     
-    def table_headerCustomContextMenuRequested(self, point):
-        print point
+    def table_headerCustomContextMenuRequested(self, pos):
+        print pos
+        self.lastColumnClicked = self.form.ui.table.horizontalHeader().logicalIndexAt(pos)
+        print "We are in column: " + str(self.lastColumnClicked)
+        self.headerMenu.exec_( self.form.ui.table.horizontalHeader().mapToGlobal(pos) )
         
     def table_sortIndicatorChanged(self, column, order):
         print column, order

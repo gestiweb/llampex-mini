@@ -65,11 +65,14 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
         self.fieldlist = self.tmd.fieldlist
         self.pkidx = self.tmd.fieldlist.index(self.pk)
     
-    def filter(self):
+    def getFilter(self):
+        if (self.filter):
+            return self.filter
+        
         return ""
     
-    def setFilter(self):
-        pass
+    def setFilter(self, filter):
+        self.filter = filter+" "
     
     def setBasicFilter(self,alias,text):
         if text=="":
