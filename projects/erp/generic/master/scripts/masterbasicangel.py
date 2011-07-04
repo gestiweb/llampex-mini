@@ -118,6 +118,7 @@ class MasterScript(object):
         rettext, ok = QtGui.QInputDialog.getText(self.form, "Add New Filter",
             "Write New WHERE expression:", QtGui.QLineEdit.Normal, self.model.getFilter())
         if ok:
+            self.form.ui.searchBox.setText("")
             self.model.setFilter(rettext)
             self.model.refresh()
             

@@ -86,7 +86,7 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
                 fieldname = fname
                 break
             
-        self.filter = "WHERE "+fieldname+" ILIKE '%"+text+"%' "
+        self.filter = " "+fieldname+" ILIKE '%"+text+"%' "
     
     def setSort(self, col, desc):
         # sorts column col ascending, or descending if desc == True
@@ -321,7 +321,7 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
 
     def refresh(self):
         query = "select %s from %s " %  (", ".join(self.tmd.fieldlist), self.table)
-        if self.filter: query+=self.filter
+        if self.filter: query+="WHERE "+self.filter
         if self.sort:
             query+=self.sort
         else:
