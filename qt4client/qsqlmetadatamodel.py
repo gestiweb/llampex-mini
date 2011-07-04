@@ -128,11 +128,12 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
         delegate_bool = ItemComboDelegate(itemview)
         delegate_bool.items = [u"Sí",u"No",u"--"]
         delegate_bool.values = [True,False,None]
+        basic_delegate = QtGui.QStyledItemDelegate(itemview)
         fnSetColumnWidth = getattr(itemview,"setColumnWidth",None)
         for i, name in enumerate(self.tmd.fieldlist):
             field = self.tmd.field[i]
             ctype = self.colType(i)
-            delegate = None
+            delegate = basic_delegate
             optionlist = field.get("optionlist",None)
             valuelist = field.get("valuelist",optionlist)
             
@@ -145,18 +146,19 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
                 
             if delegate:
                 itemview.setItemDelegateForColumn(i, delegate)   
-            widths = [50]
-            for row in range(min(20, self.rowCount())):
-                midx = self.index(row,i)
-                sz = itemview.sizeHintForIndex(midx)
-                widths.append(sz.width())
-            widths.sort()
-            x = len(widths) / 4 + 1
-            m = widths[x:]
-            lm = len(m)
-            w = sum(m) / lm + 10
-            #w = itemview.sizeHintForColumn(i)
-            fnSetColumnWidth(i, w)
+            if fnSetColumnWidth:
+                widths = [50]
+                for row in range(min(20, self.rowCount())):
+                    midx = self.index(row,i)
+                    sz = itemview.sizeHintForIndex(midx)
+                    widths.append(sz.width())
+                widths.sort()
+                x = len(widths) / 4 + 1
+                m = widths[x:]
+                lm = len(m)
+                w = sum(m) / lm + 10
+                #w = itemview.sizeHintForColumn(i)
+                fnSetColumnWidth(i, w)
             
             
     def getHeaderAlias(self):
