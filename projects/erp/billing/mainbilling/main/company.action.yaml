@@ -9,8 +9,8 @@ record:
     script: empresa
     form: empresa
 master:
-    script: /generic/master/scripts/masterbasic
-    form: /generic/master/forms/masterbase.ui
+    script: /generic/master/scripts/masterbasic4
+    form: /generic/master/forms/mastercopyprint4.ui
 
 description: "La gestión de la empresa..."
 
