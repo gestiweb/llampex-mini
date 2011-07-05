@@ -21,19 +21,25 @@ class MyItemView(QtGui.QAbstractItemView):
         self.col = 0
         self.margin = (3,3,3,3)
         self.item = None
+        self.persistentEditor = None
+        """
         self.delegate = QtGui.QStyledItemDelegate(self)
+        """
         self.setSizePolicy(QtGui.QSizePolicy.Preferred,QtGui.QSizePolicy.Minimum)
         self.setEditTriggers(QtGui.QAbstractItemView.DoubleClicked | QtGui.QAbstractItemView.EditKeyPressed)
         self.setSelectionMode(QtGui.QAbstractItemView.NoSelection)
         self.viewport().setSizePolicy(QtGui.QSizePolicy.Preferred,QtGui.QSizePolicy.Minimum)
+        self.setTabKeyNavigation(False)
 
     def minimumSizeHint(self):
-        return QtCore.QSize(32,32)
+        w = self.colwidth.get(self.col, 50)
+        sz = QtCore.QSize(w,16)
+        return sz
     
-    
+    """
     def setDelegate(self, delegate):
         self.delegate = delegate
-    
+    """
     def setPosition(self,row, col):
         self.row = row
         self.col = col
@@ -50,18 +56,27 @@ class MyItemView(QtGui.QAbstractItemView):
     def focusInEvent(self, event):
         QtGui.QAbstractItemView.focusInEvent(self,event)
         if self.item:
-            print "focus IN:", self.row, self.col
+            #print "focus IN:", self.row, self.col
+            # TODO: Devuelve error si no se puede editar o si ya estaba editandose
+            self.edit(self.item) 
+            
     
     def focusOutEvent(self, event):
         QtGui.QAbstractItemView.focusOutEvent(self,event)
-        if self.item:
-            print "focus OUT:", self.row, self.col
+        #if self.item:
+        #    #print "focus OUT:", self.row, self.col
     
     def updatePosition(self):
         model = self.model()
+        if self.persistentEditor:
+            self.closePersistentEditor(self.item)
         self.item = model.index(self.row, self.col)
         fnAutoDelegate = getattr(model, "autoDelegate", None)
         if fnAutoDelegate: fnAutoDelegate(self)
+        smodel = self.selectionModel()
+        smodel.setCurrentIndex(self.item, QtGui.QItemSelectionModel.NoUpdate);
+        #self.openPersistentEditor(self.item)
+        #self.persistentEditor = True
         #szh = self.sizeHint()
         #szh += QtCore.QSize(15,15)
         #self.resize(szh)
@@ -70,7 +85,7 @@ class MyItemView(QtGui.QAbstractItemView):
         #sz = QtGui.QAbstractItemView.sizeHint(self)
         #sz.setHeight(32)
         w = self.colwidth.get(self.col, 50)
-        sz = QtCore.QSize(w,16)
+        sz = QtCore.QSize(w+32,32)
         return sz
         
         if self.item:
@@ -79,10 +94,11 @@ class MyItemView(QtGui.QAbstractItemView):
         
     def setColumnWidth(self, col, width):
         self.colwidth[col] = width
+    """    
     def setDelegateForColumn(self, col, delegate):
         if col != self.col: return
         self.delegate = delegate
-    
+    """
     def paintEvent(self, pEvent):
         if not self.item: return
         S = QtGui.QStyle
@@ -106,9 +122,9 @@ class MyItemView(QtGui.QAbstractItemView):
         painter = QtGui.QStylePainter(self.viewport())
         option.rect = self.visualRect(item)
         #painter.save()
-        
+        delegate = self.itemDelegate(item)
         #painter.setClipRegion(QtGui.QRegion(option.rect))
-        self.delegate.paint(painter, option, item)
+        delegate.paint(painter, option, item)
         #painter.restore()
             
             
@@ -119,6 +135,7 @@ class MyItemView(QtGui.QAbstractItemView):
         
     # virtual void	scrollTo ( const QModelIndex & index, ScrollHint hint = EnsureVisible ) = 0
     def scrollTo(self, index, hint):
+        #print "scrollTo", index,hint
         return
         
     # virtual QRect	visualRect ( const QModelIndex & index ) const = 0
@@ -165,6 +182,35 @@ class MyItemView(QtGui.QAbstractItemView):
         view, based on the given cursorAction and keyboard modifiers 
         specified by modifiers.
         """
+        w = None
+        parent = None
+        thisparent = self.parentWidget()
+        
+        if cursorAction == QtGui.QAbstractItemView.MoveNext:
+            w = self
+            for i in range(10):
+                w = w.nextInFocusChain()
+                parent = w.parentWidget()
+                if parent == thisparent: break
+                
+        elif cursorAction == QtGui.QAbstractItemView.MovePrevious:
+            w = self
+            for i in range(10):
+                w = w.previousInFocusChain()
+                parent = w.parentWidget()
+                if parent == thisparent: break
+        else:
+            #print "moveCursor:", cursorAction, kbmodifiers
+            pass
+            
+        if w:
+            parent = w.parentWidget()
+            #print "moveCursor, giving focus:", w.__class__.__name__
+            #try: print w.row, w.col
+            #except Exception, e: print e
+            #print parent
+            #print thisparent
+            QtCore.QTimer.singleShot(50,w,QtCore.SLOT("setFocus()"))
         return self.item
         
     # virtual void	setSelection ( const QRect & rect, QItemSelectionModel::SelectionFlags flags ) = 0
