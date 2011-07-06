@@ -1,5 +1,5 @@
 # encoding: UTF-8
-import os.path, traceback
+import os, os.path, traceback
 import logging, imp
 from projectloader import LlampexTable
 
@@ -11,6 +11,8 @@ except ImportError:
     LlItemView = None
     print "WARN: *** LlampexWidgets module not installed ***. Record Forms may be not renderable."
     
+
+def h(*args): return os.path.realpath(os.path.join(os.path.dirname(os.path.abspath( __file__ )), *args))
 
 def load_module(name, path):
     fp = None
@@ -100,15 +102,20 @@ class LlampexQDialog( QtGui.QDialog ):
         self.buttonlayout.addWidget(self.buttonbox)
         """
         self.buttonprev = QtGui.QToolButton()
-        self.buttonprev.setText("<")
+        self.buttonprev.setIcon(QtGui.QIcon(QtGui.QPixmap(h("./icons/previous.png"))))
+        #self.buttonprev.setText("<")
         self.buttonnext = QtGui.QToolButton()
-        self.buttonnext.setText(">")
+        self.buttonnext.setIcon(QtGui.QIcon(QtGui.QPixmap(h("./icons/next.png"))))
+        #self.buttonnext.setText(">")
         self.buttonaccept = QtGui.QToolButton()
-        self.buttonaccept.setText(";)")
+        self.buttonaccept.setIcon(QtGui.QIcon(QtGui.QPixmap(h("./icons/accept.png"))))
+        #self.buttonaccept.setText(";)")
         self.buttonacceptcontinue = QtGui.QToolButton()
-        self.buttonacceptcontinue.setText(":D")
+        self.buttonacceptcontinue.setIcon(QtGui.QIcon(QtGui.QPixmap(h("./icons/accepttocontinue.png"))))
+        #self.buttonacceptcontinue.setText(":D")
         self.buttoncancel = QtGui.QToolButton()
-        self.buttoncancel.setText("X")
+        self.buttoncancel.setIcon(QtGui.QIcon(QtGui.QPixmap(h("./icons/cancel.png"))))
+        #self.buttoncancel.setText("X")
         self.buttonlayout.addWidget(self.buttonprev)
         self.buttonlayout.addWidget(self.buttonnext)
         self.buttonlayout.addWidget(self.buttonaccept)
