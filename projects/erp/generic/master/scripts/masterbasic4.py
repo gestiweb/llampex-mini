@@ -3,6 +3,7 @@ import os.path, traceback
 from PyQt4 import QtGui, QtCore, uic
 from PyQt4 import QtSql
 from masterform import LlampexMasterForm
+from recordform import loadActionFormRecord #LlampexRecordForm, LlampexQDialog
 import time
 import re
 import qsqlrpcdriver.qtdriver as qtdriver
@@ -277,17 +278,21 @@ class MasterScript(object):
         self.db = self.rpc.qtdb
         self.table = self.form.actionobj.table
         self.model = None
+        self.row = None 
+        self.col = None
+        
         print
         try:
             tmd=LlampexTable.tableindex[self.table]
             self.tmd = tmd
             print tmd
+            print "Code:", tmd.code
+            print "Nombre:", tmd.name
             print "PKey:", tmd.primarykey
             print tmd.fieldlist
             print tmd.fields
             print "f0:", tmd.field[0]
-            print "f1:", tmd.field[1]
-            print "Nombre:", tmd.field.nombre
+            print "f1:", tmd.field[1]            
         except Exception, e:
             print "Error loading table metadata:"
             print traceback.format_exc()
@@ -367,17 +372,22 @@ class MasterScript(object):
         layout.addLayout( self.fieldlayout )
         
     def table_cellActivated(self, itemindex):
-        row, col = itemindex.row(), itemindex.column()
-        print "Cell:", row, col
+        self.row, self.col = itemindex.row(), itemindex.column()
+        print "Cell:", self.row, self.col
         for fieldview in self.fieldviews:
-            fieldview.setRow(row)
+            fieldview.setRow(self.row)        
         
     def btnNew_clicked(self):
+        print "Button New clicked --> Row: ", self.row
+        load = loadActionFormRecord(self.form, 'INSERT', self.form.actionobj, self.rpc, self.tmd, self.model, self.row)
+        """
         print "Button New clicked"
         dialog = QtGui.QDialog(self.form)
         dialog.setWindowTitle("Insert new record")
         ret = dialog.exec_()
         print ret
+        """
+        
         
     def btnBrowse_clicked(self):
         print "Button Browse clicked"

@@ -6,8 +6,9 @@ weight: A.1
 
 table: articulos
 record:
-    script: articulos
-    form: articulos
+    script: record/scripts/articulos
+    form: record/forms/articulos.ui
+    
 master:
     script: /generic/master/scripts/masterbasic4
     form: /generic/master/forms/mastercopyprint4.ui
