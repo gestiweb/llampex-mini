@@ -153,8 +153,7 @@ class loadActionFormRecord():
         self.showFormRecord()
         
     def showFormRecord(self):
-        dialog = LlampexQDialog(self.parent, self.recordUi, "Articulos Form Record")
-        
+        dialog = LlampexQDialog(self.parent, self.recordUi, "Articulos Form Record")        
         ret = dialog.exec_();
         print "RecordForm: ", ret
         

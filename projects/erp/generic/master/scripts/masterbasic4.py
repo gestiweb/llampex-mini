@@ -111,6 +111,7 @@ class MasterScript(object):
         self.form.connect(table, QtCore.SIGNAL("activated(QModelIndex)"),self.table_cellActivated)
         self.form.connect(table, QtCore.SIGNAL("clicked(QModelIndex)"),self.table_cellActivated)
         self.form.connect(self.form.ui.btnNew, QtCore.SIGNAL("clicked()"), self.btnNew_clicked)
+        self.form.connect(self.form.ui.btnEdit, QtCore.SIGNAL("clicked()"), self.btnEdit_clicked)
         self.form.connect(self.form.ui.btnBrowse, QtCore.SIGNAL("clicked()"), self.btnBrowse_clicked)
         self.form.connect(self.form.ui.searchBox, QtCore.SIGNAL("textChanged(const QString&)"), self.searchBox_changed)
         self.form.connect(self.form.ui.searchCombo, QtCore.SIGNAL("currentIndexChanged(const QString&)"), self.searchCombo_changed)
@@ -154,7 +155,7 @@ class MasterScript(object):
             fieldview.setRow(self.row)        
         
     def btnNew_clicked(self):
-        print "Button New clicked --> Row: ", self.row
+        print "Button New clicked"
         load = loadActionFormRecord(self.form, 'INSERT', self.form.actionobj, self.rpc, self.tmd, self.model, self.row)
         """
         print "Button New clicked"
@@ -163,7 +164,9 @@ class MasterScript(object):
         ret = dialog.exec_()
         print ret
         """
-        
+    def btnEdit_clicked(self):
+        print "Button Edit clicked --> Row: ", self.row
+        load = loadActionFormRecord(self.form, 'EDIT', self.form.actionobj, self.rpc, self.tmd, self.model, self.row)        
         
     def btnBrowse_clicked(self):
         print "Button Browse clicked"
