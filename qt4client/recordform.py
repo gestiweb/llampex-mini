@@ -5,6 +5,13 @@ from projectloader import LlampexTable
 
 from PyQt4 import QtGui, QtCore, uic
 
+try:
+    from llampexwidgets import LlItemView
+except ImportError:
+    LlItemView = None
+    print "WARN: *** LlampexWidgets module not installed ***. Record Forms may be not renderable."
+    
+
 def load_module(name, path):
     fp = None
     module = None
@@ -20,12 +27,13 @@ def load_module(name, path):
             
                   
 class LlampexRecordForm(QtGui.QWidget):
-    def __init__(self, actionobj, prjconn, model, row):
+    def __init__(self, actionobj, prjconn, tmd, model, row):
         QtGui.QWidget.__init__(self)        
         self.actionobj = actionobj
         self.prjconn = prjconn
         self.model = model
         self.row = row
+        self.tmd = tmd
         try:
             ui_filepath = self.actionobj.filedir(self.actionobj.record["form"])
             self.ui = uic.loadUi(ui_filepath,self)
@@ -42,7 +50,7 @@ class LlampexRecordForm(QtGui.QWidget):
             self.layout.addStretch()
             self.setLayout(self.layout)
             return
-            
+        
         try:
             if "script" in self.actionobj.record:
                 source_filepath = self.actionobj.filedir(self.actionobj.record["script"])
@@ -69,8 +77,8 @@ class LlampexQDialog( QtGui.QDialog ):
         
         self.setupUi()
   
-        self.buttonbox.accepted.connect( self.accept )
-        self.buttonbox.rejected.connect( self.reject )  
+        #self.buttonbox.accepted.connect( self.accept )
+        #self.buttonbox.rejected.connect( self.reject )  
     
     def setupUi( self ):        
         self.vboxlayout = QtGui.QVBoxLayout(self)
@@ -82,12 +90,37 @@ class LlampexQDialog( QtGui.QDialog ):
         self.hboxlayout.setMargin(0)
         self.hboxlayout.setSpacing(6)
         self.hboxlayout.setObjectName("hboxlayout")
-        
-        self.buttonbox = QtGui.QDialogButtonBox( QtGui.QDialogButtonBox.Yes | QtGui.QDialogButtonBox.No )
 
+        self.buttonlayout = QtGui.QHBoxLayout()
+        self.buttonlayout.setMargin(3)
+        self.buttonlayout.setSpacing(0)
+        self.buttonlayout.addStretch()
+        """
+        self.buttonbox = QtGui.QDialogButtonBox( QtGui.QDialogButtonBox.Yes | QtGui.QDialogButtonBox.No )
+        self.buttonlayout.addWidget(self.buttonbox)
+        """
+        self.buttonprev = QtGui.QToolButton()
+        self.buttonprev.setText("<")
+        self.buttonnext = QtGui.QToolButton()
+        self.buttonnext.setText(">")
+        self.buttonaccept = QtGui.QToolButton()
+        self.buttonaccept.setText(";)")
+        self.buttonacceptcontinue = QtGui.QToolButton()
+        self.buttonacceptcontinue.setText(":D")
+        self.buttoncancel = QtGui.QToolButton()
+        self.buttoncancel.setText("X")
+        self.buttonlayout.addWidget(self.buttonprev)
+        self.buttonlayout.addWidget(self.buttonnext)
+        self.buttonlayout.addWidget(self.buttonaccept)
+        self.buttonlayout.addWidget(self.buttonacceptcontinue)
+        self.buttonlayout.addWidget(self.buttoncancel)
+        
         self.vboxlayout.addWidget(self.widget)
-        self.vboxlayout.addWidget(self.buttonbox)
+        self.vboxlayout.addLayout(self.buttonlayout)
         self.setLayout(self.vboxlayout)    
+        
+        self.connect(self.buttonaccept, QtCore.SIGNAL("clicked()"), self, QtCore.SLOT("accept()"))
+        self.connect(self.buttoncancel, QtCore.SIGNAL("clicked()"), self, QtCore.SLOT("reject()"))
     
     
 class loadActionFormRecord():
@@ -116,7 +149,7 @@ class loadActionFormRecord():
         if self.tmd is None: self.tmd = LlampexTable.tableindex[self.form.actionobj.table]
         
         print "Ui record file : ", self.actionobj.record["form"]
-        self.recordUi = LlampexRecordForm(self.actionobj, self.rpc, self.model, self.row)
+        self.recordUi = LlampexRecordForm(self.actionobj, self.rpc, self.tmd, self.model, self.row)
         self.showFormRecord()
         
     def showFormRecord(self):
