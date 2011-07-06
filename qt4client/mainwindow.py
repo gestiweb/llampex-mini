@@ -69,6 +69,7 @@ class LlampexMainWindow(QtGui.QMainWindow):
     
     def load(self):
         self.modules = {}
+        self.actions = {}
         for area_code in self.project.area_list:
             areaobj = self.project.area[area_code]
             icon = None
@@ -129,7 +130,6 @@ class LlampexMainWindow(QtGui.QMainWindow):
         self.mdiarea.addSubWindow(subwindow)
         
         moduleicon, moduleobj = self.modules[key] 
-        self.actions = {}
         self.modulesubwindow[key] = subwindow
 
         for group_code in moduleobj.group_list:
