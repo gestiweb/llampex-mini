@@ -32,10 +32,12 @@ class RecordScript(object):
                 print obj.objectName(), obj.fieldName, column
                 if column >= 0:
                     widget = LlItemView1(obj)
+                    widget.setObjectName(obj.objectName()+"_editor")
                     widget.setup()
                     widget.setModel(self.model)
                     widget.setCol(column)
                     widget.setRow(self.row)
+                    widget.setTabWidget(obj)
                     obj.replaceEditorWidget(widget)
                     
                 

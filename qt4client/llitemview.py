@@ -12,13 +12,25 @@ import traceback
 from projectloader import LlampexTable
 from qsqlmetadatamodel import QSqlMetadataModel, ItemComboDelegate
 
+def _getAllWidgets(form):
+    widgets = []
+    for obj in form.children():
+        if isinstance(obj, QtGui.QWidget):
+            widgets.append(obj)
+            widgets+=_getAllWidgets(obj)
+    return widgets
+
+def getAllWidgets(form):
+    return [ obj for obj in _getAllWidgets(form) if obj.objectName() ]
+
 class LlItemView1(QtGui.QAbstractItemView):
     def setup(self):
         self.colwidth = {}
         self.row = 0
         self.col = 0
-        self.margin = (3,3,3,3)
+        self.margin = (0,0,0,0)
         self.item = None
+        self.tabWidget = self
         self.persistentEditor = None
         self.setSizePolicy(QtGui.QSizePolicy.Preferred,QtGui.QSizePolicy.Minimum)
         self.setEditTriggers(QtGui.QAbstractItemView.DoubleClicked | QtGui.QAbstractItemView.EditKeyPressed)
@@ -26,6 +38,9 @@ class LlItemView1(QtGui.QAbstractItemView):
         #self.viewport().setSizePolicy(QtGui.QSizePolicy.Preferred,QtGui.QSizePolicy.Minimum)
         #self.setTabKeyNavigation(False)
 
+    def setTabWidget(self, widget):
+        self.tabWidget = widget 
+        
     def minimumSizeHint(self):
         w = self.colwidth.get(self.col, 50)
         sz = QtCore.QSize(w,16)
@@ -178,7 +193,9 @@ class LlItemView1(QtGui.QAbstractItemView):
         """
         w = None
         parent = None
-        thisparent = self.parentWidget()
+        
+        
+        thisparent = self.tabWidget.parentWidget()
         smodel = self.selectionModel()
         selectedIndex = smodel.currentIndex()
         if not selectedIndex.isValid():
@@ -190,14 +207,14 @@ class LlItemView1(QtGui.QAbstractItemView):
         
         
         if cursorAction == QtGui.QAbstractItemView.MoveNext:
-            w = self
+            w = self.tabWidget
             for i in range(10):
                 w = w.nextInFocusChain()
                 parent = w.parentWidget()
                 if parent == thisparent: break
                 
         elif cursorAction == QtGui.QAbstractItemView.MovePrevious:
-            w = self
+            w = self.tabWidget
             for i in range(10):
                 w = w.previousInFocusChain()
                 parent = w.parentWidget()
@@ -207,11 +224,16 @@ class LlItemView1(QtGui.QAbstractItemView):
             pass
             
         if w:
+            if not isinstance(w,self.__class__):
+                for obj in getAllWidgets(w):
+                    if isinstance(obj,self.__class__):
+                        w = obj
+            
             parent = w.parentWidget()
-            #print "moveCursor, giving focus:", w.__class__.__name__
-            #try: print w.row, w.col
-            #except Exception, e: print e
-            #print parent
+            print "moveCursor, giving focus:", w.__class__.__name__, w.objectName()
+            try: print w.row, w.col
+            except Exception, e: print e
+            print parent
             #print thisparent
             QtCore.QTimer.singleShot(50,w,QtCore.SLOT("setFocus()"))
         return self.item
