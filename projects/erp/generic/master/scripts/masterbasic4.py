@@ -15,31 +15,23 @@ def h(*args): return os.path.realpath(os.path.join(os.path.dirname(os.path.abspa
 
 class MyItemView(QtGui.QAbstractItemView):
     def setup(self):
-        print "setup"
         self.colwidth = {}
         self.row = 0
         self.col = 0
         self.margin = (3,3,3,3)
         self.item = None
         self.persistentEditor = None
-        """
-        self.delegate = QtGui.QStyledItemDelegate(self)
-        """
         self.setSizePolicy(QtGui.QSizePolicy.Preferred,QtGui.QSizePolicy.Minimum)
         self.setEditTriggers(QtGui.QAbstractItemView.DoubleClicked | QtGui.QAbstractItemView.EditKeyPressed)
         self.setSelectionMode(QtGui.QAbstractItemView.NoSelection)
-        self.viewport().setSizePolicy(QtGui.QSizePolicy.Preferred,QtGui.QSizePolicy.Minimum)
-        self.setTabKeyNavigation(False)
+        #self.viewport().setSizePolicy(QtGui.QSizePolicy.Preferred,QtGui.QSizePolicy.Minimum)
+        #self.setTabKeyNavigation(False)
 
     def minimumSizeHint(self):
         w = self.colwidth.get(self.col, 50)
         sz = QtCore.QSize(w,16)
         return sz
-    
-    """
-    def setDelegate(self, delegate):
-        self.delegate = delegate
-    """
+        
     def setPosition(self,row, col):
         self.row = row
         self.col = col
@@ -55,7 +47,7 @@ class MyItemView(QtGui.QAbstractItemView):
         
     def focusInEvent(self, event):
         QtGui.QAbstractItemView.focusInEvent(self,event)
-        if self.item:
+        if self.item and self.item.isValid():
             #print "focus IN:", self.row, self.col
             # TODO: Devuelve error si no se puede editar o si ya estaba editandose
             self.edit(self.item) 
@@ -71,15 +63,20 @@ class MyItemView(QtGui.QAbstractItemView):
         if self.persistentEditor:
             self.closePersistentEditor(self.item)
         self.item = model.index(self.row, self.col)
+        if not self.item.isValid():
+            #print "Item invalid::"
+            return False
         fnAutoDelegate = getattr(model, "autoDelegate", None)
         if fnAutoDelegate: fnAutoDelegate(self)
         smodel = self.selectionModel()
         smodel.setCurrentIndex(self.item, QtGui.QItemSelectionModel.NoUpdate);
+        self.update()
         #self.openPersistentEditor(self.item)
         #self.persistentEditor = True
         #szh = self.sizeHint()
         #szh += QtCore.QSize(15,15)
         #self.resize(szh)
+        return True
         
     def sizeHint(self):
         #sz = QtGui.QAbstractItemView.sizeHint(self)
@@ -101,6 +98,7 @@ class MyItemView(QtGui.QAbstractItemView):
     """
     def paintEvent(self, pEvent):
         if not self.item: return
+        if not self.item.isValid(): return
         S = QtGui.QStyle
         
         focus = self.hasFocus()
@@ -126,8 +124,6 @@ class MyItemView(QtGui.QAbstractItemView):
         #painter.setClipRegion(QtGui.QRegion(option.rect))
         delegate.paint(painter, option, item)
         #painter.restore()
-            
-            
     
     # virtual QModelIndex	indexAt ( const QPoint & point ) const = 0        
     def indexAt(self, point):
@@ -148,8 +144,7 @@ class MyItemView(QtGui.QAbstractItemView):
         #print rect, szh
         
         return rect 
-    
-    
+
     # *** PROTECTED *** / INTERNAL FUNCTIONS::
     
     # virtual int	horizontalOffset () const = 0
@@ -185,6 +180,15 @@ class MyItemView(QtGui.QAbstractItemView):
         w = None
         parent = None
         thisparent = self.parentWidget()
+        smodel = self.selectionModel()
+        selectedIndex = smodel.currentIndex()
+        if not selectedIndex.isValid():
+            if not self.updatePosition():
+                # TODO: This is a patch to allow a future redraw when we're called in the middle of a Model Reset.
+                QtCore.QTimer.singleShot(200,self.updatePosition)
+            
+            return self.item
+        
         
         if cursorAction == QtGui.QAbstractItemView.MoveNext:
             w = self
@@ -231,7 +235,6 @@ class MyItemView(QtGui.QAbstractItemView):
         """
         Returns the region from the viewport of the items in the given selection.
         """
-        # TODO: Implementar esta funcion ?
         return QtGui.QRegion(self.visualRect(self.item))
         
         

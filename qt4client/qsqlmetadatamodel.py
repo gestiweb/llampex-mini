@@ -158,10 +158,11 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
                 widths.sort()
                 x = len(widths) / 4 + 1
                 m = widths[x:]
-                lm = len(m)
-                w = sum(m) / lm + 10
-                #w = itemview.sizeHintForColumn(i)
-                fnSetColumnWidth(i, w)
+                lm = len(m) 
+                if lm:
+                    w = sum(m) / lm + 10
+                    #w = itemview.sizeHintForColumn(i)
+                    fnSetColumnWidth(i, w)
             
             
     def getHeaderAlias(self):
