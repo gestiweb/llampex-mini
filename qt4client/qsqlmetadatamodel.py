@@ -55,12 +55,14 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
         self.decorations = {}
         self.filter = None
         self.sort = None
+        self.columnWidth = {}
         if tmd: self.setMetaData(tmd)
         
     def setMetaData(self,tmd):
         assert(self.tmd is None)
         self.tmd = tmd
         self.table = self.tmd.code
+        self.columnWidth = {}
         self.pk = self.tmd.primarykey
         self.fieldlist = self.tmd.fieldlist
         self.pkidx = self.tmd.fieldlist.index(self.pk)
@@ -150,18 +152,24 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
             if delegate:
                 itemview.setItemDelegateForColumn(i, delegate)   
             if fnSetColumnWidth:
-                widths = [50]
-                for row in range(min(20, self.rowCount())):
-                    midx = self.index(row,i)
-                    sz = itemview.sizeHintForIndex(midx)
-                    widths.append(sz.width())
-                widths.sort()
-                x = len(widths) / 4 + 1
-                m = widths[x:]
-                lm = len(m) 
-                if lm:
-                    w = sum(m) / lm + 10
-                    #w = itemview.sizeHintForColumn(i)
+                if i not in self.columnWidth:
+                    widths = [50]
+                    for row in range(min(20, self.rowCount())):
+                        midx = self.index(row,i)
+                        sz = itemview.sizeHintForIndex(midx)
+                        widths.append(sz.width())
+                    widths.sort()
+                    x = len(widths) / 4 + 1
+                    m = widths[x:]
+                    lm = len(m) 
+                    if lm:
+                        w = sum(m) / lm + 10
+                        #w = itemview.sizeHintForColumn(i)
+                        self.columnWidth[i] = w
+                    else:
+                        self.columnWidth[i] = None
+                w = self.columnWidth[i]
+                if w:
                     fnSetColumnWidth(i, w)
             
             

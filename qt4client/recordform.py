@@ -2,6 +2,7 @@
 import os, os.path, traceback
 import logging, imp
 from projectloader import LlampexTable
+import threading
 
 from PyQt4 import QtGui, QtCore, uic
 
@@ -75,24 +76,62 @@ class LlampexRecordForm(QtGui.QWidget):
             msgBox = QtGui.QMessageBox()
             msgBox.setText("FATAL: An error ocurred trying to load the record script:\n" + traceback.format_exc())
             msgBox.setIcon(QtGui.QMessageBox.Critical)
-            msgBox.exec_()            
+            msgBox.exec_()           
+    
+    def delete(self): 
+        #self.ui.hide()
+        ret = self.ui.close()
+        self.ui.deleteLater()
+        self.actionobj = None
+        self.prjconn = None
+        self.model = None
+        self.row = None
+        self.tmd = None
+        self.ui = None
+        if hasattr(self.recordscript, "delete"):
+            self.recordscript.delete()
+        del self.recordscript
+        self.close()
+        self.deleteLater()
+        return ret
+        
         
                   
+def lock(fn):
+    def myfn(self,*args):
+        if not self.lock.acquire(False):
+            print "Blocking"
+            self.lock.acquire()
+        try:
+            return fn(self,*args)
+        finally:
+            self.lock.release()
+    return myfn
+        
 
 class LlampexQDialog( QtGui.QDialog ):
-    def __init__( self, parent = None, widget = None, title = "Dialog Title"):
+    def __init__( self, parent = None, widgetFactory = None, title = "Dialog Title"):
         QtGui.QDialog.__init__(self)
-        self.widget = widget
-        
+        self.lock = threading.Lock()
+        self.widgetFactory = widgetFactory
+        self.widget = None
         self.setWindowTitle(title)
         self.resize(300,105)
         self.setParent(parent)        
         self.setWindowFlags(QtCore.Qt.Sheet)
-        
         self.setupUi()
   
         #self.buttonbox.accepted.connect( self.accept )
         #self.buttonbox.rejected.connect( self.reject )  
+    def createNewWidget(self, preserveRow = True):
+        row = None
+        if self.widget:
+            if preserveRow: row = self.widget.row
+            self.widgetlayout.removeWidget(self.widget)
+            self.widget.delete()
+            self.widget = None
+        self.widget = self.widgetFactory(row = row)
+        self.widgetlayout.addWidget(self.widget)
     
     def setupUi( self ):        
         self.vboxlayout = QtGui.QVBoxLayout(self)
@@ -150,7 +189,10 @@ class LlampexQDialog( QtGui.QDialog ):
         self.buttonlayout.addWidget(self.buttonaccept)        
         self.buttonlayout.addWidget(self.buttoncancel)
         
-        self.vboxlayout.addWidget(self.widget)
+        self.widgetlayout = QtGui.QVBoxLayout()
+        self.createNewWidget()
+        
+        self.vboxlayout.addLayout(self.widgetlayout)
         self.vboxlayout.addLayout(self.buttonlayout)
         self.setLayout(self.vboxlayout)    
         
@@ -165,6 +207,7 @@ class LlampexQDialog( QtGui.QDialog ):
         if self.widget.row == 0: self.buttonprev.setDisabled(True)
         elif self.widget.row >= (self.widget.model.rowCount()-1): self.buttonnext.setDisabled(True)
         
+    @lock
     def previous( self ):
         print "Previous Button Clicked"        
         if self.widget.row > 0: 
@@ -173,9 +216,9 @@ class LlampexQDialog( QtGui.QDialog ):
             if self.widget.row == 0: self.buttonprev.setDisabled(True)
         else: 
             self.buttonprev.setDisabled(True)
-            
-        self.widget.sourcemodule.RecordScript(self.widget)
+        self.createNewWidget()    
         
+    @lock
     def next( self ):
         print "Next Button Clicked"
         if self.widget.row < (self.widget.model.rowCount()-1): 
@@ -184,8 +227,7 @@ class LlampexQDialog( QtGui.QDialog ):
             if self.widget.row == (self.widget.model.rowCount()-1): self.buttonnext.setDisabled(True)
         else: 
             self.buttonnext.setDisabled(True)            
-            
-        self.widget.sourcemodule.RecordScript(self.widget)
+        self.createNewWidget()    
         
     def acceptToContinue( self ):
         print "AcceptToContinue Button Clicked"    
@@ -234,11 +276,15 @@ class loadActionFormRecord():
         if self.tmd is None: self.tmd = LlampexTable.tableindex[self.form.actionobj.table]
         
         print "Ui record file : ", self.actionobj.record["form"]
-        self.recordUi = LlampexRecordForm(self.actionobj, self.rpc, self.tmd, self.model, self.row)
+        # self.recordUi = self.recordFormFactory()
         self.showFormRecord()
+    
+    def recordFormFactory(self, row = None):
+        if row is None: row = self.row
+        return LlampexRecordForm(self.actionobj, self.rpc, self.tmd, self.model, row)
         
     def showFormRecord(self):
-        dialog = LlampexQDialog(self.parent, self.recordUi, "Articulos Form Record")        
+        dialog = LlampexQDialog(self.parent, self.recordFormFactory, "Articulos Form Record")        
         ret = dialog.exec_();
         print "RecordForm: ", ret
         

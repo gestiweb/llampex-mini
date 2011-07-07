@@ -2,6 +2,7 @@
 from llampexwidgets import LlItemView
 from llitemview import LlItemView1
 from PyQt4 import QtGui, QtCore, uic
+import time
 
 def _getAllWidgets(form):
     widgets = []
@@ -31,16 +32,21 @@ class RecordScript(object):
         for obj in getAllWidgets(self.ui):
             if isinstance(obj, LlItemView):
                 column = self.tmd.fieldlist.index(obj.fieldName)
-                print obj.objectName(), obj.fieldName, column
                 if column >= 0:
                     widget = LlItemView1(obj)
                     widget.setObjectName(obj.objectName()+"_editor")
                     widget.setup()
                     widget.setModel(self.model)
-                    widget.setCol(column)
-                    widget.setRow(self.row)
+                    widget.setPosition(self.row, column)
                     widget.setTabWidget(obj)
                     obj.replaceEditorWidget(widget)
+                    """
+                    t=[]
+                    deltas = []
+                    for t1,t2 in zip(t[:-1],t[1:]):
+                        deltas.append((t2-t1)*1000)
+                    print obj.objectName(), obj.fieldName, column, ", ".join([ "%d:%.2fms" % (i,d) for i,d in enumerate(deltas) ])
+                    """
                     
                 
                 

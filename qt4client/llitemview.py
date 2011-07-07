@@ -84,7 +84,8 @@ class LlItemView1(QtGui.QAbstractItemView):
         if fnAutoDelegate: fnAutoDelegate(self)
         smodel = self.selectionModel()
         smodel.setCurrentIndex(self.item, QtGui.QItemSelectionModel.NoUpdate);
-        self.update()
+        
+        #self.update()
         #self.openPersistentEditor(self.item)
         #self.persistentEditor = True
         #szh = self.sizeHint()
