@@ -128,7 +128,7 @@ class MasterScript(object):
         self.reload_data()
         self.select_data()
         self.settablemodel()
-        
+        """
         layout = self.form.ui.layout()
 
         self.fieldlayout = QtGui.QHBoxLayout()
@@ -147,12 +147,15 @@ class MasterScript(object):
             self.fieldviews.append(myitemview)
 
         layout.addLayout( self.fieldlayout )
+        """
         
     def table_cellActivated(self, itemindex):
         self.row, self.col = itemindex.row(), itemindex.column()
         print "Cell:", self.row, self.col
+        """
         for fieldview in self.fieldviews:
             fieldview.setRow(self.row)        
+        """
         
     def btnNew_clicked(self):
         print "Button New clicked"

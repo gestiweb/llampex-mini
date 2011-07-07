@@ -1,14 +1,14 @@
 # encoding: UTF-8
 import os, os.path, traceback
 import logging, imp
-from projectloader import LlampexTable
-import threading
-
 from PyQt4 import QtGui, QtCore, uic
+
+import threading
+from projectloader import LlampexTable
+from llitemview import LlItemView1
 
 try:
     from llampexwidgets import LlItemView
-    from llitemview import LlItemView1
 except ImportError:
     LlItemView = None
     print "WARN: *** LlampexWidgets module not installed ***. Record Forms may be not renderable."
@@ -65,7 +65,7 @@ class LlampexRecordForm(QtGui.QWidget):
             self.layout.addStretch()
             self.setLayout(self.layout)
             return
-        
+        self.setChildValuesFormRecord(self.ui)
         try:
             if "script" in self.actionobj.record:
                 source_filepath = self.actionobj.filedir(self.actionobj.record["script"])
@@ -77,6 +77,20 @@ class LlampexRecordForm(QtGui.QWidget):
             msgBox.setText("FATAL: An error ocurred trying to load the record script:\n" + traceback.format_exc())
             msgBox.setIcon(QtGui.QMessageBox.Critical)
             msgBox.exec_()           
+            
+    def setChildValuesFormRecord(self, form):
+        for obj in getAllWidgets(form):
+            if isinstance(obj, LlItemView):
+                column = self.tmd.fieldlist.index(obj.fieldName)
+                if column >= 0:
+                    widget = LlItemView1(obj)
+                    widget.setObjectName(obj.objectName()+"_editor")
+                    widget.setup()
+                    widget.setModel(self.model)
+                    widget.setPosition(self.row, column)
+                    widget.setTabWidget(obj)
+                    obj.replaceEditorWidget(widget)
+        
     
     def delete(self): 
         #self.ui.hide()
@@ -232,24 +246,6 @@ class LlampexQDialog( QtGui.QDialog ):
     def acceptToContinue( self ):
         print "AcceptToContinue Button Clicked"    
     
-    """
-    def setChildValuesFormRecord(self):
-        print "LlItemView --> ", LlItemView
-        for obj in getAllWidgets(self.widget.ui):
-            if isinstance(obj, LlItemView):
-                column = self.widget.tmd.fieldlist.index(obj.fieldName)
-                print obj.objectName(), obj.fieldName, column
-                if column >= 0:
-                    fwidget = LlItemView1(obj)
-                    fwidget.setObjectName(obj.objectName()+"_editor")
-                    fwidget.setup()
-                    fwidget.setModel(self.widget.model)
-                    fwidget.setCol(column)
-                    fwidget.setRow(self.widget.row)
-                    fwidget.setTabWidget(obj)
-                    obj.replaceEditorWidget(fwidget)
-    """
-        
 class loadActionFormRecord():
     def __init__(self, parent = 0, windowAction = 'INSERT', actionobj = None, prjconn = None, tmd = None, model = None, rowItemIdx = None):
         self.parent = parent

@@ -2,8 +2,6 @@
 import os.path, traceback
 from PyQt4 import QtGui, QtCore, uic
 from PyQt4 import QtSql
-from masterform import LlampexMasterForm
-from recordform import loadActionFormRecord #LlampexRecordForm, LlampexQDialog
 import time
 import re
 import qsqlrpcdriver.qtdriver as qtdriver
