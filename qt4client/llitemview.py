@@ -43,7 +43,7 @@ class LlItemView1(QtGui.QAbstractItemView):
         
     def minimumSizeHint(self):
         w = self.colwidth.get(self.col, 50)
-        sz = QtCore.QSize(w,16)
+        sz = QtCore.QSize(w+16,16)
         return sz
         
     def setPosition(self,row, col):
@@ -96,7 +96,7 @@ class LlItemView1(QtGui.QAbstractItemView):
         #sz = QtGui.QAbstractItemView.sizeHint(self)
         #sz.setHeight(32)
         w = self.colwidth.get(self.col, 50)
-        sz = QtCore.QSize(w+32,32)
+        sz = QtCore.QSize(w+48,32)
         return sz
         
         if self.item:
