@@ -1,0 +1,46 @@
+!LlampexTable
+code: baselec
+name: Baselec
+
+fields:
+    referenciabaselec:
+        alias: "Ref. Baselec"
+        null: false
+        pk: true
+        type: vchar(20)
+        tableCheckable: true        
+    referenciafabricante:
+        alias: "Ref. Fabricante"
+        null: true
+        pk: false
+        type: vchar(20)    
+    modelofabricante:
+        alias: "Mod. Fabricante"
+        null: true
+        pk: false
+        type: vchar(20)        
+    denominacion:
+        alias: "Denominación"
+        null: true
+        pk: false
+        type: vchar(50)        
+    serie:
+        alias: "Serie"
+        null: true
+        pk: false
+        type: vchar(10)        
+    pvpactual:
+        alias: "PVP actual"
+        null: true
+        pk: false
+        type: double        
+    codigodebarrasean13:
+        alias: "EAN-13"
+        null: true
+        pk: false
+        type: vchar(13)    
+    codigodebarrasmas13:
+        alias: "EAN+13"
+        null: true
+        pk: false
+        type: vchar(20)
