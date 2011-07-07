@@ -132,6 +132,7 @@ class LlampexQDialog( QtGui.QDialog ):
         QtGui.QDialog.__init__(self)
         self.lock = threading.Lock()
         self.widgetFactory = widgetFactory
+        self.rowcount = 0
         self.widget = None
         self.setWindowTitle(title)
         self.resize(300,105)
@@ -139,8 +140,7 @@ class LlampexQDialog( QtGui.QDialog ):
         self.setWindowFlags(QtCore.Qt.Sheet)
         self.setupUi()
   
-        #self.buttonbox.accepted.connect( self.accept )
-        #self.buttonbox.rejected.connect( self.reject )  
+    @lock
     def createNewWidget(self, preserveRow = True):
         row = None
         if self.widget:
@@ -150,7 +150,32 @@ class LlampexQDialog( QtGui.QDialog ):
             self.widget = None
         self.widget = self.widgetFactory(row = row)
         self.widgetlayout.addWidget(self.widget)
+        self.rowcount = self.widget.model.rowCount()
+        
     
+    def createBottomButton(self, text = None, icon = None, action = None, key = None):
+        wbutton = QtGui.QToolButton()
+        if text:
+            wbutton.setText(text)
+        if icon:
+            wbutton.setIcon(QtGui.QIcon(QtGui.QPixmap(h("./icons/%s.png" % icon))))
+        wbutton.setMinimumSize(38, 38)
+        wbutton.setMaximumSize(38, 38)
+        wbutton.setIconSize(QtCore.QSize(22, 22))
+        wbutton.setFocusPolicy(QtCore.Qt.NoFocus)
+        if key:
+            seq = QtGui.QKeySequence(key)
+            wbutton.setShortcut(seq)
+        self.buttonlayout.addWidget(wbutton)
+        if action:
+            if type(action) is tuple:
+                self.connect(wbutton, QtCore.SIGNAL("clicked()"), *action)
+            else:
+                self.connect(wbutton, QtCore.SIGNAL("clicked()"), action)
+
+        return wbutton
+
+        
     def setupUi( self ):        
         self.vboxlayout = QtGui.QVBoxLayout(self)
         self.vboxlayout.setMargin(9)
@@ -165,47 +190,20 @@ class LlampexQDialog( QtGui.QDialog ):
         self.buttonlayout = QtGui.QHBoxLayout()
         self.buttonlayout.setMargin(3)
         self.buttonlayout.setSpacing(0)
+        self.statuslabel = QtGui.QLabel()
+        self.buttonlayout.addWidget(self.statuslabel)
         self.buttonlayout.addStretch()
         """
         self.buttonbox = QtGui.QDialogButtonBox( QtGui.QDialogButtonBox.Yes | QtGui.QDialogButtonBox.No )
         self.buttonlayout.addWidget(self.buttonbox)
         """
-        self.buttonprev = QtGui.QToolButton()
-        self.buttonprev.setIcon(QtGui.QIcon(QtGui.QPixmap(h("./icons/previous.png"))))
-        self.buttonprev.setMinimumSize(38, 38)
-        self.buttonprev.setMaximumSize(38, 38)
-        self.buttonprev.setIconSize(QtCore.QSize(22, 22))
-        #self.buttonprev.setText("<")
-        self.buttonnext = QtGui.QToolButton()
-        self.buttonnext.setIcon(QtGui.QIcon(QtGui.QPixmap(h("./icons/next.png"))))
-        self.buttonnext.setMinimumSize(38, 38)
-        self.buttonnext.setMaximumSize(38, 38)
-        self.buttonnext.setIconSize(QtCore.QSize(22, 22))
-        #self.buttonnext.setText(">")
-        self.buttonaccept = QtGui.QToolButton()
-        self.buttonaccept.setIcon(QtGui.QIcon(QtGui.QPixmap(h("./icons/accept.png"))))
-        self.buttonaccept.setMinimumSize(38, 38)
-        self.buttonaccept.setMaximumSize(38, 38)
-        self.buttonaccept.setIconSize(QtCore.QSize(22, 22))
-        #self.buttonaccept.setText(";)")
-        self.buttonacceptcontinue = QtGui.QToolButton()
-        self.buttonacceptcontinue.setIcon(QtGui.QIcon(QtGui.QPixmap(h("./icons/accepttocontinue.png"))))
-        self.buttonacceptcontinue.setMinimumSize(38, 38)
-        self.buttonacceptcontinue.setMaximumSize(38, 38)
-        self.buttonacceptcontinue.setIconSize(QtCore.QSize(22, 22))
-        #self.buttonacceptcontinue.setText(":D")
-        self.buttoncancel = QtGui.QToolButton()
-        self.buttoncancel.setIcon(QtGui.QIcon(QtGui.QPixmap(h("./icons/cancel.png"))))
-        self.buttoncancel.setMinimumSize(38, 38)
-        self.buttoncancel.setMaximumSize(38, 38)
-        self.buttoncancel.setIconSize(QtCore.QSize(22, 22))
-        #self.buttoncancel.setText("X")
-        
-        self.buttonlayout.addWidget(self.buttonprev)
-        self.buttonlayout.addWidget(self.buttonnext)
-        self.buttonlayout.addWidget(self.buttonacceptcontinue)
-        self.buttonlayout.addWidget(self.buttonaccept)        
-        self.buttonlayout.addWidget(self.buttoncancel)
+        self.buttonfirst = self.createBottomButton(icon="first", action=self.first, key="F5")
+        self.buttonprev = self.createBottomButton(icon="previous", action=self.previous, key="F6")
+        self.buttonnext = self.createBottomButton(icon="next", action=self.next, key="F7")
+        self.buttonlast = self.createBottomButton(icon="last", action=self.last, key="F8")
+        self.buttonaccept = self.createBottomButton(icon="accept", action=(self,QtCore.SLOT("accept()")), key="F9")
+        self.buttonacceptcontinue = self.createBottomButton(icon="accepttocontinue", action=self.acceptToContinue, key="F10")
+        self.buttoncancel = self.createBottomButton(icon="cancel", action=(self,QtCore.SLOT("reject()")), key="ESC")
         
         self.widgetlayout = QtGui.QVBoxLayout()
         self.createNewWidget()
@@ -214,38 +212,54 @@ class LlampexQDialog( QtGui.QDialog ):
         self.vboxlayout.addLayout(self.buttonlayout)
         self.setLayout(self.vboxlayout)    
         
-        # connect signals
-        self.connect(self.buttonprev, QtCore.SIGNAL("clicked()"), self.previous)
-        self.connect(self.buttonnext, QtCore.SIGNAL("clicked()"), self.next)
-        self.connect(self.buttonacceptcontinue, QtCore.SIGNAL("clicked()"), self.acceptToContinue)
-        self.connect(self.buttonaccept, QtCore.SIGNAL("clicked()"), self, QtCore.SLOT("accept()"))        
-        self.connect(self.buttoncancel, QtCore.SIGNAL("clicked()"), self, QtCore.SLOT("reject()"))
-        
-        print "Table length --> ", self.widget.model.rowCount()
-        if self.widget.row == 0: self.buttonprev.setDisabled(True)
-        elif self.widget.row >= (self.widget.model.rowCount()-1): self.buttonnext.setDisabled(True)
-        
-    @lock
-    def previous( self ):
-        print "Previous Button Clicked"        
-        if self.widget.row > 0: 
-            self.widget.row -= 1
-            self.buttonnext.setEnabled(True)
-            if self.widget.row == 0: self.buttonprev.setDisabled(True)
-        else: 
-            self.buttonprev.setDisabled(True)
+        self.updateEnableStatus()
+        self.updateStatusLabel()
+
+    def updateEnableStatus(self):
+        nonextrows = bool(self.widget.row >= (self.rowcount-1))
+        noprevrows = bool(self.widget.row == 0)
+        self.buttonfirst.setDisabled(noprevrows)
+        self.buttonprev.setDisabled(noprevrows)
+        self.buttonnext.setDisabled(nonextrows)
+        self.buttonlast.setDisabled(nonextrows)
+    
+    def updateStatusLabel(self):
+        row = self.widget.row
+        self.statuslabel.setText("row number: %d/%d" % (row + 1, self.rowcount))
+
+    def enforceRowLimits(self):
+        if self.widget.row < 0: 
+            self.widget.row = 0
+        if self.widget.row > self.rowcount-1: 
+            self.widget.row = self.rowcount-1
+            
+    def previous(self):
+        self.widget.row -= 1
+        self.enforceRowLimits()
         self.createNewWidget()    
-        
-    @lock
-    def next( self ):
-        print "Next Button Clicked"
-        if self.widget.row < (self.widget.model.rowCount()-1): 
-            self.widget.row += 1
-            self.buttonprev.setEnabled(True)
-            if self.widget.row == (self.widget.model.rowCount()-1): self.buttonnext.setDisabled(True)
-        else: 
-            self.buttonnext.setDisabled(True)            
+        self.updateEnableStatus()
+        self.updateStatusLabel()
+            
+    def next(self):
+        self.widget.row += 1
+        self.enforceRowLimits()
         self.createNewWidget()    
+        self.updateEnableStatus()
+        self.updateStatusLabel()
+
+    def first(self):
+        self.widget.row = 0
+        self.enforceRowLimits()
+        self.createNewWidget()    
+        self.updateEnableStatus()
+        self.updateStatusLabel()
+        
+    def last(self):
+        self.widget.row = self.rowcount
+        self.enforceRowLimits()
+        self.createNewWidget()    
+        self.updateEnableStatus()
+        self.updateStatusLabel()
         
     def acceptToContinue( self ):
         print "AcceptToContinue Button Clicked"    
