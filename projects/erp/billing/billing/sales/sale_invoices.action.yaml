@@ -7,7 +7,7 @@ weight: A.4
 table: facturascli
 record:
     script: /generic/record/scripts/basic1
-    form: record/forms/facturascli.ui
+    form: record/forms/presupuestoscli.ui
 master:
     script: /generic/master/scripts/masterbasic4
     form: /generic/master/forms/mastercopyprint4.ui
