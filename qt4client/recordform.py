@@ -81,14 +81,18 @@ class LlampexRecordForm(QtGui.QWidget):
     def setChildValuesFormRecord(self, form):
         for obj in getAllWidgets(form):
             if isinstance(obj, LlItemView):
-                column = self.tmd.fieldlist.index(obj.fieldName)
-                if column >= 0:
+                try:
+                    column = self.tmd.fieldlist.index(obj.fieldName)
+                except ValueError:
+                    print "ERROR: FieldName %s does not exist" % (obj.fieldName)
+                else:
                     widget = LlItemView1(obj)
                     widget.setObjectName(obj.objectName()+"_editor")
                     widget.setup()
                     widget.setModel(self.model)
                     widget.setPosition(self.row, column)
                     widget.setTabWidget(obj)
+                    widget.setSizePolicy(QtGui.QSizePolicy.MinimumExpanding,QtGui.QSizePolicy.MinimumExpanding)
                     obj.replaceEditorWidget(widget)
         
     

@@ -6,8 +6,8 @@ weight: B.2
 
 table: proveedores
 record:
-    script: proveedores
-    form: proveedores
+    script: /generic/record/scripts/basic1
+    form: record/forms/proveedores.ui
 master:
     script: /generic/master/scripts/masterbasic4
     form: /generic/master/forms/mastercopyprint4.ui

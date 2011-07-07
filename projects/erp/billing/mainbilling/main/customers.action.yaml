@@ -6,8 +6,8 @@ weight: B.1
 
 table: clientes
 record:
-    script: clientes
-    form: clientes
+    script: /generic/record/scripts/basic1
+    form: record/forms/clientes.ui
 master:
     script: /generic/master/scripts/masterbasic4
     form: /generic/master/forms/mastercopyprint4.ui

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>666</width>
+    <height>170</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="minimumSize">
+      <size>
+       <width>500</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="title">
+      <string>Proveedores</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="LlItemView" name="fdbReferencia">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="fieldName">
+         <string>codproveedor</string>
+        </property>
+        <property name="editorText">
+         <string>AA001</string>
+        </property>
+        <property name="labelText">
+         <string>Código</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="3">
+       <widget class="LlItemView" name="fdbDescripcion">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="fieldName">
+         <string>nombre</string>
+        </property>
+        <property name="editorText">
+         <string>Nombre Cliente</string>
+        </property>
+        <property name="labelText">
+         <string>Nombre</string>
+        </property>
+        <property name="labelVisible">
+         <bool>true</bool>
+        </property>
+        <property name="buttonVisible">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="LlItemView" name="fdbSecompra">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="fieldName">
+         <string>telefono1</string>
+        </property>
+        <property name="editorText">
+         <string>96291</string>
+        </property>
+        <property name="labelText">
+         <string>Teléfono</string>
+        </property>
+        <property name="buttonVisible">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="LlItemView" name="fdbPvp">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="fieldName">
+         <string>cifnif</string>
+        </property>
+        <property name="editorText">
+         <string>AAAAAAA</string>
+        </property>
+        <property name="labelText">
+         <string>CIF/NIF</string>
+        </property>
+        <property name="buttonVisible">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>LlItemView</class>
+   <extends>QFrame</extends>
+   <header>llampexwidgets</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
