@@ -8,7 +8,9 @@ fields:
         type: vchar(6)
         pk: true
         "null": false
-        relations: [] #TODO Add relatios
+        relations: 
+            - {table: dirclientes, field: codcliente, card: 1M}
+            - {table: descuentosclientes, field: codcliente, card: 1M}
         tableCheckable: true
         tableTristate: true
     nombre:
