@@ -1,0 +1,16 @@
+!LlampexAction
+code: sale_orders
+name: Customer Orders
+icon: _actionicons/sale_orders.png
+weight: A.2
+
+table: pedidoscli
+record:
+    script: /generic/record/scripts/basic1
+    form: record/forms/pedidoscli.ui
+master:
+    script: /generic/master/scripts/masterbasic4
+    form: /generic/master/forms/mastercopyprint4.ui
+
+description: "Pedidos de Clientes."
+

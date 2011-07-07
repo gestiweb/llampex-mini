@@ -6,11 +6,11 @@ weight: A.2
 
 table: familias
 record:
-    script: familias
-    form: familias
+    script: /generic/record/scripts/basic1
+    form: record/forms/familias.ui    
 master:
-    script: /generic/master/scripts/masterbasic
-    form: /generic/master/forms/masterprint.ui
+    script: /generic/master/scripts/masterbasic4
+    form: /generic/master/forms/mastercopyprint4.ui
 
 description: "Las familias de artículos permiten agrupar artículos por determinados criterios comunes"
 

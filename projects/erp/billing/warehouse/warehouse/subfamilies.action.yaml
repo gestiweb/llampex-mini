@@ -6,11 +6,11 @@ weight: B.3
 
 table: subfamilias
 record:
-    script: subfamilias
-    form: subfamilias
+    script: /generic/record/scripts/basic1
+    form: record/forms/subfamilias.ui 
 master:
-    script: /generic/master/scripts/masterbasic
-    form: /generic/master/forms/masterprint.ui
+    script: /generic/master/scripts/masterbasic4
+    form: /generic/master/forms/mastercopyprint4.ui
 
 description: "Subfamilias, varias subfamilias se agrupan en una familia"
 

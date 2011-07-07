@@ -2,5 +2,5 @@
 version: v0.1 # module version
 code: warehouse
 name: Warehouse
-icon: warehouse.png
+icon: _moduleicons/warehouse.png
 weight: W

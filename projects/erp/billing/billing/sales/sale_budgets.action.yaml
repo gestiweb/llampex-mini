@@ -1,0 +1,16 @@
+!LlampexAction
+code: sale_budgets
+name: Customer Budgets
+icon: _actionicons/sale_budgets.png
+weight: A.1
+
+table: presupuestoscli
+record:
+    script: /generic/record/scripts/basic1
+    form: record/forms/presupuestoscli.ui
+master:
+    script: /generic/master/scripts/masterbasic4
+    form: /generic/master/forms/mastercopyprint4.ui
+
+description: "Presupuestos de Clientes."
+

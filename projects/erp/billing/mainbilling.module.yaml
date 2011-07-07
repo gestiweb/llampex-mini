@@ -2,5 +2,5 @@
 version: v0.1 # module version
 code: mainbilling
 name: Main
-icon: mainbilling.png
+icon: _moduleicons/mainbilling.png
 weight: M

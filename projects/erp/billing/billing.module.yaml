@@ -1,0 +1,6 @@
+!LlampexModule
+version: v0.1 # module version
+code: billing
+name: Billing
+icon: _moduleicons/billing_module.png
+weight: A
