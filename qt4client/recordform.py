@@ -197,8 +197,9 @@ class LlampexQDialog( QtGui.QDialog ):
         self.buttonbox = QtGui.QDialogButtonBox( QtGui.QDialogButtonBox.Yes | QtGui.QDialogButtonBox.No )
         self.buttonlayout.addWidget(self.buttonbox)
         """
+        
         self.buttonfirst = self.createBottomButton(icon="first", action=self.first, key="F5")
-        self.buttonprev = self.createBottomButton(icon="previous", action=self.previous, key="F6")
+        self.buttonprev = self.createBottomButton(icon="previous", action=self.prev, key="F6")
         self.buttonnext = self.createBottomButton(icon="next", action=self.next, key="F7")
         self.buttonlast = self.createBottomButton(icon="last", action=self.last, key="F8")
         self.buttonaccept = self.createBottomButton(icon="accept", action=(self,QtCore.SLOT("accept()")), key="F9")
@@ -215,6 +216,9 @@ class LlampexQDialog( QtGui.QDialog ):
         self.updateEnableStatus()
         self.updateStatusLabel()
 
+    def getRowCount(self):
+        return self.rowcount
+        
     def updateEnableStatus(self):
         nonextrows = bool(self.widget.row >= (self.rowcount-1))
         noprevrows = bool(self.widget.row == 0)
@@ -232,34 +236,20 @@ class LlampexQDialog( QtGui.QDialog ):
             self.widget.row = 0
         if self.widget.row > self.rowcount-1: 
             self.widget.row = self.rowcount-1
-            
-    def previous(self):
-        self.widget.row -= 1
-        self.enforceRowLimits()
-        self.createNewWidget()    
-        self.updateEnableStatus()
-        self.updateStatusLabel()
-            
-    def next(self):
-        self.widget.row += 1
-        self.enforceRowLimits()
-        self.createNewWidget()    
-        self.updateEnableStatus()
-        self.updateStatusLabel()
-
-    def first(self):
-        self.widget.row = 0
-        self.enforceRowLimits()
-        self.createNewWidget()    
-        self.updateEnableStatus()
-        self.updateStatusLabel()
         
-    def last(self):
-        self.widget.row = self.rowcount
+    def moveCursor(self, fn):
+        self.widget.row = fn(self.widget.row)
         self.enforceRowLimits()
         self.createNewWidget()    
         self.updateEnableStatus()
         self.updateStatusLabel()
+    
+    def next(self):  self.moveCursor(lambda row: row+1)
+    def prev(self):  self.moveCursor(lambda row: row-1)
+    def first(self): self.moveCursor(lambda row: 0)
+    def last(self):  self.moveCursor(lambda row: self.getRowCount() )
+    
+    
         
     def acceptToContinue( self ):
         print "AcceptToContinue Button Clicked"    
