@@ -7,12 +7,24 @@ from PyQt4 import QtGui, QtCore, uic
 
 try:
     from llampexwidgets import LlItemView
+    from llitemview import LlItemView1
 except ImportError:
     LlItemView = None
     print "WARN: *** LlampexWidgets module not installed ***. Record Forms may be not renderable."
-    
+
 
 def h(*args): return os.path.realpath(os.path.join(os.path.dirname(os.path.abspath( __file__ )), *args))
+
+def _getAllWidgets(form):
+    widgets = []
+    for obj in form.children():
+        if isinstance(obj, QtGui.QWidget):
+            widgets.append(obj)
+            widgets+=_getAllWidgets(obj)
+    return widgets
+
+def getAllWidgets(form):
+    return [ obj for obj in _getAllWidgets(form) if obj.objectName() ]
 
 def load_module(name, path):
     fp = None
@@ -134,18 +146,68 @@ class LlampexQDialog( QtGui.QDialog ):
         
         self.buttonlayout.addWidget(self.buttonprev)
         self.buttonlayout.addWidget(self.buttonnext)
-        self.buttonlayout.addWidget(self.buttonaccept)
         self.buttonlayout.addWidget(self.buttonacceptcontinue)
+        self.buttonlayout.addWidget(self.buttonaccept)        
         self.buttonlayout.addWidget(self.buttoncancel)
         
         self.vboxlayout.addWidget(self.widget)
         self.vboxlayout.addLayout(self.buttonlayout)
         self.setLayout(self.vboxlayout)    
         
-        self.connect(self.buttonaccept, QtCore.SIGNAL("clicked()"), self, QtCore.SLOT("accept()"))
+        # connect signals
+        self.connect(self.buttonprev, QtCore.SIGNAL("clicked()"), self.previous)
+        self.connect(self.buttonnext, QtCore.SIGNAL("clicked()"), self.next)
+        self.connect(self.buttonacceptcontinue, QtCore.SIGNAL("clicked()"), self.acceptToContinue)
+        self.connect(self.buttonaccept, QtCore.SIGNAL("clicked()"), self, QtCore.SLOT("accept()"))        
         self.connect(self.buttoncancel, QtCore.SIGNAL("clicked()"), self, QtCore.SLOT("reject()"))
+        
+        print "Table length --> ", self.widget.model.rowCount()
+        if self.widget.row == 0: self.buttonprev.setDisabled(True)
+        elif self.widget.row >= (self.widget.model.rowCount()-1): self.buttonnext.setDisabled(True)
+        
+    def previous( self ):
+        print "Previous Button Clicked"        
+        if self.widget.row > 0: 
+            self.widget.row -= 1
+            self.buttonnext.setEnabled(True)
+            if self.widget.row == 0: self.buttonprev.setDisabled(True)
+        else: 
+            self.buttonprev.setDisabled(True)
+            
+        self.widget.sourcemodule.RecordScript(self.widget)
+        
+    def next( self ):
+        print "Next Button Clicked"
+        if self.widget.row < (self.widget.model.rowCount()-1): 
+            self.widget.row += 1
+            self.buttonprev.setEnabled(True)
+            if self.widget.row == (self.widget.model.rowCount()-1): self.buttonnext.setDisabled(True)
+        else: 
+            self.buttonnext.setDisabled(True)            
+            
+        self.widget.sourcemodule.RecordScript(self.widget)
+        
+    def acceptToContinue( self ):
+        print "AcceptToContinue Button Clicked"    
     
-    
+    """
+    def setChildValuesFormRecord(self):
+        print "LlItemView --> ", LlItemView
+        for obj in getAllWidgets(self.widget.ui):
+            if isinstance(obj, LlItemView):
+                column = self.widget.tmd.fieldlist.index(obj.fieldName)
+                print obj.objectName(), obj.fieldName, column
+                if column >= 0:
+                    fwidget = LlItemView1(obj)
+                    fwidget.setObjectName(obj.objectName()+"_editor")
+                    fwidget.setup()
+                    fwidget.setModel(self.widget.model)
+                    fwidget.setCol(column)
+                    fwidget.setRow(self.widget.row)
+                    fwidget.setTabWidget(obj)
+                    obj.replaceEditorWidget(fwidget)
+    """
+        
 class loadActionFormRecord():
     def __init__(self, parent = 0, windowAction = 'INSERT', actionobj = None, prjconn = None, tmd = None, model = None, rowItemIdx = None):
         self.parent = parent

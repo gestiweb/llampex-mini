@@ -25,7 +25,9 @@ class RecordScript(object):
         self.model = form.model
         self.tmd = form.tmd
         self.row = form.row
+        self.setChildValuesFormRecord()
         
+    def setChildValuesFormRecord(self):
         for obj in getAllWidgets(self.ui):
             if isinstance(obj, LlItemView):
                 column = self.tmd.fieldlist.index(obj.fieldName)
