@@ -7,7 +7,7 @@ weight: B.2
 table: albaranesprov
 record:
     script: /generic/record/scripts/basic1
-    form: record/forms/albaranesprov.ui
+    form: record/forms/pedidosprov.ui
 master:
     script: /generic/master/scripts/masterbasic4
     form: /generic/master/forms/mastercopyprint4.ui
