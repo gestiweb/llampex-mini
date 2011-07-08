@@ -67,16 +67,19 @@ fields:
             null: false
             pk: false
             type: double
+            format: "%.2f€"
         totaliva:
             alias: "Total Iva"
             null: false
             pk: false
             type: double
+            format: "%.2f€"
         total:
             alias: "Total"
             null: false
             pk: false
             type: double
+            format: "%.2f€"
             
             
             

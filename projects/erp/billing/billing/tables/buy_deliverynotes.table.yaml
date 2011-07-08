@@ -25,14 +25,6 @@ fields:
             pk: false
             type: bool
             tableEditable: false
-        estado:
-            alias: "Estado"
-            null: true
-            pk: false
-            type: vchar(20)
-            optionlist: [Pendiente,Recibido]
-            valuelist:  [Pendiente,Recibido]
-            colorlist:  ["#00B", "#0B4"]
         fecha:
             alias: "Fecha"
             null: false

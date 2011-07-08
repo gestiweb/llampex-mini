@@ -21,7 +21,13 @@ class ItemComboDelegate(QtGui.QItemDelegate):
     def setEditorData(self, editor, index):
         model = index.model()
         val = model.data(index, QtCore.Qt.EditRole)
-        idx = self.values.index(val)
+        try: idx = self.values.index(val)
+        except ValueError:
+            self.items.append(val) 
+            self.values.append(val) 
+            editor.addItem(val)
+            idx = self.values.index(val)
+            
         editor.setCurrentIndex(idx)
     
     def setModelData(self, editor, model, index):
@@ -102,7 +108,7 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
         field = self.tmd.field[index.column()]
         if field.get("tableSelectable", True):
             flags |= QtCore.Qt.ItemIsSelectable
-        if field.get("tableEditable", False):
+        if field.get("tableEditable", True):
             flags |= QtCore.Qt.ItemIsEditable
         if field.get("tableCheckable", False):
             flags |= QtCore.Qt.ItemIsUserCheckable
@@ -141,6 +147,10 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
             delegate = basic_delegate
             optionlist = field.get("optionlist",None)
             valuelist = field.get("valuelist",optionlist)
+            if valuelist: 
+                # This is to avoid the same data in optionlist being referenced
+                # in valuelist instead of being copied.
+                valuelist = valuelist[:]
             
             if ctype == "b": delegate = delegate_bool
             if optionlist:
@@ -188,6 +198,8 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
             ctype = self.colType(index)
             optionlist = field.get("optionlist",None)
             iconlist = field.get("iconlist",None)
+            icon = None
+            decoration = None
             if not optionlist:
                 if ctype == "b": 
                     optionlist = [True,False,None]
@@ -195,10 +207,13 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
                     iconlist = optionlist
 
             if optionlist and iconlist:
-                idx = optionlist.index(ret)
+                try:
+                    idx = optionlist.index(ret)
+                except ValueError:
+                    idx = -1
                 if idx >= 0: 
                     icon = iconlist[idx]
-                decoration = self.decorations.get(icon)
+                if icon: decoration = self.decorations.get(icon)
                 if decoration: return decoration
             
         if role == QtCore.Qt.TextAlignmentRole:   
@@ -220,6 +235,7 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
             field = self.tmd.field[index.column()]
             optionlist = field.get("optionlist",None)
             colorlist = field.get("colorlist",None)
+            color = None
             if not optionlist:
                 if ctype == "b": 
                     optionlist = [True,False,None]
@@ -229,10 +245,13 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
                 
             brush = None
             if optionlist and colorlist:
-                idx = optionlist.index(ret)
-                if idx >= 0: color = colorlist[idx]
-                if color: brush = self.getBrush(color)
-                
+                try: idx = optionlist.index(ret)
+                except ValueError: idx = -1
+                try:
+                    if idx >= 0: color = colorlist[idx]
+                    if color: brush = self.getBrush(color)
+                except IndexError:
+                    pass
                 
             if brush is None:
                 if ctype == "n": 
