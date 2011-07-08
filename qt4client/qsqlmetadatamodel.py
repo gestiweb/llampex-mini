@@ -6,7 +6,7 @@ import os.path
 import sys
 from PyQt4 import QtGui, QtCore, uic, QtSql
 
-class ItemComboDelegate(QtGui.QItemDelegate):
+class ItemComboDelegate(QtGui.QStyledItemDelegate):
     def __init__(self,*args):
         QtGui.QItemDelegate.__init__(self,*args)
         self.items = []
@@ -14,6 +14,7 @@ class ItemComboDelegate(QtGui.QItemDelegate):
         
     def createEditor(self, parent, option, index):
         combo = QtGui.QComboBox(parent)
+        #combo.setWindowFlags(QtCore.Qt.Popup | QtCore.Qt.FramelessWindowHint)
         for item in self.items:
             combo.addItem(item)
         return combo
@@ -35,6 +36,13 @@ class ItemComboDelegate(QtGui.QItemDelegate):
         val = self.values[idx]
         model.setData(index,val, QtCore.Qt.EditRole)        
         
+
+class ItemBasicDelegate(QtGui.QStyledItemDelegate):
+    def createEditor(self, parent, option, index):
+        widget = QtGui.QStyledItemDelegate.createEditor(self, parent, option, index)
+        if isinstance(widget, (QtGui.QDateEdit,QtGui.QDateTimeEdit)):
+            widget.setCalendarPopup(True)
+        return widget
         
 
 class QSqlMetadataModel(QtSql.QSqlQueryModel):
@@ -139,7 +147,7 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
         delegate_bool = ItemComboDelegate(itemview)
         delegate_bool.items = [u"Sí",u"No",u"--"]
         delegate_bool.values = [True,False,None]
-        basic_delegate = QtGui.QStyledItemDelegate(itemview)
+        basic_delegate = ItemBasicDelegate(itemview)
         fnSetColumnWidth = getattr(itemview,"setColumnWidth",None)
         for i, name in enumerate(self.tmd.fieldlist):
             field = self.tmd.field[i]
