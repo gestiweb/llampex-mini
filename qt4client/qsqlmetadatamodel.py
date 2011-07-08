@@ -213,7 +213,7 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
                     idx = -1
                 if idx >= 0: 
                     icon = iconlist[idx]
-                if icon: decoration = self.decorations.get(icon)
+                    decoration = self.decorations.get(icon)
                 if decoration: return decoration
             
         if role == QtCore.Qt.TextAlignmentRole:   
