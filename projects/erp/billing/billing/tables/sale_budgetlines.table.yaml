@@ -1,0 +1,66 @@
+!LlampexTable
+code: lineaspresupuestoscli
+name: Budget Lines
+
+fields:
+        idlinea:
+            alias: "Id.Linea"
+            type: int
+            pk: true
+            null: false
+            tableCheckable: true
+            tableEditable: false
+            weight: 1
+        idpresupuesto:
+            alias: "Id.Presupuesto"
+            type: int
+            pk: false
+            null: false
+            relations:
+                - {table: presupuestoscli, field: idpresupuesto, card: M1}
+            weight: 2
+        referencia:
+            alias: "Referencia"
+            type: vchar(20)
+            pk: false
+            null: false
+            relations:
+                - {table: articulos, field: referencia, card: M1}
+            weight: 3
+        descripcion:
+            alias: "Descripción"
+            type : vchar(100)
+            pk: false
+            null: false
+            weight: 4
+        cantidad:
+            alias: "Cantidad"
+            null: false
+            pk: false
+            type: double
+            format: "%.2f€"
+            weight: 5
+        pvpunitario:
+            alias: "pvp unitario"
+            null: false
+            pk: false
+            type: double
+            format: "%.2f€"
+            weight: 6
+        pvptotal:
+            alias: "Total"
+            null: false
+            pk: false
+            type: double
+            format: "%.2f€"
+            weight: 7
+        codimpuesto:
+            alias: "Impuesto"
+            type: vchar(10)
+            pk: false
+            null: false
+            relations:
+                - {table: impuestos, field: codimpuesto, card: M1}
+            weight: 8
+            
+            

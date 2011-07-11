@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>692</width>
+    <height>165</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="minimumSize">
+      <size>
+       <width>500</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="title">
+      <string>Presupuestos de Clientes</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="LlItemView" name="fdbReferencia">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="fieldName">
+           <string>referencia</string>
+          </property>
+          <property name="editorText">
+           <string>000002505205205205205205</string>
+          </property>
+          <property name="labelText">
+           <string>Referencia</string>
+          </property>
+          <property name="buttonVisible">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="LlItemView" name="fdbdescripcion">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="fieldName">
+           <string>descripcion</string>
+          </property>
+          <property name="editorText">
+           <string>Descripcion</string>
+          </property>
+          <property name="labelVisible">
+           <bool>false</bool>
+          </property>
+          <property name="buttonVisible">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="LlItemView" name="fdbCodImpuesto">
+          <property name="fieldName">
+           <string>codimpuesto</string>
+          </property>
+          <property name="editorText">
+           <string>IVA18</string>
+          </property>
+          <property name="labelText">
+           <string>I.V.A</string>
+          </property>
+          <property name="labelVisible">
+           <bool>true</bool>
+          </property>
+          <property name="buttonVisible">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="LlItemView" name="fdbCantidad">
+            <property name="fieldName">
+             <string>cantidad</string>
+            </property>
+            <property name="editorText">
+             <string>222</string>
+            </property>
+            <property name="labelText">
+             <string>Cantidad</string>
+            </property>
+            <property name="buttonVisible">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="LlItemView" name="fdbPvpUnitario">
+            <property name="fieldName">
+             <string>pvpunitario</string>
+            </property>
+            <property name="editorText">
+             <string>222</string>
+            </property>
+            <property name="labelText">
+             <string>Pvp Unitario</string>
+            </property>
+            <property name="buttonVisible">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="LlItemView" name="fdbPvpTotal">
+            <property name="fieldName">
+             <string>pvptotal</string>
+            </property>
+            <property name="editorText">
+             <string>222</string>
+            </property>
+            <property name="labelText">
+             <string>Total</string>
+            </property>
+            <property name="buttonVisible">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>LlItemView</class>
+   <extends>QFrame</extends>
+   <header>llampexwidgets</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

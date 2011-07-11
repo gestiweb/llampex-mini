@@ -1,0 +1,16 @@
+!LlampexAction
+code: sale_budgetlines
+name: Budget Lines
+icon: _actionicons/sale_lines.png
+weight: B.1
+
+table: lineaspresupuestoscli
+record:
+    script: /generic/record/scripts/basic1
+    form: record/forms/lineaspresupuestoscli.ui
+master:
+    script: /generic/master/scripts/masterbasic4
+    form: /generic/master/forms/mastercopyprint4.ui
+
+description: "Lineas de Presupuestos"
+
