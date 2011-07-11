@@ -50,7 +50,24 @@ class ItemBasicDelegate(QtGui.QStyledItemDelegate):
             if format:
                 # TODO: asignar el formato al widget
                 widget.setDisplayFormat(format);
+        try:
+            widget.setFrame(True)
+        except AttributeError, e:
+            pass
         return widget
+    
+    def updateEditorGeometry(self, widget, option, index):
+        #QtGui.QStyledItemDelegate.updateEditorGeometry(self, widget, option, index)
+        widget.setGeometry(option.rect)
+        #print widget.frameGeometry(), widget.contentsRect()
+        
+        #widget.setWindowFlags(QtCore.Qt.Popup)
+        #widget.setWindowFlags(QtCore.Qt.Popup | QtCore.Qt.FramelessWindowHint)
+        """
+        if isinstance(widget, (QtGui.QDateEdit,QtGui.QDateTimeEdit)):
+            w,h = widget.width(), widget.height()
+            widget.resize(w-15,h)
+        """ 
         
 
 class QSqlMetadataModel(QtSql.QSqlQueryModel):

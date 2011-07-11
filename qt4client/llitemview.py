@@ -30,18 +30,20 @@ class LlItemView1(QtGui.QAbstractItemView):
         self.item = None
         self.tabWidget = self
         self.persistentEditor = None
-        self.setSizePolicy(QtGui.QSizePolicy.Preferred,QtGui.QSizePolicy.Minimum)
+        self.setSizePolicy(QtGui.QSizePolicy.Preferred,QtGui.QSizePolicy.Preferred)
         self.setEditTriggers(QtGui.QAbstractItemView.DoubleClicked | QtGui.QAbstractItemView.EditKeyPressed)
         self.setSelectionMode(QtGui.QAbstractItemView.NoSelection)
         #self.viewport().setSizePolicy(QtGui.QSizePolicy.Preferred,QtGui.QSizePolicy.Minimum)
         #self.setTabKeyNavigation(False)
-
+        self.setFrameStyle(QtGui.QFrame.NoFrame)
+        self.viewport().setBackgroundRole(QtGui.QPalette.Window)
+        
     def setTabWidget(self, widget):
         self.tabWidget = widget 
         
     def minimumSizeHint(self):
         w = self.colwidth.get(self.col, 50)
-        sz = QtCore.QSize(w+16,16)
+        sz = QtCore.QSize(w+24,24)
         return sz
         
     def setPosition(self,row, col):
@@ -95,7 +97,7 @@ class LlItemView1(QtGui.QAbstractItemView):
         #sz = QtGui.QAbstractItemView.sizeHint(self)
         #sz.setHeight(32)
         w = self.colwidth.get(self.col, 50)
-        sz = QtCore.QSize(w+48,32)
+        sz = QtCore.QSize(w+64,40)
         return sz
         
         if self.item:
@@ -132,6 +134,9 @@ class LlItemView1(QtGui.QAbstractItemView):
             option.state &= ~S.State_MouseOver
         painter = QtGui.QStylePainter(self.viewport())
         option.rect = self.visualRect(item)
+        fwidth = self.frameWidth()
+        option.rect.moveTo(fwidth,fwidth)
+
         #painter.save()
         delegate = self.itemDelegate(item)
         #painter.setClipRegion(QtGui.QRegion(option.rect))
@@ -152,7 +157,9 @@ class LlItemView1(QtGui.QAbstractItemView):
         if index != self.item: return QtCore.QRect()
         rect = self.rect()
         margin = self.margin
-        rect.adjust(margin[0],margin[1],-margin[2],-margin[3])
+        fwidth = self.frameWidth()
+        
+        rect.adjust(margin[0],margin[1],-margin[2]-fwidth*2,-margin[3]-fwidth*2)
         #szh = self.sizeHint()
         #print rect, szh
         
@@ -203,39 +210,40 @@ class LlItemView1(QtGui.QAbstractItemView):
                 QtCore.QTimer.singleShot(200,self.updatePosition)
             
             return self.item
+        try:
         
-        
-        if cursorAction == QtGui.QAbstractItemView.MoveNext:
-            w = self.tabWidget
-            for i in range(10):
-                w = w.nextInFocusChain()
-                parent = w.parentWidget()
-                if parent == thisparent: break
+            if cursorAction == QtGui.QAbstractItemView.MoveNext:
+                w = self.tabWidget
+                for i in range(10):
+                    w = w.nextInFocusChain()
+                    parent = w.parentWidget()
+                    if parent == thisparent: break
                 
-        elif cursorAction == QtGui.QAbstractItemView.MovePrevious:
-            w = self.tabWidget
-            for i in range(10):
-                w = w.previousInFocusChain()
+            elif cursorAction == QtGui.QAbstractItemView.MovePrevious:
+                w = self.tabWidget
+                for i in range(10):
+                    w = w.previousInFocusChain()
+                    parent = w.parentWidget()
+                    if parent == thisparent: break
+            else:
+                #print "moveCursor:", cursorAction, kbmodifiers
+                pass
+            
+            if w:
+                if not isinstance(w,self.__class__):
+                    for obj in getAllWidgets(w):
+                        if isinstance(obj,self.__class__):
+                            w = obj
+            
                 parent = w.parentWidget()
-                if parent == thisparent: break
-        else:
-            #print "moveCursor:", cursorAction, kbmodifiers
-            pass
-            
-        if w:
-            if not isinstance(w,self.__class__):
-                for obj in getAllWidgets(w):
-                    if isinstance(obj,self.__class__):
-                        w = obj
-            
-            parent = w.parentWidget()
-            print "moveCursor, giving focus:", w.__class__.__name__, w.objectName()
-            try: print w.row, w.col
-            except Exception, e: print e
-            print parent
-            #print thisparent
-            QtCore.QTimer.singleShot(50,w,QtCore.SLOT("setFocus()"))
-        return self.item
+                print "moveCursor, giving focus:", w.__class__.__name__, w.objectName()
+                try: print w.row, w.col
+                except Exception, e: print e
+                #print parent
+                #print thisparent
+                QtCore.QTimer.singleShot(50,w,QtCore.SLOT("setFocus()"))
+        finally:
+            return self.item
         
     # virtual void	setSelection ( const QRect & rect, QItemSelectionModel::SelectionFlags flags ) = 0
     def setSelection(self, rect, flags):

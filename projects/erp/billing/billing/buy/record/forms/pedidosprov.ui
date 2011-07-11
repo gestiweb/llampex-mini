@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>612</width>
+    <width>694</width>
     <height>193</height>
    </rect>
   </property>
@@ -30,18 +30,6 @@
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
          <widget class="LlItemView" name="fdbCodigo">
-          <property name="minimumSize">
-           <size>
-            <width>220</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>32</height>
-           </size>
-          </property>
           <property name="fieldName">
            <string>codigo</string>
           </property>
@@ -60,18 +48,6 @@
             <horstretch>10</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>150</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>150</width>
-            <height>32</height>
-           </size>
           </property>
           <property name="fieldName">
            <string>fecha</string>
@@ -95,6 +71,9 @@
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Preferred</enum>
+          </property>
           <property name="sizeHint" stdset="0">
            <size>
             <width>286</width>
@@ -109,12 +88,6 @@
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
          <widget class="LlItemView" name="fdbCodProveedor">
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>32</height>
-           </size>
-          </property>
           <property name="fieldName">
            <string>codproveedor</string>
           </property>
@@ -125,29 +98,17 @@
            <string>Proveedor</string>
           </property>
           <property name="buttonVisible">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
          </widget>
         </item>
         <item>
          <widget class="LlItemView" name="fdbNombre">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
             <horstretch>10</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>300</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>32</height>
-           </size>
           </property>
           <property name="fieldName">
            <string>nombre</string>
@@ -175,18 +136,6 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="minimumSize">
-           <size>
-            <width>150</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>150</width>
-            <height>32</height>
-           </size>
-          </property>
           <property name="fieldName">
            <string>codpago</string>
           </property>
@@ -208,12 +157,6 @@
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
            <widget class="LlItemView" name="fdbNeto">
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>32</height>
-             </size>
-            </property>
             <property name="fieldName">
              <string>neto</string>
             </property>
@@ -230,12 +173,6 @@
           </item>
           <item>
            <widget class="LlItemView" name="fdbTotalIva">
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>32</height>
-             </size>
-            </property>
             <property name="fieldName">
              <string>totaliva</string>
             </property>
@@ -252,12 +189,6 @@
           </item>
           <item>
            <widget class="LlItemView" name="fdbTotal">
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>32</height>
-             </size>
-            </property>
             <property name="fieldName">
              <string>total</string>
             </property>
