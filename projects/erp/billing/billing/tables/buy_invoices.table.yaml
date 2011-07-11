@@ -68,16 +68,23 @@ fields:
             null: false
             pk: false
             type: double
+            reactive:
+                neto = sum(lineas)
         totaliva:
             alias: "Total Iva"
             null: false
             pk: false
             type: double
+            reactive:
+                totaliva = neto * iva
+            depend: {neto, iva}
         total:
             alias: "Total"
             null: false
             pk: false
             type: double
-            
-            
+            reactive:
+                total = totaliva + neto
+            depend: {totaliva, neto}
+
             

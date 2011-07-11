@@ -1,0 +1,56 @@
+!LlampexDataView
+code: items2
+name: Items
+
+select:
+    -   table: articulos
+    
+    -   field: referencia
+        label: Referencia
+        options: [ rowkey ]
+        
+    -   field: descripcion
+        label: Descripción
+        
+    -   field: pvp::itemprice
+        label: P.V.P
+        
+    -   field: secompra::yesno
+        label: Se compra
+        
+    -   field: sevende::yesno
+        label: Se vende
+        
+    -   table: impuestos
+        left-join: articulos.codimpuesto = impuestos.codimpuesto
+        
+    -   field: codimpuesto
+        label: Cod.IVA
+        options: [table-hidden,rowkey]
+        
+    -   field: descripcion as descimpuesto
+        options: [table-hidden]
+        
+    -   field: porcentaje as ivaimpuesto
+        label: IVA
+        options: [table-hidden]
+        
+    -   field: porcentaje as recargoimpuesto
+        label: R.Equivalencia
+        options: [table-hidden]
+        
+    -   calculated: impuesto::string
+        label: I.V.A.
+        view-data:
+            "%d%%/%d%%" % (ivaimpuesto, recargoimpuesto)
+        #edit-widget: ----
+        #edit-data:
+        #    (ivaimpuesto, recargoimpuesto)
+        #setdata: null # Esto permitiría asignar un programa para guardar los datos a partir del calculo.
+        # depends: ivaimpuesto, recargoimpuesto # -> innecesario, podemos refrescar el calculated en cada cambio en la fila.        
+        
+        
+        
+   
+        
+        

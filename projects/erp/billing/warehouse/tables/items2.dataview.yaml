@@ -1,0 +1,48 @@
+!LlampexDataView
+code: items2
+name: Items
+
+fieldtypes:
+    -   type: euro::currency(8,2)
+        format: "%.2f"
+    -   type: yesno::boolean
+        options: [true,false]
+        values:
+            true: Yes
+            false: No
+        colors:
+            true:  "#0B0"
+            false: "#B00"
+
+
+select:
+    -   table: articulos
+    
+    -   field: referencia::string
+        label: Referencia
+        options: [ primarykey ]
+        
+    -   field: descripcion::string
+        label: Descripción
+        
+    -   field: pvp::euro
+        label: P.V.P
+        
+    -   field: secompra::yesno
+        label: Se compra
+        
+    -   field: sevende::yesno
+        label: Se vende
+        
+    -   field: codimpuesto::relation(taxes.codimpuesto)
+        label: codiva
+        options: [table-hidden]
+        
+    -   calculated: codimpuesto.descripcion as descimpuesto
+        options: [table-hidden]
+        
+    -   calculated: codimpuesto.porcentaje as por100impuesto
+        label: IVA
+        
+        
+from: articulos
