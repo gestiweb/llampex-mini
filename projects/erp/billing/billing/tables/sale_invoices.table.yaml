@@ -29,7 +29,8 @@ fields:
             alias: "Fecha"
             null: false
             pk: false
-            type: date            
+            type: date
+            format: "dd/MM/yyyy"
         codcliente:
             alias: "Cliente"
             type: vchar(6)

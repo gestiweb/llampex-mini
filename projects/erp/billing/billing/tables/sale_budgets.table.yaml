@@ -41,6 +41,7 @@ fields:
             pk: false
             type: date            
             weight: 40
+            format: "dd/MM/yyyy"
         codcliente:
             alias: "Cliente"
             type: vchar(6)

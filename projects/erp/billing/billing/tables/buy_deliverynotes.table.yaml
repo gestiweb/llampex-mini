@@ -29,7 +29,8 @@ fields:
             alias: "Fecha"
             null: false
             pk: false
-            type: date            
+            type: date
+            format: "dd-MM-yyyy"
         codproveedor:
             alias: "Proveedor"
             type: vchar(6)
