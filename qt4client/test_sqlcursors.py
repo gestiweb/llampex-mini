@@ -25,7 +25,7 @@ class TestDialog(QtGui.QDialog):
         self.datetext = None
         self.notificacion = QtGui.QLabel(self)
         self.logbox = QtGui.QTextEdit(self)
-        self.logbox.setFrameShape(QtGui.QFrame.StyledPanel | QtGui.QFrame.Plain)
+        self.logbox.setFrameStyle(QtGui.QFrame.StyledPanel | QtGui.QFrame.Plain)
         self.logbox.setReadOnly(True)
         self.logbox.setFocusPolicy(QtCore.Qt.NoFocus)
         self.layout = QtGui.QVBoxLayout(self)
