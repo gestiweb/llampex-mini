@@ -2,6 +2,21 @@
 import os.path, traceback
 from PyQt4 import QtGui, QtCore, uic
 from PyQt4 import QtSql
+from qsqlmetadatamodel import QSqlMetadataModel
+
+"""
+    ####### SqlCursor
+    
+    Cursor de bae de datos, que funciona a partir de modelos de Qt.
+    Gestiona un QSqlMetadataModel y almacena una posición determinada en el registro.
+    
+    
+
+"""
+
+BOF = -2
+EOF = -1
+
 class cursorModes(object):
     Insert = 0
     Edit = 1

@@ -83,6 +83,26 @@ class ConfigSettings(yaml.YAMLObject):
         else:
             if not hasattr(self,key):
                 setattr(self,key,default)
+                
+    @classmethod
+    def load(cls, filename=".settings.yaml"):
+        try:
+            f1 = open(filedir(filename),"r")
+            settings = yaml.load(f1.read())
+        except IOError:
+            settings = ConfigSettings()
+        settings.setDefaults()
+        return settings
+    
+    def setDefaults(self):
+        self.setargv("username","")
+        self.setargv("password","")
+        self.setargv("host","127.0.0.1")
+        self.setargv("port","10123")
+        self.setargv("remember",False, cast=str2bool)
+        self.setargv("debug",False, cast=str2bool)
+        self.setargv("project","")
+    
     
     
 
@@ -92,20 +112,9 @@ class ConnectionDialog(QtGui.QDialog):
             
         ui_filepath = filedir("forms/login.ui") # convertimos la ruta a absoluta
         self.ui = uic.loadUi(ui_filepath,self) # Cargamos un fichero UI externo    
-        try:
-            f1 = open(filedir(".settings.yaml"),"r")
-            settings = yaml.load(f1.read())
-        except IOError:
-            settings = ConfigSettings()
         global llampex_icon 
         llampex_icon = self.windowIcon()
-        settings.setargv("username","")
-        settings.setargv("password","")
-        settings.setargv("host","127.0.0.1")
-        settings.setargv("port","10123")
-        settings.setargv("remember",False, cast=str2bool)
-        settings.setargv("debug",False, cast=str2bool)
-        settings.setargv("project","")
+        settings = ConfigSettings.load()
         self.project = settings.project
         self.debug = settings.debug
         self.ui.user.setText(settings.username)
@@ -538,16 +547,18 @@ try:
 except ImportError:
     print "formimages.py not found. Probably you forgot to do 'pyrcc forms/..qrc -i formimages.py'"
 """
-app = QtGui.QApplication(sys.argv) # Creamos la entidad de "aplicación"
+def main():
+    app = QtGui.QApplication(sys.argv) # Creamos la entidad de "aplicación"
 
-# Iniciar como: python login.py -stylesheet styles/llampex1/style.css
-# app.setStyleSheet(open(filedir("styles/llampex1/style.css")).read())
+    # Iniciar como: python login.py -stylesheet styles/llampex1/style.css
+    # app.setStyleSheet(open(filedir("styles/llampex1/style.css")).read())
 
-connwindow = ConnectionDialog()
-connwindow.show() # el método show asegura que se mostrará en pantalla.
+    connwindow = ConnectionDialog()
+    connwindow.show() # el método show asegura que se mostrará en pantalla.
 
 
-retval = app.exec_() # ejecutamos la aplicación. A partir de aquí perdemos el
+    retval = app.exec_() # ejecutamos la aplicación. A partir de aquí perdemos el
 
-sys.exit(retval) # salimos de la aplicación con el valor de retorno adecuado.
+    sys.exit(retval) # salimos de la aplicación con el valor de retorno adecuado.
 
+if __name__ == "__main__": main()
