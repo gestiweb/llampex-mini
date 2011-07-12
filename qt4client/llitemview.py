@@ -21,6 +21,8 @@ def _getAllWidgets(form):
 def getAllWidgets(form):
     return [ obj for obj in _getAllWidgets(form) if obj.objectName() ]
 
+PERSISTENT_EDITOR=False # TODO: Fix editors when committing. 
+
 class LlItemView1(QtGui.QAbstractItemView):
     def setup(self):
         self.colwidth = {}
@@ -89,14 +91,15 @@ class LlItemView1(QtGui.QAbstractItemView):
         smodel.setCurrentIndex(self.item, QtGui.QItemSelectionModel.NoUpdate);
         if model.flags(self.item) & QtCore.Qt.ItemIsEditable:
             self.setFrameStyle(QtGui.QFrame.Box | QtGui.QFrame.Sunken)
+            if PERSISTENT_EDITOR:
+                self.openPersistentEditor(self.item)
+                self.persistentEditor = True
         else:
             self.setFrameStyle(QtGui.QFrame.NoFrame)
             
 
         
         #self.update()
-        #self.openPersistentEditor(self.item)
-        #self.persistentEditor = True
         #szh = self.sizeHint()
         #szh += QtCore.QSize(15,15)
         #self.resize(szh)
