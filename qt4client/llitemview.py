@@ -35,8 +35,11 @@ class LlItemView1(QtGui.QAbstractItemView):
         self.setSelectionMode(QtGui.QAbstractItemView.NoSelection)
         #self.viewport().setSizePolicy(QtGui.QSizePolicy.Preferred,QtGui.QSizePolicy.Minimum)
         #self.setTabKeyNavigation(False)
+        #self.setFrameStyle(QtGui.QFrame.NoFrame)
+        viewport = self.viewport()
+        viewport.setBackgroundRole(QtGui.QPalette.Window)
         self.setFrameStyle(QtGui.QFrame.NoFrame)
-        self.viewport().setBackgroundRole(QtGui.QPalette.Window)
+        #self.setFrameStyle(QtGui.QFrame.Box | QtGui.QFrame.Sunken)
         
     def setTabWidget(self, widget):
         self.tabWidget = widget 
@@ -112,6 +115,7 @@ class LlItemView1(QtGui.QAbstractItemView):
         self.delegate = delegate
     """
     def paintEvent(self, pEvent):
+        QtGui.QAbstractItemView.paintEvent(self, pEvent)
         if not self.item: return
         if not self.item.isValid(): return
         S = QtGui.QStyle
@@ -136,7 +140,7 @@ class LlItemView1(QtGui.QAbstractItemView):
         option.rect = self.visualRect(item)
         fwidth = self.frameWidth()
         option.rect.moveTo(fwidth,fwidth)
-
+        option.palette.setColor(QtGui.QPalette.Base, QtGui.QColor())
         #painter.save()
         delegate = self.itemDelegate(item)
         #painter.setClipRegion(QtGui.QRegion(option.rect))
