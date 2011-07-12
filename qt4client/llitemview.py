@@ -30,7 +30,7 @@ class LlItemView1(QtGui.QAbstractItemView):
         self.item = None
         self.tabWidget = self
         self.persistentEditor = None
-        self.setSizePolicy(QtGui.QSizePolicy.Preferred,QtGui.QSizePolicy.Preferred)
+        self.setSizePolicy(QtGui.QSizePolicy.Preferred,QtGui.QSizePolicy.Fixed)
         self.setEditTriggers(QtGui.QAbstractItemView.DoubleClicked | QtGui.QAbstractItemView.EditKeyPressed)
         self.setSelectionMode(QtGui.QAbstractItemView.NoSelection)
         #self.viewport().setSizePolicy(QtGui.QSizePolicy.Preferred,QtGui.QSizePolicy.Minimum)
@@ -87,6 +87,12 @@ class LlItemView1(QtGui.QAbstractItemView):
         if fnAutoDelegate: fnAutoDelegate(self)
         smodel = self.selectionModel()
         smodel.setCurrentIndex(self.item, QtGui.QItemSelectionModel.NoUpdate);
+        if model.flags(self.item) & QtCore.Qt.ItemIsEditable:
+            self.setFrameStyle(QtGui.QFrame.Box | QtGui.QFrame.Sunken)
+        else:
+            self.setFrameStyle(QtGui.QFrame.NoFrame)
+            
+
         
         #self.update()
         #self.openPersistentEditor(self.item)
@@ -100,7 +106,7 @@ class LlItemView1(QtGui.QAbstractItemView):
         #sz = QtGui.QAbstractItemView.sizeHint(self)
         #sz.setHeight(32)
         w = self.colwidth.get(self.col, 50)
-        sz = QtCore.QSize(w+64,40)
+        sz = QtCore.QSize(w+64,32)
         return sz
         
         if self.item:
