@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>694</width>
-    <height>193</height>
+    <width>692</width>
+    <height>165</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -27,75 +27,23 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
-        <item>
-         <widget class="LlItemView" name="fdbCodigo">
-          <property name="fieldName">
-           <string>codigo</string>
-          </property>
-          <property name="editorText">
-           <string>AA001</string>
-          </property>
-          <property name="labelText">
-           <string>Codigo</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="LlItemView" name="fdbFecha">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>10</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="fieldName">
-           <string>fecha</string>
-          </property>
-          <property name="editorText">
-           <string>00/00/0000</string>
-          </property>
-          <property name="labelText">
-           <string>Fecha</string>
-          </property>
-          <property name="labelVisible">
-           <bool>true</bool>
-          </property>
-          <property name="buttonVisible">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Preferred</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>286</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </item>
-      <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <widget class="LlItemView" name="fdbCodProveedor">
+         <widget class="LlItemView" name="fdbReferencia">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="fieldName">
-           <string>codproveedor</string>
+           <string>referencia</string>
           </property>
           <property name="editorText">
-           <string>0000</string>
+           <string>000002505205205205205205</string>
           </property>
           <property name="labelText">
-           <string>Proveedor</string>
+           <string>Referencia</string>
           </property>
           <property name="buttonVisible">
            <bool>true</bool>
@@ -103,18 +51,18 @@
          </widget>
         </item>
         <item>
-         <widget class="LlItemView" name="fdbNombre">
+         <widget class="LlItemView" name="fdbdescripcion">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-            <horstretch>10</horstretch>
+            <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
           <property name="fieldName">
-           <string>nombre</string>
+           <string>descripcion</string>
           </property>
           <property name="editorText">
-           <string>Nombre</string>
+           <string>Descripcion</string>
           </property>
           <property name="labelVisible">
            <bool>false</bool>
@@ -129,21 +77,15 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_4">
         <item>
-         <widget class="LlItemView" name="fdbCodPago">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>10</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
+         <widget class="LlItemView" name="fdbCodImpuesto">
           <property name="fieldName">
-           <string>codpago</string>
+           <string>codimpuesto</string>
           </property>
           <property name="editorText">
-           <string>CONT</string>
+           <string>IVA18</string>
           </property>
           <property name="labelText">
-           <string>F.Pago</string>
+           <string>I.V.A</string>
           </property>
           <property name="labelVisible">
            <bool>true</bool>
@@ -156,15 +98,15 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
-           <widget class="LlItemView" name="fdbNeto">
+           <widget class="LlItemView" name="fdbCantidad">
             <property name="fieldName">
-             <string>neto</string>
+             <string>cantidad</string>
             </property>
             <property name="editorText">
              <string>222</string>
             </property>
             <property name="labelText">
-             <string>Neto</string>
+             <string>Cantidad</string>
             </property>
             <property name="buttonVisible">
              <bool>false</bool>
@@ -172,15 +114,15 @@
            </widget>
           </item>
           <item>
-           <widget class="LlItemView" name="fdbTotalIva">
+           <widget class="LlItemView" name="fdbPvpUnitario">
             <property name="fieldName">
-             <string>totaliva</string>
+             <string>pvpunitario</string>
             </property>
             <property name="editorText">
              <string>222</string>
             </property>
             <property name="labelText">
-             <string>Iva</string>
+             <string>Pvp Unitario</string>
             </property>
             <property name="buttonVisible">
              <bool>false</bool>
@@ -188,9 +130,9 @@
            </widget>
           </item>
           <item>
-           <widget class="LlItemView" name="fdbTotal">
+           <widget class="LlItemView" name="fdbPvpTotal">
             <property name="fieldName">
-             <string>total</string>
+             <string>pvptotal</string>
             </property>
             <property name="editorText">
              <string>222</string>
