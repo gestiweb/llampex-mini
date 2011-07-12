@@ -1,0 +1,16 @@
+!LlampexAction
+code: buy_orders
+name: Supplier Orders
+icon: _actionicons/buy_orders.png
+weight: B.1
+
+table: pedidosprov
+record:
+    script: /generic/record/scripts/basic1
+    form: record/forms/pedidosprov.ui
+master:
+    script: /generic/master/scripts/masterbasic4
+    form: /generic/master/forms/mastercopyprint4.ui
+
+description: "Pedidos de Proveedores"
+

@@ -1,0 +1,16 @@
+!LlampexAction
+code: sale_invoices
+name: Customer Invoices
+icon: _actionicons/sale_invoices.png # path to icon
+weight: A.4
+
+table: facturascli
+record:
+    script: /generic/record/scripts/basic1
+    form: record/forms/presupuestoscli.ui
+master:
+    script: /generic/master/scripts/masterbasic4
+    form: /generic/master/forms/mastercopyprint4.ui
+
+description: "Facturas de Clientes"
+

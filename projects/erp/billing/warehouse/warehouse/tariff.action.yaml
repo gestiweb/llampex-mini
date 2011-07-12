@@ -1,6 +1,6 @@
 !LlampexAction
-code: rates
-name: Rates
+code: tariff
+name: Tariff
 icon: icons/rates.png # path to icon
 weight: A.3
 

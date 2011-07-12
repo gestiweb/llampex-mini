@@ -1,0 +1,105 @@
+!LlampexTable
+code: presupuestoscli
+name: Budgets
+
+fields:
+        idpresupuesto:
+            alias: "Id"
+            type: int
+            pk: true
+            null: false
+            relations:
+                - {table: lineaspresupuestoscli, field: idpresupuesto, card: 1M, delC: true}
+            tableCheckable: true
+            tableEditable: false
+        codigo:
+            alias: "Código"
+            type: vchar(12)
+            pk: false
+            null: false
+            tableCheckable: true
+            tableEditable: false
+            weight: 10
+        editable:
+            alias: "Pte. aprobar"
+            null: false
+            pk: false
+            type: bool
+            tableEditable: false
+            weight: 20
+        estado:
+            alias: "Estado"
+            null: true
+            pk: false
+            type: vchar(20)
+            optionlist: [Pendiente,Aceptado,Rechazado]
+            colorlist:  ["#00B", "#0B4", "#C00"]
+            weight: 30
+        fecha:
+            alias: "Fecha"
+            null: false
+            pk: false
+            type: date            
+            weight: 40
+            format: "dd/MM/yyyy"
+        codcliente:
+            alias: "Cliente"
+            type: vchar(6)
+            pk: false
+            null: false
+            relations:
+                - {table: clientes, field: codcliente, card: M1, delC: false}
+            weight: 50
+        nombrecliente:
+            alias: "Nombre"
+            type : vchar(100)
+            pk: false
+            null: false
+            weight: 60
+        cifnif:
+            alias: "C.I.F./N.I.F."
+            type: vchar(20)
+            pk: false
+            null: false
+            weight: 70
+        codejercicio:
+            alias: "Ejercicio"
+            null: false
+            pk: false
+            ck: true
+            type: vchar(4)
+            relations:
+                - {table: ejercicios, field: codejercicio, card: M1, delC: false}
+            weight: 80
+        codpago:
+            alias: "F. Pago"
+            null: false
+            pk: false
+            type: vchar(10)
+            relations:
+                - {table: formaspago, field: codpago, card: M1, delC: false}
+            weight: 90
+        neto:
+            alias: "Neto"
+            null: false
+            pk: false
+            type: double
+            format: "%.2f€"
+            weight: 100
+        totaliva:
+            alias: "Total Iva"
+            null: false
+            pk: false
+            type: double
+            format: "%.2f€"
+            weight: 110
+        total:
+            alias: "Total"
+            null: false
+            pk: false
+            type: double
+            format: "%.2f€"
+            weight: 120
+            
+            
+            

@@ -1,0 +1,90 @@
+!LlampexTable
+code: facturasprov
+name: Invoices
+
+fields:
+        idfactura:
+            alias: "Id"
+            type: int
+            pk: true
+            null: false
+            relations:
+                - {table: lineafacturasprov, field: idfactura, card: 1M, delC: true}
+            tableCheckable: true
+            tableEditable: false
+        codigo:
+            alias: "Código"
+            type: vchar(12)
+            pk: false
+            null: false
+            tableCheckable: true
+            tableEditable: false
+        editable:
+            alias: "Editable"
+            null: false
+            pk: false
+            type: bool
+            tableEditable: false
+        fecha:
+            alias: "Fecha"
+            null: false
+            pk: false
+            type: date
+            format: "dd-MM-yyyy"
+        codproveedor:
+            alias: "Proveedor"
+            type: vchar(6)
+            pk: false
+            null: false
+            relations:
+                - {table: proveedores, field: codproveedor, card: M1, delC: false}
+        nombre:
+            alias: "Nombre"
+            type : vchar(100)
+            pk: false
+            null: false
+        cifnif:
+            alias: "C.I.F./N.I.F."
+            type: vchar(20)
+            pk: false
+            null: false
+        codejercicio:
+            alias: "Ejercicio"
+            null: false
+            pk: false
+            ck: true
+            type: vchar(4)
+            relations:
+                - {table: ejercicios, field: codejercicio, card: M1, delC: false}
+        codpago:
+            alias: "F. Pago"
+            null: false
+            pk: false
+            type: vchar(10)
+            relations:
+                - {table: formaspago, field: codpago, card: M1, delC: false}
+        neto:
+            alias: "Neto"
+            null: false
+            pk: false
+            type: double
+            reactive:
+                neto = sum(lineas)
+        totaliva:
+            alias: "Total Iva"
+            null: false
+            pk: false
+            type: double
+            reactive:
+                totaliva = neto * iva
+            depend: {neto, iva}
+        total:
+            alias: "Total"
+            null: false
+            pk: false
+            type: double
+            reactive:
+                total = totaliva + neto
+            depend: {totaliva, neto}
+
+            

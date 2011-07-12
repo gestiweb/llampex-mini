@@ -1,0 +1,16 @@
+!LlampexAction
+code: buy_deliverynotes
+name: Suppliers Delivery Notes
+icon: _actionicons/buy_deliverynotes.png
+weight: B.2
+
+table: albaranesprov
+record:
+    script: /generic/record/scripts/basic1
+    form: record/forms/pedidosprov.ui
+master:
+    script: /generic/master/scripts/masterbasic4
+    form: /generic/master/forms/mastercopyprint4.ui
+
+description: "Albaránes de Proveedores"
+

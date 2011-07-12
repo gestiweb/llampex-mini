@@ -6,7 +6,10 @@ import os.path
 import sys
 from PyQt4 import QtGui, QtCore, uic, QtSql
 
-class ItemComboDelegate(QtGui.QItemDelegate):
+QtFormatRole = QtCore.Qt.UserRole + 1
+
+
+class ItemComboDelegate(QtGui.QStyledItemDelegate):
     def __init__(self,*args):
         QtGui.QItemDelegate.__init__(self,*args)
         self.items = []
@@ -14,6 +17,7 @@ class ItemComboDelegate(QtGui.QItemDelegate):
         
     def createEditor(self, parent, option, index):
         combo = QtGui.QComboBox(parent)
+        #combo.setWindowFlags(QtCore.Qt.Popup | QtCore.Qt.FramelessWindowHint)
         for item in self.items:
             combo.addItem(item)
         return combo
@@ -21,7 +25,13 @@ class ItemComboDelegate(QtGui.QItemDelegate):
     def setEditorData(self, editor, index):
         model = index.model()
         val = model.data(index, QtCore.Qt.EditRole)
-        idx = self.values.index(val)
+        try: idx = self.values.index(val)
+        except ValueError:
+            self.items.append(val) 
+            self.values.append(val) 
+            editor.addItem(val)
+            idx = self.values.index(val)
+            
         editor.setCurrentIndex(idx)
     
     def setModelData(self, editor, model, index):
@@ -29,6 +39,18 @@ class ItemComboDelegate(QtGui.QItemDelegate):
         val = self.values[idx]
         model.setData(index,val, QtCore.Qt.EditRole)        
         
+
+class ItemBasicDelegate(QtGui.QStyledItemDelegate):
+    def createEditor(self, parent, option, index):
+        widget = QtGui.QStyledItemDelegate.createEditor(self, parent, option, index)
+        if isinstance(widget, (QtGui.QDateEdit,QtGui.QDateTimeEdit)):
+            widget.setCalendarPopup(True)
+            model = index.model()
+            format = model.data(index, QtFormatRole)
+            if format:
+                # TODO: asignar el formato al widget
+                widget.setDisplayFormat(format);
+        return widget
         
 
 class QSqlMetadataModel(QtSql.QSqlQueryModel):
@@ -102,7 +124,7 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
         field = self.tmd.field[index.column()]
         if field.get("tableSelectable", True):
             flags |= QtCore.Qt.ItemIsSelectable
-        if field.get("tableEditable", False):
+        if field.get("tableEditable", True):
             flags |= QtCore.Qt.ItemIsEditable
         if field.get("tableCheckable", False):
             flags |= QtCore.Qt.ItemIsUserCheckable
@@ -133,14 +155,18 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
         delegate_bool = ItemComboDelegate(itemview)
         delegate_bool.items = [u"Sí",u"No",u"--"]
         delegate_bool.values = [True,False,None]
-        basic_delegate = QtGui.QStyledItemDelegate(itemview)
+        basic_delegate = ItemBasicDelegate(itemview)
         fnSetColumnWidth = getattr(itemview,"setColumnWidth",None)
         for i, name in enumerate(self.tmd.fieldlist):
             field = self.tmd.field[i]
             ctype = self.colType(i)
             delegate = basic_delegate
             optionlist = field.get("optionlist",None)
-            valuelist = field.get("valuelist",optionlist)
+            valuelist = field.get("valuelist",optionlist)            
+            if valuelist: 
+                # This is to avoid the same data in optionlist being referenced
+                # in valuelist instead of being copied.
+                valuelist = valuelist[:]
             
             if ctype == "b": delegate = delegate_bool
             if optionlist:
@@ -148,7 +174,7 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
                 delegate_adhoc.items = valuelist
                 delegate_adhoc.values = optionlist
                 delegate = delegate_adhoc
-                
+
             if delegate:
                 itemview.setItemDelegateForColumn(i, delegate)   
             if fnSetColumnWidth:
@@ -182,12 +208,21 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
             
     def data(self, index, role = None):
         if role is None: role = QtCore.Qt.DisplayRole
+        if role == QtFormatRole:
+            # TODO: Si tiene formato devolverlo como string
+            # ... en caso contrario devolver None.
+            field = self.tmd.field[index.column()]
+            format = field.get("format", None)
+            return format
+            
         if role == QtCore.Qt.DecorationRole:
             ret = self.data(index,QtCore.Qt.EditRole)
             field = self.tmd.field[index.column()]
             ctype = self.colType(index)
             optionlist = field.get("optionlist",None)
             iconlist = field.get("iconlist",None)
+            icon = None
+            decoration = None
             if not optionlist:
                 if ctype == "b": 
                     optionlist = [True,False,None]
@@ -195,10 +230,13 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
                     iconlist = optionlist
 
             if optionlist and iconlist:
-                idx = optionlist.index(ret)
+                try:
+                    idx = optionlist.index(ret)
+                except ValueError:
+                    idx = -1
                 if idx >= 0: 
                     icon = iconlist[idx]
-                decoration = self.decorations.get(icon)
+                    decoration = self.decorations.get(icon)
                 if decoration: return decoration
             
         if role == QtCore.Qt.TextAlignmentRole:   
@@ -220,6 +258,7 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
             field = self.tmd.field[index.column()]
             optionlist = field.get("optionlist",None)
             colorlist = field.get("colorlist",None)
+            color = None
             if not optionlist:
                 if ctype == "b": 
                     optionlist = [True,False,None]
@@ -229,10 +268,13 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
                 
             brush = None
             if optionlist and colorlist:
-                idx = optionlist.index(ret)
-                if idx >= 0: color = colorlist[idx]
-                if color: brush = self.getBrush(color)
-                
+                try: idx = optionlist.index(ret)
+                except ValueError: idx = -1
+                try:
+                    if idx >= 0: color = colorlist[idx]
+                    if color: brush = self.getBrush(color)
+                except IndexError:
+                    pass
                 
             if brush is None:
                 if ctype == "n": 
@@ -247,7 +289,7 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
             if field.get("tableCheckable", False):
                 k = (index.row(), index.column())
                 return self.checkstate.get(k,QtCore.Qt.Unchecked)
-                
+        
         if role in (QtCore.Qt.EditRole, QtCore.Qt.DisplayRole): 
             ret = QtSql.QSqlQueryModel.data(self,index,role)
             field = self.tmd.field[index.column()]
@@ -275,16 +317,20 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
                     ret = None
             
             if role == QtCore.Qt.DisplayRole:
+                ctype = self.colType(index)
                 try:
                     if optionlist:
                         idx = optionlist.index(ret)
                         if idx >= 0: ret = valuelist[idx]
                     elif format:
-                        ret = format % ret
+                        if ctype in ('n','s'):
+                            ret = format % ret
+                        elif ctype in ('d','dt'):
+                            ret = ret.toString(format)
+                            
                 except Exception, e:
                     pass
-                    
-            
+                                
             return ret
         return QtSql.QSqlQueryModel.data(self,index,role)
     

@@ -1,0 +1,16 @@
+!LlampexAction
+code: buy_invoices
+name: Supplier Invoices
+icon: _actionicons/buy_invoices.png
+weight: B.3
+
+table: facturasprov
+record:
+    script: /generic/record/scripts/basic1
+    form: record/forms/pedidosprov.ui
+master:
+    script: /generic/master/scripts/masterbasic4
+    form: /generic/master/forms/mastercopyprint4.ui
+
+description: "Facturas de Proveedores"
+
