@@ -89,9 +89,9 @@ class TestDialog(QtGui.QDialog):
         self.project = self.prjloader.load()
         tableindex = projectloader.LlampexTable.tableindex
         
-        self.notificar("Tablas: ###")
-        for table in tableindex:
-            self.notificar(" * %s" % table)
+        self.notificar("Acciones: ###")
+        for action in self.project.action_index:
+            self.notificar(" * %s" % action)
     
         self.notificar("Proyecto cargado.")
         
