@@ -124,7 +124,11 @@ class ProjectLoader(object):
             
         for aname, aobj in self.project.action_index.iteritems():
             action = aobj[0]
-            table = self.project.table_index[action.table]
+            try:
+                table = self.project.table_index[action.table][0]
+            except KeyError:
+                print "WARN: accion %s hace referencia a una tabla %s que no existe." % (aname, action.table)
+                continue
             table.action_index.append(action)
             
         return self.project
