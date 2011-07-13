@@ -133,3 +133,19 @@ Métodos públicos
  	~FLSqlCursorInterface ()
 void 	setObj (FLSqlCursor *obj)    
     """
+    
+    
+    """
+    :::Codigo de ejemplo::::
+:      var curArticulo:FLSqlCursor = new FLSqlCursor("articulos");
+-      curArticulo.select("referencia = '" + referencia + "'");
+-      if (curArticulo.first()) {
+-              curArticulo.setModeAccess(curArticulo.Edit);
+-              curArticulo.refreshBuffer();
+-              curArticulo.setValueBuffer("costemedio", cM);
+-              curArticulo.commitBuffer();
+-      }
+-
+
+    
+    """
