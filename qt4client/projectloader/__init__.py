@@ -118,6 +118,15 @@ class ProjectLoader(object):
         print "project filename:" , filename
         self.project = self.loadfile(filename)
         self.project.load(self,self.path,".")
+        for tname, tobj in self.project.table_index.iteritems():
+            table = tobj[0]
+            table.action_index = []
+            
+        for aname, aobj in self.project.action_index.iteritems():
+            action = aobj[0]
+            table = self.project.table_index[action.table]
+            table.action_index.append(action)
+            
         return self.project
 
     def getfilelist(self, folder, ext):
@@ -130,6 +139,8 @@ class ProjectLoader(object):
     def loadfile(self,name):
         ret = yaml.load(open(name).read())
         ret.yaml_afterload()
+        try: ret.llampexProjectFile_afterLoad(self)
+        except AttributeError, e: print "ERROR Loading project afterload in ", ret
         return ret
 
 class LlampexBaseFile(BaseLlampexObject):
@@ -196,6 +207,20 @@ class LlampexBaseFile(BaseLlampexObject):
         self.default_attribute("weight", "zzz")
         self.weight = unicode(self.weight)
         self.dictpath = {}
+        
+    def llampexProjectFile_afterLoad(self, loader):
+        project = loader.project
+        ftype = self.filetype  # (project, module, area, table, action , ...)
+        attrname = "%s_index" % ftype
+        if not hasattr(project,attrname):
+            setattr(project,attrname, {})
+            
+        index = getattr(project,attrname)
+        
+        if self.code not in index:
+            index[self.code] = []
+            
+        index[self.code].append(self)
 
     def load(self,loader,root,path):
         if self.childtype is None: return
@@ -260,6 +285,9 @@ class LlampexProject(LlampexBaseFile):
     tagorder = LlampexBaseFile.tagorder + []
     filetype = "project"
     childtype = "area"
+    def yaml_afterload(self):
+        super(LlampexProject,self).yaml_afterload()
+        #self.index = {}
 
 class LlampexArea(LlampexBaseFile):
     yaml_tag = u'!LlampexArea' 
