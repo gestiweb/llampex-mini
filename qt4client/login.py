@@ -322,7 +322,7 @@ class SplashDialog(QtGui.QDialog):
             "projectsignature" : 120,
             "projectparts1" : 130,
             "projectdownload" : 300,
-            "end" : 1000,
+            "end" : 2000,
             "error" : 0,
         }
         self.status_load = {

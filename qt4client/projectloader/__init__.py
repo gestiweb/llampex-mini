@@ -313,7 +313,9 @@ class FieldsObject(object):
 class LlampexTable(LlampexBaseFile):
     yaml_tag = u'!LlampexTable' 
     tagorder = LlampexBaseFile.tagorder + []
-    tableindex = {}
+    tableindex = {} # TODO: Mover el TableIndex al proyecto en cuestión
+    # .. aquí corre el riesgo de que se mezclen las tablas de dos proyectos 
+    # .. cargados a la vez o serialmente.
     filetype = "table"
     def yaml_afterload(self):
         super(LlampexTable,self).yaml_afterload()

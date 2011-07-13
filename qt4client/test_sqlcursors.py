@@ -2,11 +2,13 @@
 from PyQt4 import QtCore, QtGui, QtSql
 import objects.sqlcursor as cursor
 import sys, os, os.path
-from login import ConfigSettings
+from login import ConfigSettings, SplashDialog
 import bjsonrpc
 import qsqlrpcdriver.qtdriver as qtdriver
 import time
 from datetime import timedelta, datetime
+import projectloader
+
 def apppath(): return os.path.abspath(os.path.dirname(sys.argv[0]))
 def filepath(): return os.path.abspath(os.path.dirname(__file__))
 
@@ -32,19 +34,21 @@ class TestDialog(QtGui.QDialog):
         #self.layout.addStretch()
         self.layout.addWidget(self.logbox)
         self.layout.addWidget(self.notificacion)
-        QtCore.QTimer.singleShot(500, self.iniciar)
+        QtCore.QTimer.singleShot(50, self.iniciar)
         self.resize(400,300)
         self.notificar("Esperando . . .")
         self.date = None
+        self.splash = SplashDialog()
+        self.splash.finishLoad = self.fin_carga
         
-        
+    
     def notificar(self, text):
         date = datetime.today()
-        datetext = date.strftime("%A, %d. %B %Y %H:%M")
+        datetext = unicode(date.strftime("%A, %d. %B %Y %H:%M"), "UTF8")
         if self.datetext != datetext:
             self.datetext = datetext
-            self.logbox.insertHtml("<br /><b>%s</b><br />" % datetext)
-        htmltext = "(%s) %s<br />" % (date.strftime("%S.%f"),text)            
+            self.logbox.insertHtml(u"<br /><b>%s</b><br />" % datetext)
+        htmltext = u"(%s) %s<br />" % (unicode(date.strftime("%S.%f"),"UTF8"),text)            
         self.notificacion.setText(text)
         self.notificacion.repaint()
         self.logbox.insertHtml(htmltext)
@@ -52,9 +56,10 @@ class TestDialog(QtGui.QDialog):
 
     def forceRedraw(self):
         evLoop = QtCore.QEventLoop(self)
-        evLoop.processEvents( QtCore.QEventLoop.ExcludeUserInputEvents, 100)
+        evLoop.processEvents( QtCore.QEventLoop.ExcludeUserInputEvents, 50)
         
     def iniciar(self):
+        
         self.notificar("Inicializando . . .")
         settings = ConfigSettings.load()
         
@@ -68,10 +73,29 @@ class TestDialog(QtGui.QDialog):
         project = availableprojects[0]['code']
         self.prj = self.conn.call.connectProject(project)
         self.notificar("Proyecto conectado.")
+        self.splash.prjconn = self.prj
 
         self.prj.qtdriver = qtdriver.QSqlLlampexDriver(self.prj)
         self.prj.qtdb = QtSql.QSqlDatabase.addDatabase(self.prj.qtdriver, "llampex-qsqlrpcdriver")
-        self.notificar("Listo.")
+        self.notificar("Esperando a fin de carga.")
+        self.splash.show()
+
+    def fin_carga(self):
+        self.notificar("Carga finalizada, cargando proyecto . . . ")
+        self.projectpath = self.splash.projectpath
+        self.projectfiles = self.splash.rprj.files
+        
+        self.prjloader = projectloader.ProjectLoader(self.projectpath,self.projectfiles)
+        self.project = self.prjloader.load()
+        tableindex = projectloader.LlampexTable.tableindex
+        
+        self.notificar("Tablas: ###")
+        for table in tableindex:
+            self.notificar(" * %s" % table)
+    
+        self.notificar("Proyecto cargado.")
+        
+        
         
 app = QtGui.QApplication(sys.argv) # Creamos la entidad de "aplicación"
 
