@@ -8,6 +8,7 @@ import qsqlrpcdriver.qtdriver as qtdriver
 import time
 from datetime import timedelta, datetime
 import projectloader
+import math
 
 def apppath(): return os.path.abspath(os.path.dirname(sys.argv[0]))
 def filepath(): return os.path.abspath(os.path.dirname(__file__))
@@ -26,14 +27,24 @@ class TestDialog(QtGui.QDialog):
         self.setWindowTitle("Test de Cursores (SqlCursor)")
         self.datetext = None
         self.notificacion = QtGui.QLabel(self)
-        self.logbox = QtGui.QTextEdit(self)
+        self.tabwidget = QtGui.QTabWidget(self)
+        self.tabwidget_p1log = QtGui.QWidget(self.tabwidget)
+        self.tabwidget_p2actions = QtGui.QWidget(self.tabwidget)
+        self.tabwidget.addTab(self.tabwidget_p1log, "Log/Registro")
+        self.tabwidget.addTab(self.tabwidget_p2actions, "Actions")
+        self.layout = QtGui.QVBoxLayout(self)
+        self.layout.addWidget(self.tabwidget)
+        self.layout.addWidget(self.notificacion)
+        
+        
+        self.logbox = QtGui.QTextEdit(self.tabwidget)
         self.logbox.setFrameStyle(QtGui.QFrame.StyledPanel | QtGui.QFrame.Plain)
         self.logbox.setReadOnly(True)
         self.logbox.setFocusPolicy(QtCore.Qt.NoFocus)
-        self.layout = QtGui.QVBoxLayout(self)
+        self.tab1layout = QtGui.QVBoxLayout(self.tabwidget_p1log)
         #self.layout.addStretch()
-        self.layout.addWidget(self.logbox)
-        self.layout.addWidget(self.notificacion)
+        self.tab1layout.addWidget(self.logbox)
+        self.tab2layout = QtGui.QGridLayout(self.tabwidget_p2actions)
         QtCore.QTimer.singleShot(50, self.iniciar)
         self.resize(400,300)
         self.notificar("Esperando . . .")
@@ -88,14 +99,26 @@ class TestDialog(QtGui.QDialog):
         self.prjloader = projectloader.ProjectLoader(self.projectpath,self.projectfiles)
         self.project = self.prjloader.load()
         tableindex = projectloader.LlampexTable.tableindex
+        actions_sz = len(self.project.action_index.keys())
+        rows = int(math.ceil(math.sqrt(float(actions_sz))))
+        cols = rows
         
-        self.notificar("Acciones: ###")
-        for action in self.project.action_index:
+        
+        self.notificar("Acciones: (%d) " % (actions_sz))
+        for i,action in enumerate(sorted(self.project.action_index.keys())):
+            col = i % cols
+            row = (i - col) / cols
+            widget = QtGui.QPushButton(unicode(action), self.tabwidget_p2actions)
+            def button_clicked():
+                return self.action_clicked(action)
+            self.connect(widget, QtCore.SIGNAL("clicked()"), button_clicked)
+            self.tab2layout.addWidget(widget, row, col)
             self.notificar(" * %s" % action)
     
         self.notificar("Proyecto cargado.")
         
-        
+    def action_clicked(self, action):
+        print "clicked", action
         
 app = QtGui.QApplication(sys.argv) # Creamos la entidad de "aplicación"
 

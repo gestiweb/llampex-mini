@@ -121,13 +121,14 @@ class ProjectLoader(object):
         for tname, tobj in self.project.table_index.iteritems():
             table = tobj[0]
             table.action_index = []
-            
-        for aname, aobj in self.project.action_index.iteritems():
+        
+        for aname, aobj in list(self.project.action_index.iteritems()):
             action = aobj[0]
             try:
                 table = self.project.table_index[action.table][0]
             except KeyError:
                 print "WARN: accion %s hace referencia a una tabla %s que no existe." % (aname, action.table)
+                del self.project.action_index[aname]
                 continue
             table.action_index.append(action)
             
