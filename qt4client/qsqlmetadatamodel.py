@@ -123,7 +123,7 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
         fieldname=""
         for i, fname in enumerate(self.tmd.fieldlist):
             field = self.tmd.field[i]
-            if unicode(field['alias']) == unicode(alias):
+            if unicode(field['alias']) == unicode(alias) or unicode(fname) == unicode(alias):
                 fieldname = fname
                 break
             

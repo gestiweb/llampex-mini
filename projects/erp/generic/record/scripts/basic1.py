@@ -4,7 +4,8 @@ from PyQt4 import QtGui, QtCore, uic
 import time
 
 class RecordScript(object):
-    def __init__(self, form):
+    def __init__(self, project, form):
+        self.project = project
         self.form = form
         self.rpc = self.form.prjconn
         

@@ -174,7 +174,7 @@ class LlampexMainWindow(QtGui.QMainWindow):
             del self.modulesubwindow[subwindowkey]
          
         
-        widget = LlampexMasterForm(key,actionobj, self.prjconn)
+        widget = LlampexMasterForm(self.project, key, actionobj, self.prjconn)
         
         scrollarea = QtGui.QScrollArea()
         scrollarea.setWidget(widget)

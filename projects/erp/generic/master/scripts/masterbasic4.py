@@ -47,7 +47,8 @@ class MyWidget(QtGui.QWidget):
 
 
 class MasterScript(object):
-    def __init__(self, form):
+    def __init__(self, project, form):
+        self.project = project
         self.form = form
         self.rpc = self.form.prjconn
         
@@ -159,7 +160,7 @@ class MasterScript(object):
         
     def btnNew_clicked(self):
         print "Button New clicked"
-        load = loadActionFormRecord(self.form, 'INSERT', self.form.actionobj, self.rpc, self.tmd, self.model, self.row)
+        load = loadActionFormRecord(self.project, self.form, 'INSERT', self.form.actionobj, self.rpc, self.tmd, self.model, self.row)
         """
         print "Button New clicked"
         dialog = QtGui.QDialog(self.form)
@@ -169,7 +170,7 @@ class MasterScript(object):
         """
     def btnEdit_clicked(self):
         print "Button Edit clicked --> Row: ", self.row
-        load = loadActionFormRecord(self.form, 'EDIT', self.form.actionobj, self.rpc, self.tmd, self.model, self.row)        
+        load = loadActionFormRecord(self.project, self.form, 'EDIT', self.form.actionobj, self.rpc, self.tmd, self.model, self.row)        
         
     def btnBrowse_clicked(self):
         print "Button Browse clicked"

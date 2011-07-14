@@ -19,8 +19,9 @@ def load_module(name, path):
             
                   
 class LlampexMasterForm(QtGui.QWidget):        
-    def __init__(self, windowkey, actionobj, prjconn):
+    def __init__(self, project, windowkey, actionobj, prjconn):
         QtGui.QWidget.__init__(self)
+        self.project = project
         self.windowkey = windowkey
         self.actionobj = actionobj
         self.prjconn = prjconn
@@ -46,7 +47,7 @@ class LlampexMasterForm(QtGui.QWidget):
                 source_filepath = self.actionobj.filedir(self.actionobj.master["script"])
                 pathname , sourcename = os.path.split(source_filepath)
                 self.sourcemodule = load_module(sourcename, pathname)
-                self.masterscript = self.sourcemodule.MasterScript(self)
+                self.masterscript = self.sourcemodule.MasterScript(self.project, self)
         except Exception:
             msgBox = QtGui.QMessageBox()
             msgBox.setText("FATAL: An error ocurred trying to load the master script:\n" + traceback.format_exc())
