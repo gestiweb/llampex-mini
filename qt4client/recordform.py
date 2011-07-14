@@ -103,7 +103,7 @@ class LlampexRecordForm(QtGui.QWidget):
                     widget.setSizePolicy(QtGui.QSizePolicy.MinimumExpanding,QtGui.QSizePolicy.MinimumExpanding)
                     obj.replaceEditorWidget(widget)            
             elif isinstance(obj, LlTableDB):
-                llampexTableDB = loadFLTableRelation(self.project, form, obj, self.prjconn, self.tmd, self.model, self.row)
+                llampexTableDB = loadFLTableRelation(self.project, self, obj, self.prjconn, self.tmd, self.model, self.row)
             
     def delete(self): 
         #self.ui.hide()
@@ -414,7 +414,8 @@ class loadFLTableRelation(object):
         self.form.connect(table, QtCore.SIGNAL("activated(QModelIndex)"),self.table_cellActivated)
         self.form.connect(table, QtCore.SIGNAL("clicked(QModelIndex)"),self.table_cellActivated)
         self.form.connect(self.form.ui.btnNew, QtCore.SIGNAL("clicked()"), self.btnNew_clicked)
-        self.form.connect(self.form.ui.btnEdit, QtCore.SIGNAL("clicked()"), self.btnEdit_clicked)
+        self.form.connect(self.form.ui.btnEdit, QtCore.SIGNAL("clicked(bool)"), self.btnEdit_clicked)
+        print "Connections "
         self.form.connect(self.form.ui.btnBrowse, QtCore.SIGNAL("clicked()"), self.btnBrowse_clicked)
         self.form.connect(self.form.ui.searchBox, QtCore.SIGNAL("textChanged(const QString&)"), self.searchBox_changed)
         self.form.connect(self.form.ui.searchCombo, QtCore.SIGNAL("currentIndexChanged(const QString&)"), self.searchCombo_changed)
@@ -442,7 +443,7 @@ class loadFLTableRelation(object):
         print "Button New clicked"
         load = loadActionFormRecord(self.form, 'INSERT', self.actionobj, self.rpc, self.tmd, self.model, self.row)
 
-    def btnEdit_clicked(self):
+    def btnEdit_clicked(self, click):
         print "Button Edit clicked --> Row: ", self.row
         load = loadActionFormRecord(self.form, 'EDIT', self.actionobj, self.rpc, self.tmd, self.model, self.row)        
         
