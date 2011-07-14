@@ -8,7 +8,7 @@ import qsqlrpcdriver.qtdriver as qtdriver
 import time
 from datetime import timedelta, datetime
 import projectloader
-import math
+import math, itertools
 
 def apppath(): return os.path.abspath(os.path.dirname(sys.argv[0]))
 def filepath(): return os.path.abspath(os.path.dirname(__file__))
@@ -109,27 +109,45 @@ class TestDialog(QtGui.QDialog):
         
         
         self.notificar("Acciones: (%d) " % (actions_sz))
-        for i,action in enumerate(sorted(self.project.action_index.keys())):
+        modules = {}
+        for alist in self.project.action_index.values():
+            for action in alist:
+                module = action.parent.parent
+                if module not in modules: modules[module] = []
+                modules[module].append(action)
+        i = itertools.count()
+        def nextval(c):
+            i = c.next()
             col = i % cols
             row = (i - col) / cols
-            u_action = unicode(action)
-            widget = QtGui.QPushButton(u_action, self.tabwidget_p2actions)
-            self.connect(widget, QtCore.SIGNAL("clicked()"), signalFactory(self.action_clicked,widget,u_action))
+            i+=1
+            return row,col
+        
+        for module, actions in sorted(modules.iteritems()):
+            row, col = nextval(i)
+            while col != 0: row, col = nextval(i)
+            widget = QtGui.QLabel("%s module (%s area)" % (module.name, module.parent.name), self.tabwidget_p2actions)
+            self.notificar(" **> %s - %s " % (module.code, module.name))
             self.tab2layout.addWidget(widget, row, col)
-            self.notificar(" * %s" % action)
+            while col != cols-1: row, col = nextval(i)
+            for action in sorted(actions):
+                row, col = nextval(i)
+                widget = QtGui.QPushButton(action.name, self.tabwidget_p2actions)
+                self.connect(widget, QtCore.SIGNAL("clicked()"), signalFactory(self.action_clicked,widget,action.code))
+                self.tab2layout.addWidget(widget, row, col)
+                self.notificar(" * %s - %s" % (action.code, action.name))
     
         self.notificar("Proyecto cargado.")
         
     def action_clicked(self, widget, action):
         print "clicked", action, "in", widget
         
-app = QtGui.QApplication(sys.argv) # Creamos la entidad de "aplicación"
+app = QtGui.QApplication(sys.argv) 
 
 testdialog = TestDialog()
-testdialog.show() # el método show asegura que se mostrará en pantalla.
+testdialog.show()
 
 
-retval = app.exec_() # ejecutamos la aplicación. A partir de aquí perdemos el
-
+retval = app.exec_()
 sys.exit(retval) # salimos de la aplicación con el valor de retorno adecuado.
 
