@@ -16,15 +16,12 @@ from qsqlmetadatamodel import QSqlMetadataModel
 
 BOF = -2
 EOF = -1
-
-class cursorModes(object):
+    
+class SqlCursor(object):
     Insert = 0
     Edit = 1
     Del = 2
     Browse = 3
-    
-class SqlCursor(object):
-    Mode = cursorModes() # enum  	Mode { Insert = 0, Edit = 1, Del = 2, Browse = 3 }
     _model = None # MetadataModel
     _rownumber = None # RowNumber
     

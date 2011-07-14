@@ -1,6 +1,6 @@
 # encoding: UTF-8
 from PyQt4 import QtCore, QtGui, QtSql
-import objects.sqlcursor as cursor
+from objects.sqlcursor import SqlCursor
 import sys, os, os.path
 from login import ConfigSettings, SplashDialog
 import bjsonrpc
@@ -9,6 +9,7 @@ import time
 from datetime import timedelta, datetime
 import projectloader
 import math, itertools
+import weakref
 
 def apppath(): return os.path.abspath(os.path.dirname(sys.argv[0]))
 def filepath(): return os.path.abspath(os.path.dirname(__file__))
@@ -55,7 +56,7 @@ class TestDialog(QtGui.QDialog):
         self.date = None
         self.splash = SplashDialog()
         self.splash.finishLoad = self.fin_carga
-        
+        self.dialogs = {}    
     
     def notificar(self, text):
         date = datetime.today()
@@ -139,8 +140,27 @@ class TestDialog(QtGui.QDialog):
     
         self.notificar("Proyecto cargado.")
         
-    def action_clicked(self, widget, action):
-        print "clicked", action, "in", widget
+    def action_clicked(self, widget, actioncode):
+        if actioncode not in self.dialogs:
+            dialog = TestSqlCursorDialog(self, self.project, self.prj, actioncode)
+            self.dialogs[actioncode] = dialog
+        self.dialogs[actioncode].show()
+
+class TestSqlCursorDialog(QtGui.QDialog):
+    def __init__(self, parent, project, rpc, actioncode):
+        QtGui.QDialog.__init__(self)
+        self.project = project
+        self.parent = parent
+        self.action = self.project.action_index[actioncode][0]
+        self.table = self.project.table_index[self.action.table][0]
+        
+        print "Loading", self.action.name
+        self.setWindowTitle("(SqlCursor) %s -> %s" % (self.action.name, self.table.name))
+        
+    def closeEvent(self,event):
+        del self.parent.dialogs[self.action.code]
+        event.accept()
+        
         
 app = QtGui.QApplication(sys.argv) 
 
