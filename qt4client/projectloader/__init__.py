@@ -158,6 +158,18 @@ class LlampexBaseFile(BaseLlampexObject):
         super(LlampexBaseFile,self).__init__()
         self.dictpath = {}
         
+    def __cmp__(self, other):
+        if not isinstance(other,LlampexBaseFile): raise NotImplementedError
+        k1 = self._key()
+        k2 = other._key()
+        if k1 < k2: return -1
+        elif k1 > k2: return 1
+        elif k1 == k2: return 0
+        else: raise AssertionError 
+    
+    def _key(self):
+        return [self.filetype, self.weight, self.code]
+        
     def require_attribute(self, key):
         if not hasattr(self,key): raise AttributeError, "%s attribute not found!" % repr(key)
         
@@ -276,6 +288,7 @@ class LlampexBaseFile(BaseLlampexObject):
         for w,c,child in sorted(tmplist):
             self.child_list.append(c)
             self.child[c] = child
+            child.parent = self
             child.filepath = self.fullpath
             if hasattr(child,"load"):
                 child.load(loader, root, os.path.join(path,c))
