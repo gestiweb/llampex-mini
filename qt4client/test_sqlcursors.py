@@ -20,6 +20,10 @@ def filedir(x): # convierte una ruta relativa a este fichero en absoluta
     if os.path.isabs(x): return x
     else: return os.path.join(filepath(),x)
 
+def signalFactory(dest, *args):
+    def fn():
+        return dest(*args)
+    return fn
 
 class TestDialog(QtGui.QDialog):
     def __init__(self):
@@ -101,24 +105,23 @@ class TestDialog(QtGui.QDialog):
         tableindex = projectloader.LlampexTable.tableindex
         actions_sz = len(self.project.action_index.keys())
         rows = int(math.ceil(math.sqrt(float(actions_sz))))
-        cols = rows
+        cols = int(math.ceil(rows / 2.2))
         
         
         self.notificar("Acciones: (%d) " % (actions_sz))
         for i,action in enumerate(sorted(self.project.action_index.keys())):
             col = i % cols
             row = (i - col) / cols
-            widget = QtGui.QPushButton(unicode(action), self.tabwidget_p2actions)
-            def button_clicked():
-                return self.action_clicked(action)
-            self.connect(widget, QtCore.SIGNAL("clicked()"), button_clicked)
+            u_action = unicode(action)
+            widget = QtGui.QPushButton(u_action, self.tabwidget_p2actions)
+            self.connect(widget, QtCore.SIGNAL("clicked()"), signalFactory(self.action_clicked,widget,u_action))
             self.tab2layout.addWidget(widget, row, col)
             self.notificar(" * %s" % action)
     
         self.notificar("Proyecto cargado.")
         
-    def action_clicked(self, action):
-        print "clicked", action
+    def action_clicked(self, widget, action):
+        print "clicked", action, "in", widget
         
 app = QtGui.QApplication(sys.argv) # Creamos la entidad de "aplicación"
 
