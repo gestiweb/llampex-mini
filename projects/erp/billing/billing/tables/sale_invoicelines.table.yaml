@@ -56,9 +56,13 @@ fields:
             weight: 7
         codimpuesto:
             alias: "Impuesto"
-            type: vchar(10)
+            type: vchar(16)
             pk: false
             null: false
+            tableEditable: true
+            optionlist: [IVA16, IVA7, IVA4, IVA0]
+            valuelist:  [16%  , 7%  , 4%  , "0"]
+            colorlist:  ["#00B", "#0A9", "#0B4", "#0C0"]
             relations:
                 - {table: impuestos, field: codimpuesto, card: M1}
             weight: 8

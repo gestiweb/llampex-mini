@@ -103,7 +103,7 @@ class LlampexRecordForm(QtGui.QWidget):
                     widget.setSizePolicy(QtGui.QSizePolicy.MinimumExpanding,QtGui.QSizePolicy.MinimumExpanding)
                     obj.replaceEditorWidget(widget)            
             elif isinstance(obj, LlTableDB):
-                llampexTableDB = loadFLTableRelation(self.project, self, obj, self.prjconn, self.tmd, self.model, self.row)
+                llampexTableDB = loadLlTableRelation(self.project, self, obj, self.prjconn, self.tmd, self.model, self.row)
             
     def delete(self): 
         #self.ui.hide()
@@ -302,7 +302,7 @@ class loadActionFormRecord():
         print "RecordForm: ", ret
         
 
-class loadFLTableRelation(object):
+class loadLlTableRelation(object):
     def __init__(self, project = None, form = None, obj = None, prjconn = None, parentTmd = None, parentModel = None, parentRow = None):
         self.project = project
         self.form = form
@@ -407,16 +407,14 @@ class loadFLTableRelation(object):
         except Exception, e:
             print e
         
-        # set search invisible
-        
+        # set search invisible        
         self.form.ui.searchFrame.setVisible(False)
         
         self.form.connect(table, QtCore.SIGNAL("activated(QModelIndex)"),self.table_cellActivated)
         self.form.connect(table, QtCore.SIGNAL("clicked(QModelIndex)"),self.table_cellActivated)
-        self.form.connect(self.form.ui.btnNew, QtCore.SIGNAL("clicked()"), self.btnNew_clicked)
-        self.form.connect(self.form.ui.btnEdit, QtCore.SIGNAL("clicked(bool)"), self.btnEdit_clicked)
-        print "Connections "
-        self.form.connect(self.form.ui.btnBrowse, QtCore.SIGNAL("clicked()"), self.btnBrowse_clicked)
+        self.form.connect(self.form.ui.btnNew, QtCore.SIGNAL("clicked(bool)"), self.btnNew_clicked)
+        self.form.connect(self.form.ui.btnEdit, QtCore.SIGNAL("clicked(bool)"), self.btnEdit_clicked)        
+        self.form.connect(self.form.ui.btnBrowse, QtCore.SIGNAL("clicked(bool)"), self.btnBrowse_clicked)
         self.form.connect(self.form.ui.searchBox, QtCore.SIGNAL("textChanged(const QString&)"), self.searchBox_changed)
         self.form.connect(self.form.ui.searchCombo, QtCore.SIGNAL("currentIndexChanged(const QString&)"), self.searchCombo_changed)
         
@@ -426,7 +424,7 @@ class loadFLTableRelation(object):
         self.model.decorations[False] = QtGui.QIcon(h("../../icons/false.png"))
         
         # Add fields to combobox
-        #self.form.ui.searchCombo.addItems(self.model.getHeaderAlias())
+        self.form.ui.searchCombo.addItems(self.model.getHeaderAlias())
         
         self.modelReady = threading.Event()
         self.modelSet = threading.Event()
@@ -439,15 +437,15 @@ class loadFLTableRelation(object):
         self.row, self.col = itemindex.row(), itemindex.column()
         print "Cell:", self.row, self.col
         
-    def btnNew_clicked(self):
+    def btnNew_clicked(self, checked):
         print "Button New clicked"
         load = loadActionFormRecord(self.form, 'INSERT', self.actionobj, self.rpc, self.tmd, self.model, self.row)
 
-    def btnEdit_clicked(self, click):
+    def btnEdit_clicked(self, checked):
         print "Button Edit clicked --> Row: ", self.row
         load = loadActionFormRecord(self.form, 'EDIT', self.actionobj, self.rpc, self.tmd, self.model, self.row)        
         
-    def btnBrowse_clicked(self):
+    def btnBrowse_clicked(self, checked):
         print "Button Browse clicked"
         #change visibility of searchFrame
         self.form.ui.searchFrame.setVisible(not self.form.ui.searchFrame.isVisible())
