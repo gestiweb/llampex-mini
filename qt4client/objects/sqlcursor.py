@@ -29,10 +29,11 @@ class SqlCursor(object):
         self._modeAccess = None
         self._mainfilter = ""
         if action:
-            self.setAction(self.action)
+            self.setAction(action)
     def setAction(self, actionname):
         # TODO: Buscar la acción en concreto.
         # TODO: Crear aquí el metadata.model
+        self.action = actionname
         self._model = None
     
     def modeAccess(self): return self._modeAccess

@@ -156,7 +156,10 @@ class TestSqlCursorDialog(QtGui.QDialog):
         
         print "Loading", self.action.name
         self.setWindowTitle("(SqlCursor) %s -> %s" % (self.action.name, self.table.name))
-        
+        self.layout = QtGui.QVBoxLayout(self)
+        self.table = QtGui.QTableView(self)
+        self.layout.addWidget(self.table)
+        self.cursor = SqlCursor(self.action.code)
     def closeEvent(self,event):
         del self.parent.dialogs[self.action.code]
         event.accept()
