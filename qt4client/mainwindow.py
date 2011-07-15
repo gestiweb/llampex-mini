@@ -183,7 +183,20 @@ class LlampexMainWindow(QtGui.QMainWindow):
         
     def searchPerformed(self):
         if (not self.searchBox.text().isEmpty()):
-            widget = QtGui.QLabel("Searching "+self.searchBox.text()+"...")
+            search = unicode(self.searchBox.text()).lower()
+            searchText = [u"Searching '%s':\n" % search]
+            widget = QtGui.QLabel("")
+            found = []
+            for code, action in self.project.action_index.iteritems():
+                aname = unicode(action).lower()
+                if aname.find(search):
+                    found+=action
+                
+            for action in sorted(found):
+                searchText.append(u" * %s -> %s -> %s" % (action.parent.name, action.parent.name, action.name))
+                
+            widget.setText("\n".join(searchText))
+            widget.setMargin(20)
             
             scrollarea = QtGui.QScrollArea()
             scrollarea.setWidget(widget)
