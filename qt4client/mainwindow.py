@@ -45,6 +45,60 @@ class LlampexMdiSubWindow(QtGui.QMdiSubWindow):
                 del self.windowdict[self.windowkey]
         finally:
             event.accept()
+            
+            
+class LlampexSearchBox(QtGui.QLineEdit):
+    
+    def __init__(self, parent):
+        QtGui.QLineEdit.__init__(self)
+        
+        self.clearButton = QtGui.QToolButton(self)
+        pixmap = QtGui.QPixmap("icons/searchClear.png")
+        self.clearButton.setIcon(QtGui.QIcon(pixmap))
+        self.clearButton.setIconSize(pixmap.size())
+        self.clearButton.setCursor(QtCore.Qt.ArrowCursor)
+        self.clearButton.setStyleSheet("QToolButton { border: none; padding: 0px; }")
+        self.clearButton.hide()
+        self.connect(self.clearButton, QtCore.SIGNAL("clicked()"), self.clearClicked)
+        self.connect(self,QtCore.SIGNAL("textChanged(const QString&)"), self.updateClearButton)
+        self.frameWidth = self.style().pixelMetric(QtGui.QStyle.PM_DefaultFrameWidth)
+        self.setStyleSheet(QtCore.QString("QLineEdit { padding-right: %1px; color: gray; } ").arg(self.clearButton.sizeHint().width()+self.frameWidth+1))
+        self.setText("Search...")
+        msz = self.minimumSizeHint()
+        self.setMinimumSize(self.qMax(msz.width(), self.clearButton.sizeHint().height() + self.frameWidth * 2 + 2),
+                            self.qMax(msz.height(), self.clearButton.sizeHint().height() + self.frameWidth * 2 + 2))
+    
+    def qMax(self, a1,  a2):
+        if a1 <= a2:
+            return a2
+        else:
+            return a1
+    
+    def clearClicked(self):
+        self.clear()
+    
+    def resizeEvent(self, event):
+        sz = self.clearButton.sizeHint()
+        self.frameWidth = self.style().pixelMetric(QtGui.QStyle.PM_DefaultFrameWidth)
+        self.clearButton.move(self.rect().right() - self.frameWidth - sz.width(), (self.rect().bottom() + 1 - sz.height())/2)
+    
+    def focusInEvent(self, event):
+        QtGui.QLineEdit.focusInEvent(self, event)
+        if (self.text() == "Search..."):
+            self.setStyleSheet(QtCore.QString("QLineEdit { padding-right: %1px; color: black } ").arg(self.clearButton.sizeHint().width()+self.frameWidth+1))
+            self.setText("")
+            
+    def focusOutEvent(self,event):
+        QtGui.QLineEdit.focusOutEvent(self, event)
+        if (self.text().isEmpty()):
+            self.setStyleSheet(QtCore.QString("QLineEdit { padding-right: %1px; color: gray } ").arg(self.clearButton.sizeHint().width()+self.frameWidth+1))
+            self.setText("Search...")
+        
+    def updateClearButton(self, text):
+        if (text.isEmpty() or text == "Search..."):
+            self.clearButton.setVisible(False) 
+        else:
+            self.clearButton.setVisible(True)
   
 
 class LlampexMainWindow(QtGui.QMainWindow):
@@ -58,6 +112,9 @@ class LlampexMainWindow(QtGui.QMainWindow):
         self.setWindowTitle("Llampex Qt4 Client")
         self.projectpath = projectpath
         self.projectfiles = projectfiles
+
+        self.searchIcon = QtGui.QIcon("icons/search.png")
+
         try:
             self.prjloader = projectloader.ProjectLoader(projectpath,projectfiles)
             self.project = self.prjloader.load()
@@ -101,13 +158,48 @@ class LlampexMainWindow(QtGui.QMainWindow):
     
     def finish_load(self):
         self.addDockWidget(QtCore.Qt.LeftDockWidgetArea,self.mainmenu)
+
+        toolbar = self.addToolBar("Llampex Toolbar")
+        toolbar.setMovable(False)
+        self.searchBox = LlampexSearchBox(toolbar)
+        self.connect(self.searchBox, QtCore.SIGNAL("returnPressed()"), self.searchPerformed)
+
+        mainframe = QtGui.QFrame(self)
+        mainframe.setLayout(QtGui.QVBoxLayout(mainframe))
+        
+        toolframe = QtGui.QFrame(self)
+        toolframe.setLayout(QtGui.QHBoxLayout(toolframe))
+        toolframe.layout().addWidget(self.searchBox,0,QtCore.Qt.AlignRight)
+        
+        mainframe.layout().addWidget(toolframe)
+        
         self.mdiarea = QtGui.QMdiArea()
         self.mdiarea.setBackground(QtGui.QBrush())
         self.mdiarea.setViewMode(QtGui.QMdiArea.TabbedView)
         self.mdiarea.setDocumentMode(True)
-        self.setCentralWidget(self.mdiarea)
+        #self.setCentralWidget(self.mdiarea)
+        mainframe.layout().addWidget(self.mdiarea)
+        self.setCentralWidget(mainframe)
+        
+    def searchPerformed(self):
+        if (not self.searchBox.text().isEmpty()):
+            widget = QtGui.QLabel("Searching "+self.searchBox.text()+"...")
             
-    
+            scrollarea = QtGui.QScrollArea()
+            scrollarea.setWidget(widget)
+            scrollarea.setWidgetResizable(True)
+            scrollarea.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+            scrollarea.setMinimumWidth(250)
+            
+            subwindow = LlampexMdiSubWindow("Search:"+self.searchBox.text(),scrollarea)
+            self.mdiarea.addSubWindow(subwindow)
+            
+            subwindow.setWindowTitle("Search")
+            subwindow.setWindowIcon(self.searchIcon)
+            subwindow.show()
+            self.mdiarea.setActiveSubWindow(subwindow)
+            subwindow.setWindowState(QtCore.Qt.WindowMaximized)
+        
             
     def menubutton_clicked(self,key):
         #print "menubutton clicked:", key      
@@ -300,3 +392,4 @@ class LlampexMainWindow(QtGui.QMainWindow):
         subwindow = self.mdiarea.addSubWindow(scrollarea)
         subwindow.show()
         subwindow.setWindowTitle(key)
+        
