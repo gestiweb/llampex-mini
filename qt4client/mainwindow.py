@@ -53,7 +53,7 @@ class LlampexSearchBox(QtGui.QLineEdit):
         QtGui.QLineEdit.__init__(self)
         
         self.clearButton = QtGui.QToolButton(self)
-        pixmap = QtGui.QPixmap("icons/searchClear.png")
+        pixmap = QtGui.QPixmap("icons/searchclear.png")
         self.clearButton.setIcon(QtGui.QIcon(pixmap))
         self.clearButton.setIconSize(pixmap.size())
         self.clearButton.setCursor(QtCore.Qt.ArrowCursor)
