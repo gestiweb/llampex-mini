@@ -127,7 +127,7 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
                 fieldname = fname
                 break
             
-        self.filter = " "+fieldname+" ILIKE '%"+text+"%' "
+        self.filter = " "+fieldname+"::VARCHAR ILIKE '%"+text+"%' "
     
     def setSort(self, col, desc):
         # sorts column col ascending, or descending if desc == True

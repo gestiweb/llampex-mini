@@ -302,8 +302,9 @@ class loadActionFormRecord():
         print "RecordForm: ", ret
         
 
-class loadLlTableRelation(object):
+class loadLlTableRelation(QtGui.QWidget):
     def __init__(self, project = None, form = None, obj = None, prjconn = None, parentTmd = None, parentModel = None, parentRow = None):
+        QtGui.QWidget.__init__(self, form)
         self.project = project
         self.form = form
         self.parentModel = parentModel
@@ -324,20 +325,6 @@ class loadLlTableRelation(object):
         self.model = None
         self.row = None 
         self.col = None  
-
-        """
-        tmd.fieldlist[0] -> nombre
-        tmd.field[0] -> tmd.fields[nombre]
-        tmd.field.codcliente -> tmd.fields["codcliente"]
-        tmd.fields[nombre]
-        
-        modelIndex = self.model.index(self.row, self.col)
-        
-        editData = self.model.data(modelIndex, QtCore.Qt.EditRole)
-        displayData = self.model.data(modelIndex, QtCore.Qt.DisplayRole)
-        format..
-        foregroundColor...
-        """
         
         try:
             self.actionName = self.obj.getActionName()
@@ -386,10 +373,10 @@ class loadLlTableRelation(object):
             self.headerMenu = QtGui.QMenu(tableheader)
             
             action_addfilter = QtGui.QAction(
-                        QtGui.QIcon(h("../../icons/page-zoom.png")),
+                        QtGui.QIcon(h("icons/page-zoom.png")),
                         "Add &Filter...", tableheader)
             action_showcolumns = QtGui.QAction(
-                        QtGui.QIcon(h("../../icons/preferences-actions.png")), 
+                        QtGui.QIcon(h("icons/preferences-actions.png")), 
                         "Show/Hide &Columns...", tableheader)
             action_hidecolumn = QtGui.QAction("&Hide this Column", tableheader)
             action_addfilter.setIconVisibleInMenu(True)
@@ -412,52 +399,52 @@ class loadLlTableRelation(object):
         
         self.form.connect(table, QtCore.SIGNAL("activated(QModelIndex)"),self.table_cellActivated)
         self.form.connect(table, QtCore.SIGNAL("clicked(QModelIndex)"),self.table_cellActivated)
-        self.form.connect(self.form.ui.btnNew, QtCore.SIGNAL("clicked(bool)"), self.btnNew_clicked)
-        self.form.connect(self.form.ui.btnEdit, QtCore.SIGNAL("clicked(bool)"), self.btnEdit_clicked)        
-        self.form.connect(self.form.ui.btnBrowse, QtCore.SIGNAL("clicked(bool)"), self.btnBrowse_clicked)
-        self.form.connect(self.form.ui.searchBox, QtCore.SIGNAL("textChanged(const QString&)"), self.searchBox_changed)
-        self.form.connect(self.form.ui.searchCombo, QtCore.SIGNAL("currentIndexChanged(const QString&)"), self.searchCombo_changed)
+        self.connect(self.form.ui.btnNew, QtCore.SIGNAL("clicked()"), self.btnNew_clicked)
+        self.connect(self.form.ui.btnEdit, QtCore.SIGNAL("clicked(bool)"), self.btnEdit_clicked)        
+        self.connect(self.form.ui.btnBrowse, QtCore.SIGNAL("clicked(bool)"), self.btnBrowse_clicked)
+        self.connect(self.form.ui.searchBox, QtCore.SIGNAL("textChanged(const QString&)"), self.searchBox_changed)
+        self.connect(self.form.ui.searchCombo, QtCore.SIGNAL("currentIndexChanged(const QString&)"), self.searchCombo_changed)
         
         self.model = QSqlMetadataModel(None,self.db, self.tmd)
-        self.model.decorations[None] = QtGui.QIcon(h("../../icons/null.png"))
-        self.model.decorations[True] = QtGui.QIcon(h("../../icons/true.png"))
-        self.model.decorations[False] = QtGui.QIcon(h("../../icons/false.png"))
+        self.model.decorations[None] = QtGui.QIcon(h("icons/null.png"))
+        self.model.decorations[True] = QtGui.QIcon(h("icons/true.png"))
+        self.model.decorations[False] = QtGui.QIcon(h("icons/false.png"))
         
         # Add fields to combobox
         self.form.ui.searchCombo.addItems(self.model.getHeaderAlias())
         
         self.modelReady = threading.Event()
         self.modelSet = threading.Event()
-        self.setRelationFilter()
+        self.setTableFilter()
         self.reload_data()
         self.select_data()
         self.settablemodel()
         
     def table_cellActivated(self, itemindex):
         self.row, self.col = itemindex.row(), itemindex.column()
-        print "Cell:", self.row, self.col
+        print "Related Table Cell:", self.row, self.col
         
-    def btnNew_clicked(self, checked):
+    def btnNew_clicked(self, checked=False):
         print "Button New clicked"
-        load = loadActionFormRecord(self.form, 'INSERT', self.actionobj, self.rpc, self.tmd, self.model, self.row)
+        load = loadActionFormRecord(self.project, self.form, 'INSERT', self.actionobj, self.rpc, self.tmd, self.model, self.row)
 
-    def btnEdit_clicked(self, checked):
+    def btnEdit_clicked(self, checked=False):
         print "Button Edit clicked --> Row: ", self.row
-        load = loadActionFormRecord(self.form, 'EDIT', self.actionobj, self.rpc, self.tmd, self.model, self.row)        
+        load = loadActionFormRecord(self.project, self.form, 'EDIT', self.actionobj, self.rpc, self.tmd, self.model, self.row)        
         
-    def btnBrowse_clicked(self, checked):
+    def btnBrowse_clicked(self, checked=False):
         print "Button Browse clicked"
         #change visibility of searchFrame
         self.form.ui.searchFrame.setVisible(not self.form.ui.searchFrame.isVisible())
         
-    def searchBox_changed(self,text):
+    def searchBox_changed(self, text):
         print "Search Box changed to ", unicode(text)
-        self.model.setBasicFilter(self.form.ui.searchCombo.currentText(),text)
+        self.setTableFilter(text, self.form.ui.searchCombo.currentText())
         self.model.refresh()
     
-    def searchCombo_changed(self,alias):
+    def searchCombo_changed(self, alias):
         print "Search Combo changed to ", unicode(alias)
-        self.model.setBasicFilter(alias,self.form.ui.searchBox.text())
+        self.setTableFilter(None, alias)
         self.model.refresh()
     
     def action_addfilter_triggered(self, checked):
@@ -466,7 +453,7 @@ class loadLlTableRelation(object):
             "Write New WHERE expression:", QtGui.QLineEdit.Normal, self.model.getFilter())
         if ok:
             self.form.ui.searchBox.setText("")
-            self.model.setFilter(rettext)
+            self.setTableFilter(rettext)
             self.model.refresh()
             
     def action_hidecolumn_triggered(self, checked):
@@ -487,9 +474,26 @@ class loadLlTableRelation(object):
         self.model.setSort(column,order)
         self.model.refresh()
     
-    def setRelationFilter(self):
-        #self.model.setBasicFilter(unicode(self.foreignField), str(self.fieldRelationValue))
-        self.model.setFilter(unicode(self.foreignField)+"="+str(self.fieldRelationValue))
+    def setTableFilter(self, text = None, alias = None):
+        basicFilter = unicode(self.foreignField)+"="+str(self.fieldRelationValue)
+        addFilter = None
+        
+        if text:
+            if alias is not None:                    
+                fieldname=""            
+                for i, fname in enumerate(self.tmd.fieldlist):
+                    field = self.tmd.field[i]
+                    if unicode(field['alias']) == unicode(alias) or unicode(fname) == unicode(alias):
+                        fieldname = fname
+                        break
+                    
+                addFilter = " "+fieldname+"::VARCHAR ILIKE '%"+text+"%' "    
+            else:
+                addFilter = text
+        
+            basicFilter += " AND " + addFilter
+            
+        self.model.setFilter(basicFilter)
         
     def reload_data(self):
         self.model.setSort(0,0)
