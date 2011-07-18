@@ -169,8 +169,22 @@ class LlampexMainWindow(QtGui.QMainWindow):
         
         toolframe = QtGui.QFrame(self)
         toolframe.setLayout(QtGui.QHBoxLayout(toolframe))
-        toolframe.layout().addWidget(self.searchBox,0,QtCore.Qt.AlignRight)
         
+        tb = QtGui.QToolButton(toolframe)
+        
+        actionobj = self.project.action_index['customers'][0]
+        icon = None
+        if actionobj.icon:
+            iconfile = actionobj.filedir(actionobj.icon)
+            icon = QtGui.QIcon(iconfile)
+                
+        tb.setToolTip(self.project.action_index['customers'][0].name)
+        tb.setIcon(icon)
+        tb.setCursor(QtCore.Qt.PointingHandCursor)
+        tb.setStyleSheet("QToolButton { border: none; padding: 0px; }")
+        toolframe.layout().addWidget(tb)
+        
+        toolframe.layout().addWidget(self.searchBox,0,QtCore.Qt.AlignRight)
         mainframe.layout().addWidget(toolframe)
         
         self.mdiarea = QtGui.QMdiArea()
@@ -189,7 +203,7 @@ class LlampexMainWindow(QtGui.QMainWindow):
             found = []
             for code, action in self.project.action_index.iteritems():
                 aname = unicode(action).lower()
-                if aname.find(search):
+                if aname.find(search)>=0:
                     found+=action
                 
             for action in sorted(found):
