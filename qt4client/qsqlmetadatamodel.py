@@ -95,6 +95,7 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
         self.filter = None
         self.sort = None
         self.columnWidth = {}
+        self.dirtyrows = {}
         if tmd: self.setMetaData(tmd)
         
     def setMetaData(self,tmd):
@@ -263,6 +264,8 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
                 return QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter
         if role == QtCore.Qt.BackgroundRole:
             row = index.row()
+            if row in self.dirtyrows:
+                return self.getBrush("#EEE")
             c = self.checkstate.get( (row,0), 0)
             if c == 2:
                 return self.getBrush("#FB9")
@@ -307,8 +310,17 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
                 k = (index.row(), index.column())
                 return self.checkstate.get(k,QtCore.Qt.Unchecked)
         
-        if role in (QtCore.Qt.EditRole, QtCore.Qt.DisplayRole): 
-            ret = QtSql.QSqlQueryModel.data(self,index,role)
+        if role in (QtCore.Qt.EditRole, QtCore.Qt.DisplayRole):
+            row = index.row()
+            col = index.column()
+            ret = None
+            if row in self.dirtyrows:
+                if col in self.dirtyrows[row]:
+                    ret = self.dirtyrows[row][col]
+                    
+            if ret is None:
+                ret = QtSql.QSqlQueryModel.data(self,index,role)
+            
             field = self.tmd.field[index.column()]
             ftype = field.get("type", "vchar")
             optionlist = field.get("optionlist",None)
@@ -354,6 +366,21 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
     def setData(self, index, value, role):
         if value == self.data(index, role): return False
         if role == QtCore.Qt.EditRole:
+            row = index.row()
+            col = index.column()
+            if row not in self.dirtyrows:
+                self.dirtyrows[row] = {}
+            if col not in self.dirtyrows[row]:
+                self.dirtyrows[row][col] = None
+            self.dirtyrows[row][col] = QtCore.QVariant(value)
+            model = index.model()
+            #columns = model.columnCount()
+            left = model.index(row,0)
+            #right = model.index(row,columns-1)
+            
+            self.emit(QtCore.SIGNAL("dataChanged(QModelIndex,QModelIndex)"), left,left)
+            
+            """
             primaryKeyIndex = self.index(index.row(), self.pkidx)
             pkeyval = self.data(primaryKeyIndex)
 
@@ -362,6 +389,7 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
                 return self.setValue(pkeyval, self.tmd.field[index.column()]['name'], value)
             finally:
                 self.refresh()
+            """
         elif role == QtCore.Qt.CheckStateRole:
             k = (index.row(), index.column())
             val, ok = value.toInt()
@@ -378,6 +406,40 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
             self.emit(QtCore.SIGNAL("dataChanged(QModelIndex,QModelIndex)"), left,right)
             return True
         return False
+    
+    def commitDirtyRow(self, row):
+        if row not in self.dirtyrows: 
+            return False 
+            
+        primaryKeyIndex = self.index(row, self.pkidx)
+        pkeyval = self.data(primaryKeyIndex)
+        
+        self.setValues(pkeyval, self.dirtyrows[row])
+        del self.dirtyrows[row]
+        
+        
+
+    def setValues(self, pkvalue, dirtyrow):
+        values = []
+        fields = []
+        for col, value in dirtyrow.iteritems():
+            field = self.tmd.field[col]['name']
+            values.append(value)
+            fields.append(" %s = ? " % field)
+            
+        query = QtSql.QSqlQuery(self.db)
+        query.prepare("UPDATE %(table)s SET %(setfields)s WHERE %(pk)s = ?" %
+                    {
+                        'table' : self.table,
+                        'setfields' : ", ".join(fields),
+                        'pk' : self.pk,
+                    })
+        for value in values:
+            query.addBindValue(value)
+        query.addBindValue(pkvalue)
+        return query.exec_()
+
+
     
     def setValue(self, pkvalue, field, value):
         query = QtSql.QSqlQuery(self.db)
