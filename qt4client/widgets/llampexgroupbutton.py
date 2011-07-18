@@ -33,6 +33,18 @@ class LlampexActionButton(QtGui.QToolButton):
             self._callback(self._key)
         else:
             print "Clicked", self._key
+            
+    def mouseMoveEvent(self, e):
+        mimeData = QtCore.QMimeData()
+        mimeData.setText(self._key)
+        
+        drag = QtGui.QDrag(self)
+        drag.setPixmap(self.icon().pixmap(32,32))
+        drag.setMimeData(mimeData)
+        #drag.setHotSpot(e.pos() - self.rect().topLeft())
+        
+        dropAction = drag.start(QtCore.Qt.MoveAction)
+        
     
 class LlampexGroupButton(QtGui.QGroupBox):
     def __init__(self, text = "ActionGroup", parent=None):

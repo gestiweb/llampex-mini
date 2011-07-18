@@ -18,6 +18,11 @@ def filedir(x): # convierte una ruta relativa a este fichero en absoluta
     if os.path.isabs(x): return x
     else: return os.path.join(filepath(),x)
 
+def signalFactory(dest, *args):
+    def fn():
+        return dest(*args)
+    return fn
+
 class LlampexMdiSubWindow(QtGui.QMdiSubWindow):
     windowdict = {}
     def __init__(self, windowkey, widget):
@@ -47,6 +52,55 @@ class LlampexMdiSubWindow(QtGui.QMdiSubWindow):
             event.accept()
             
             
+class LlampexToolBar(QtGui.QFrame):
+    
+    def __init__(self, parent):
+        QtGui.QFrame.__init__(self)
+        self.parent = parent
+        self.setup()
+    
+    def setup(self):
+        self.setAcceptDrops(True)
+        self.setFrameShape(QtGui.QFrame.StyledPanel)
+        self.setFrameShadow(QtGui.QFrame.Raised)
+        self.setLayout(QtGui.QHBoxLayout(self))
+        self.layout().setContentsMargins(2,2,2,2)
+        self.keys=[]
+    
+    def dragEnterEvent(self, e):
+        e.accept()
+
+    def dropEvent(self, e):
+        self.addToolButton(e.mimeData().text())
+        e.setDropAction(QtCore.Qt.CopyAction)
+        e.accept()
+        
+    def addToolButton(self,key):
+        print "Add "+key
+        
+        if (str(key) not in self.keys):
+            index = str(key.split(".")[2])
+            tb = QtGui.QToolButton(self)
+            
+            actionobj = self.parent.project.action_index[index][0]
+            icon = None
+            if actionobj.icon:
+                iconfile = actionobj.filedir(actionobj.icon)
+                icon = QtGui.QIcon(iconfile)
+                    
+            tb.setToolTip(self.parent.project.action_index[index][0].name)
+            tb.setIcon(icon)
+            tb.setCursor(QtCore.Qt.PointingHandCursor)
+            tb.setStyleSheet("QToolButton { border: none; padding: 0px; }")
+            self.layout().insertWidget(0,tb)
+            
+            self.keys.append(str(key))
+            self.connect(tb, QtCore.SIGNAL("clicked()"), signalFactory(self.action_clicked,key))
+        
+    def action_clicked(self, actionkey):
+        self.parent.actionbutton_clicked(str(actionkey))
+        
+
 class LlampexSearchBox(QtGui.QLineEdit):
     
     def __init__(self, parent):
@@ -167,25 +221,10 @@ class LlampexMainWindow(QtGui.QMainWindow):
         mainframe = QtGui.QFrame(self)
         mainframe.setLayout(QtGui.QVBoxLayout(mainframe))
         
-        toolframe = QtGui.QFrame(self)
-        toolframe.setLayout(QtGui.QHBoxLayout(toolframe))
+        self.toolframe = LlampexToolBar(self)
         
-        tb = QtGui.QToolButton(toolframe)
-        
-        actionobj = self.project.action_index['customers'][0]
-        icon = None
-        if actionobj.icon:
-            iconfile = actionobj.filedir(actionobj.icon)
-            icon = QtGui.QIcon(iconfile)
-                
-        tb.setToolTip(self.project.action_index['customers'][0].name)
-        tb.setIcon(icon)
-        tb.setCursor(QtCore.Qt.PointingHandCursor)
-        tb.setStyleSheet("QToolButton { border: none; padding: 0px; }")
-        toolframe.layout().addWidget(tb)
-        
-        toolframe.layout().addWidget(self.searchBox,0,QtCore.Qt.AlignRight)
-        mainframe.layout().addWidget(toolframe)
+        self.toolframe.layout().addWidget(self.searchBox,0,QtCore.Qt.AlignRight)
+        mainframe.layout().addWidget(self.toolframe)
         
         self.mdiarea = QtGui.QMdiArea()
         self.mdiarea.setBackground(QtGui.QBrush())
@@ -194,6 +233,14 @@ class LlampexMainWindow(QtGui.QMainWindow):
         #self.setCentralWidget(self.mdiarea)
         mainframe.layout().addWidget(self.mdiarea)
         self.setCentralWidget(mainframe)
+        
+    def testDrop(self, e):
+        print "drop!"
+        e.accept()
+        
+    def testDragEnter(self, e):
+        print "dragEnter!"
+        e.accept()
         
     def searchPerformed(self):
         if (not self.searchBox.text().isEmpty()):
