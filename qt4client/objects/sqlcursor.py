@@ -18,15 +18,18 @@ import qsqlrpcdriver.qtdriver as qtdriver
 BOF = -2
 EOF = -1
     
-class SqlCursor(object):
+class SqlCursor(QtCore.QObject):
     Insert = 0
     Edit = 1
     Del = 2
     Browse = 3
     _model = None # MetadataModel
-    _rownumber = None # RowNumber
+    _rownumber = -1 # RowNumber
+    selectionChanged = QtCore.pyqtSignal(QtCore.QModelIndex,int)
+    currentIndexChanged = QtCore.pyqtSignal(QtCore.QModelIndex)
     
     def __init__(self, metadata, prjconn, action = None):
+        QtCore.QObject.__init__(self)
         self.metadata = metadata
         self.prjconn = prjconn
         self._modeAccess = None
@@ -57,10 +60,36 @@ class SqlCursor(object):
     def refresh(self,fieldName=None):
         return self.select()
         
+ 
     def configureViewWidget(self,widget):
         widget.setModel(self.model)
         self.model.autoDelegate(widget)
+        selection = widget.selectionModel()
+        self.connect(selection, QtCore.SIGNAL("currentRowChanged(QModelIndex,QModelIndex)"), self.indexChanged)
+        self.connect(self, QtCore.SIGNAL("selectionChanged(QModelIndex,int)"), 
+            selection, QtCore.SLOT("select(QModelIndex,SelectionFlags)"))
+        self.connect(self, QtCore.SIGNAL("currentIndexChanged(QModelIndex)"), 
+            widget, QtCore.SLOT("setCurrentIndex(QModelIndex)"))
         
+        new = self.model.index(self._rownumber, 0)
+        F = QtGui.QItemSelectionModel
+        flags = F.Clear | F.Select | F.Rows | F.Current
+        self.selectionChanged.emit(new, flags)
+        self.currentIndexChanged.emit(new)
+    
+    def indexChanged(self, new, old):
+        #print "*"
+        newrow, oldrow = (new.row(), old.row())
+        if newrow != self._rownumber: 
+            oldnumber = self._rownumber
+            self._rownumber = newrow
+            F = QtGui.QItemSelectionModel
+            flags = F.Clear | F.Select | F.Rows | F.Current
+            self.selectionChanged.emit(new, flags)
+            self.currentIndexChanged.emit(new)
+            #self.emit(QtCore.SIGNAL("selectionChanged(QModelIndex,int)"), new, flags)
+            #print "changed: %d -> %d" % (oldnumber,newrow)
+             
     def commitBuffer(self):
         # Commit changes for the current row
         pass

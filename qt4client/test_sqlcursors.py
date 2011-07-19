@@ -159,13 +159,14 @@ class TestSqlCursorDialog(QtGui.QDialog):
                 self.connect(button, QtCore.SIGNAL("clicked()"), action)
         return button
         
-    def __init__(self, parent, project, rpc, actioncode):
+    def __init__(self, parent, project, rpc, actioncode, cursor = None):
         QtGui.QDialog.__init__(self)
         self.project = project
         self.parent = parent
         self.prjconn = rpc
         self.action = self.project.action_index[actioncode]
         self.table = self.project.table_index[self.action.table]
+        self.cursor = cursor
         
         print "Loading", self.action.name
         self.setWindowTitle("(SqlCursor) %s -> %s" % (self.action.name, self.table.name))
@@ -179,6 +180,11 @@ class TestSqlCursorDialog(QtGui.QDialog):
         self.table = QtGui.QTableView(self)
         self.table.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.table.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
+        self.table.setSortingEnabled(True)
+        tableheader = self.table.horizontalHeader()
+        tableheader.setSortIndicator(0,0)
+        self.connect(tableheader, QtCore.SIGNAL("sortIndicatorChanged(int,Qt::SortOrder)"), self.table_sortIndicatorChanged)
+        
         self.layout.addWidget(self.title)
         self.buttonLayout = QtGui.QHBoxLayout()
         self.tbInsert = self.tbutton("Insert")
@@ -186,16 +192,32 @@ class TestSqlCursorDialog(QtGui.QDialog):
         self.tbCommit = self.tbutton("Commit", action=self.buttonCommit_clicked)
         self.tbRevert = self.tbutton("Revert", action=self.buttonRevert_clicked)
         self.buttonLayout.addStretch()
+        self.tbNewView = self.tbutton("New View", action=self.buttonNewView_clicked)
         self.layout.addLayout(self.buttonLayout)
         self.layout.addWidget(self.table)
-        self.cursor = SqlCursor(self.project, self.prjconn, self.action.code)
-        self.cursor.select()
+        if self.cursor is None:
+            self.cursor = SqlCursor(self.project, self.prjconn, self.action.code)
+            self.cursor.select()
         self.cursor.configureViewWidget(self.table)
         self.resize(600,400)
+        
+        
+        self.child_views = []
+        
+        
+    def table_sortIndicatorChanged(self, column, order):
+        print "Sorting", column, order
+        self.table.model().setSort(column,order)
+        self.table.model().refresh()
         
     def closeEvent(self,event):
         del self.parent.dialogs[self.action.code]
         event.accept()
+        
+    def buttonNewView_clicked(self):
+        child = TestSqlCursorDialog(self.parent, self.project, self.prjconn, self.action.code, self.cursor)
+        self.child_views.append(child)
+        child.show()
     
     def buttonCommit_clicked(self):
         self.cursor.commitBuffer()
