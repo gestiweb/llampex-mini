@@ -234,6 +234,9 @@ class LlampexMainWindow(QtGui.QMainWindow):
         mainframe.layout().addWidget(self.mdiarea)
         self.setCentralWidget(mainframe)
         
+        #Set the tabbar of the mdiarea movable
+        for tab in self.mdiarea.findChildren(QtGui.QTabBar): tab.setMovable(True);
+        
     def testDrop(self, e):
         print "drop!"
         e.accept()
