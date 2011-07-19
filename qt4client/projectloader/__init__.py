@@ -118,16 +118,14 @@ class ProjectLoader(object):
         print "project filename:" , filename
         self.project = self.loadfile(filename)
         self.project.load(self,self.path,".")
-        for tname, tobj in self.project.table_index.iteritems():
-            table = tobj[0]
+        for tname, table in self.project.table_index.iteritems():
             table.action_index = []
         
-        for aname, aobj in list(self.project.action_index.iteritems()):
-            action = aobj[0]
+        for aname, action in list(self.project.action_index.iteritems()):
             try:
-                table = self.project.table_index[action.table][0]
+                table = self.project.table_index[action.table]
             except KeyError:
-                print "WARN: accion %s hace referencia a una tabla %s que no existe." % (aname, action.table)
+                print "WARN: Action %s references to a table %s which does not exist." % (aname, action.table)
                 del self.project.action_index[aname]
                 continue
             table.action_index.append(action)
@@ -234,10 +232,16 @@ class LlampexBaseFile(BaseLlampexObject):
             
         index = getattr(project,attrname)
         
-        if self.code not in index:
-            index[self.code] = []
+        if self.code in index:
+            print "PANIC: Two files had the same code (%s) and type (%s) ::" % (self.code, self.ftype)
+            print "   *" , index[self.code].filepath
+            print "   *" , self.filepath
+            print " ... the first one will be overwritten."
+            print
             
-        index[self.code].append(self)
+            
+        
+        index[self.code] = self
 
     def load(self,loader,root,path):
         if self.childtype is None: return

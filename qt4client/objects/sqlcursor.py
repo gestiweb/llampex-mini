@@ -3,6 +3,7 @@ import os.path, traceback
 from PyQt4 import QtGui, QtCore, uic
 from PyQt4 import QtSql
 from qsqlmetadatamodel import QSqlMetadataModel
+import qsqlrpcdriver.qtdriver as qtdriver
 
 """
     ####### SqlCursor
@@ -25,7 +26,9 @@ class SqlCursor(object):
     _model = None # MetadataModel
     _rownumber = None # RowNumber
     
-    def __init__(self, action = None):
+    def __init__(self, metadata, prjconn, action = None):
+        self.metadata = metadata
+        self.prjconn = prjconn
         self._modeAccess = None
         self._mainfilter = ""
         if action:
@@ -33,7 +36,8 @@ class SqlCursor(object):
     def setAction(self, actionname):
         # TODO: Buscar la acción en concreto.
         # TODO: Crear aquí el metadata.model
-        self.action = actionname
+        self.action = self.metadata.action_index[actionname]
+        
         self._model = None
     
     def modeAccess(self): return self._modeAccess

@@ -111,11 +111,10 @@ class TestDialog(QtGui.QDialog):
         
         self.notificar("Acciones: (%d) " % (actions_sz))
         modules = {}
-        for alist in self.project.action_index.values():
-            for action in alist:
-                module = action.parent.parent
-                if module not in modules: modules[module] = []
-                modules[module].append(action)
+        for action in self.project.action_index.values():
+            module = action.parent.parent
+            if module not in modules: modules[module] = []
+            modules[module].append(action)
         i = itertools.count()
         def nextval(c):
             i = c.next()
@@ -151,15 +150,17 @@ class TestSqlCursorDialog(QtGui.QDialog):
         QtGui.QDialog.__init__(self)
         self.project = project
         self.parent = parent
-        self.action = self.project.action_index[actioncode][0]
-        self.table = self.project.table_index[self.action.table][0]
+        self.prjconn = rpc
+        self.action = self.project.action_index[actioncode]
+        self.table = self.project.table_index[self.action.table]
         
         print "Loading", self.action.name
         self.setWindowTitle("(SqlCursor) %s -> %s" % (self.action.name, self.table.name))
         self.layout = QtGui.QVBoxLayout(self)
         self.table = QtGui.QTableView(self)
         self.layout.addWidget(self.table)
-        self.cursor = SqlCursor(self.action.code)
+        self.cursor = SqlCursor(self.project, self.prjconn, self.action.code)
+        
     def closeEvent(self,event):
         del self.parent.dialogs[self.action.code]
         event.accept()

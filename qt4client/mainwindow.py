@@ -82,13 +82,13 @@ class LlampexToolBar(QtGui.QFrame):
             index = str(key.split(".")[2])
             tb = QtGui.QToolButton(self)
             
-            actionobj = self.parent.project.action_index[index][0]
+            actionobj = self.parent.project.action_index[index]
             icon = None
             if actionobj.icon:
                 iconfile = actionobj.filedir(actionobj.icon)
                 icon = QtGui.QIcon(iconfile)
                     
-            tb.setToolTip(self.parent.project.action_index[index][0].name)
+            tb.setToolTip(self.parent.project.action_index[index].name)
             tb.setIcon(icon)
             tb.setCursor(QtCore.Qt.PointingHandCursor)
             tb.setStyleSheet("QToolButton { border: none; padding: 0px; }")
@@ -251,7 +251,7 @@ class LlampexMainWindow(QtGui.QMainWindow):
             for code, action in self.project.action_index.iteritems():
                 aname = unicode(action).lower()
                 if aname.find(search)>=0:
-                    found+=action
+                    found+=[action]
                 
             for action in sorted(found):
                 searchText.append(u" * %s -> %s -> %s" % (action.parent.name, action.parent.name, action.name))
