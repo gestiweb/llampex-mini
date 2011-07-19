@@ -37,9 +37,10 @@ class SqlCursor(object):
         # TODO: Buscar la acción en concreto.
         # TODO: Crear aquí el metadata.model
         self.action = self.metadata.action_index[actionname]
-        
-        self._model = None
-    
+        self.table = self.metadata.table_index[self.action.table]
+        self.model = QSqlMetadataModel(None, self.prjconn.qtdb, self.table)
+        self.model.setSort(0,0)
+            
     def modeAccess(self): return self._modeAccess
     def setEditMode(self): return self.modeAcess(self.Mode.Edit)
     
@@ -51,12 +52,25 @@ class SqlCursor(object):
             where = "( %s ) AND ( %s )" % (where,self._mainfilter)
         elif self._mainfilter: 
             where = self._mainfilter
-        # TODO: Re-select all the data from the model.
+        self.model.select()
         
     def refresh(self,fieldName=None):
         return self.select()
         
+    def configureViewWidget(self,widget):
+        widget.setModel(self.model)
+        self.model.autoDelegate(widget)
+        
+    def commitBuffer(self):
+        # Commit changes for the current row
+        pass
     
+    def refreshBuffer(self):
+        # Discard changes for the current row
+        pass
+        
+        
+        
     """
 Slots públicos
 int 	modeAccess () const

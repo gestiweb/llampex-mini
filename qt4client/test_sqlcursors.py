@@ -93,6 +93,8 @@ class TestDialog(QtGui.QDialog):
 
         self.prj.qtdriver = qtdriver.QSqlLlampexDriver(self.prj)
         self.prj.qtdb = QtSql.QSqlDatabase.addDatabase(self.prj.qtdriver, "llampex-qsqlrpcdriver")
+        if not self.prj.qtdb.open("",""):
+            print "ERROR: Error trying to connect Qt to RPC Database."
         self.notificar("Esperando a fin de carga.")
         self.splash.show()
 
@@ -146,6 +148,17 @@ class TestDialog(QtGui.QDialog):
         self.dialogs[actioncode].show()
 
 class TestSqlCursorDialog(QtGui.QDialog):
+    def tbutton(self, title, action = None):
+        button = QtGui.QToolButton(self)
+        button.setText(title)
+        self.buttonLayout.addWidget(button)
+        if action:
+            if type(action) is list or type(action) is tuple: 
+                self.connect(button, QtCore.SIGNAL("clicked()"), *action)
+            else:
+                self.connect(button, QtCore.SIGNAL("clicked()"), action)
+        return button
+        
     def __init__(self, parent, project, rpc, actioncode):
         QtGui.QDialog.__init__(self)
         self.project = project
@@ -157,14 +170,39 @@ class TestSqlCursorDialog(QtGui.QDialog):
         print "Loading", self.action.name
         self.setWindowTitle("(SqlCursor) %s -> %s" % (self.action.name, self.table.name))
         self.layout = QtGui.QVBoxLayout(self)
+        self.title = QtGui.QLabel(self.action.name)
+        self.title.setAlignment(QtCore.Qt.AlignCenter)
+        font = self.title.font()
+        font.setBold(True)
+        self.title.setFont(font)
+        
         self.table = QtGui.QTableView(self)
+        self.table.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
+        self.table.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
+        self.layout.addWidget(self.title)
+        self.buttonLayout = QtGui.QHBoxLayout()
+        self.tbInsert = self.tbutton("Insert")
+        self.tbDelete = self.tbutton("Delete")
+        self.tbCommit = self.tbutton("Commit", action=self.buttonCommit_clicked)
+        self.tbRevert = self.tbutton("Revert", action=self.buttonRevert_clicked)
+        self.buttonLayout.addStretch()
+        self.layout.addLayout(self.buttonLayout)
         self.layout.addWidget(self.table)
         self.cursor = SqlCursor(self.project, self.prjconn, self.action.code)
+        self.cursor.select()
+        self.cursor.configureViewWidget(self.table)
+        self.resize(600,400)
         
     def closeEvent(self,event):
         del self.parent.dialogs[self.action.code]
         event.accept()
+    
+    def buttonCommit_clicked(self):
+        self.cursor.commitBuffer()
         
+    def buttonRevert_clicked(self):
+        self.cursor.refreshBuffer()
+    
         
 app = QtGui.QApplication(sys.argv) 
 
