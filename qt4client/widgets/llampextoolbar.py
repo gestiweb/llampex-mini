@@ -34,7 +34,7 @@ class LlampexToolBarButton(QtGui.QToolButton):
         drag = QtGui.QDrag(self)
         drag.setPixmap(self.icon().pixmap(16,16))
         drag.setMimeData(mimeData)
-        #drag.setHotSpot(e.pos() - self.rect().topLeft())
+        drag.setHotSpot(e.pos() - self.rect().topLeft())
         
         self.parent.layout().removeWidget(self)
         self.parent.keys.remove(self.key)
