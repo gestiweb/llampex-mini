@@ -344,8 +344,7 @@ class loadLlTableRelation(QtGui.QWidget):
         print "Action Name: ", type(self.actionName)
         print "Table Name: ", self.tableName
 
-        self.aobj = self.project.action_index[unicode(self.actionName)]
-        self.actionobj = self.aobj[0]
+        self.actionobj = self.project.action_index[unicode(self.actionName)]
         print "Action Object: ", self.actionobj
         try:            
             tmd = LlampexTable.tableindex[unicode(self.tableName)]
