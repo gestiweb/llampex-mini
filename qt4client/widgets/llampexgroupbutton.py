@@ -44,6 +44,7 @@ class LlampexActionButton(QtGui.QToolButton):
         #drag.setHotSpot(e.pos() - self.rect().topLeft())
         
         dropAction = drag.start(QtCore.Qt.MoveAction)
+        self.setDown(False)
         
     
 class LlampexGroupButton(QtGui.QGroupBox):

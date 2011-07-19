@@ -1,10 +1,11 @@
+#!/usr/bin/env python
 # encoding: UTF-8
 import os.path, traceback
 import yaml
 
 from PyQt4 import QtGui, QtCore, uic
 
-from widgets import llampexmainmenu, llampexgroupbutton
+from widgets import llampexmainmenu, llampexgroupbutton, llampextoolbar
 
 from masterform import LlampexMasterForm
 
@@ -17,11 +18,6 @@ def filepath(): return os.path.abspath(os.path.dirname(__file__))
 def filedir(x): # convierte una ruta relativa a este fichero en absoluta
     if os.path.isabs(x): return x
     else: return os.path.join(filepath(),x)
-
-def signalFactory(dest, *args):
-    def fn():
-        return dest(*args)
-    return fn
 
 class LlampexMdiSubWindow(QtGui.QMdiSubWindow):
     windowdict = {}
@@ -51,109 +47,6 @@ class LlampexMdiSubWindow(QtGui.QMdiSubWindow):
         finally:
             event.accept()
             
-            
-class LlampexToolBar(QtGui.QFrame):
-    
-    def __init__(self, parent):
-        QtGui.QFrame.__init__(self)
-        self.parent = parent
-        self.setup()
-    
-    def setup(self):
-        self.setAcceptDrops(True)
-        self.setFrameShape(QtGui.QFrame.StyledPanel)
-        self.setFrameShadow(QtGui.QFrame.Raised)
-        self.setLayout(QtGui.QHBoxLayout(self))
-        self.layout().setContentsMargins(2,2,2,2)
-        self.keys=[]
-    
-    def dragEnterEvent(self, e):
-        e.accept()
-
-    def dropEvent(self, e):
-        self.addToolButton(e.mimeData().text())
-        e.setDropAction(QtCore.Qt.CopyAction)
-        e.accept()
-        
-    def addToolButton(self,key):
-        print "Add "+key
-        
-        if (str(key) not in self.keys):
-            index = str(key.split(".")[2])
-            tb = QtGui.QToolButton(self)
-            
-            actionobj = self.parent.project.action_index[index]
-            icon = None
-            if actionobj.icon:
-                iconfile = actionobj.filedir(actionobj.icon)
-                icon = QtGui.QIcon(iconfile)
-                    
-            tb.setToolTip(self.parent.project.action_index[index].name)
-            tb.setIcon(icon)
-            tb.setCursor(QtCore.Qt.PointingHandCursor)
-            tb.setStyleSheet("QToolButton { border: none; padding: 0px; }")
-            self.layout().insertWidget(0,tb)
-            
-            self.keys.append(str(key))
-            self.connect(tb, QtCore.SIGNAL("clicked()"), signalFactory(self.action_clicked,key))
-        
-    def action_clicked(self, actionkey):
-        self.parent.actionbutton_clicked(str(actionkey))
-        
-
-class LlampexSearchBox(QtGui.QLineEdit):
-    
-    def __init__(self, parent):
-        QtGui.QLineEdit.__init__(self)
-        
-        self.clearButton = QtGui.QToolButton(self)
-        pixmap = QtGui.QPixmap("icons/searchclear.png")
-        self.clearButton.setIcon(QtGui.QIcon(pixmap))
-        self.clearButton.setIconSize(pixmap.size())
-        self.clearButton.setCursor(QtCore.Qt.ArrowCursor)
-        self.clearButton.setStyleSheet("QToolButton { border: none; padding: 0px; }")
-        self.clearButton.hide()
-        self.connect(self.clearButton, QtCore.SIGNAL("clicked()"), self.clearClicked)
-        self.connect(self,QtCore.SIGNAL("textChanged(const QString&)"), self.updateClearButton)
-        self.frameWidth = self.style().pixelMetric(QtGui.QStyle.PM_DefaultFrameWidth)
-        self.setStyleSheet(QtCore.QString("QLineEdit { padding-right: %1px; color: gray; } ").arg(self.clearButton.sizeHint().width()+self.frameWidth+1))
-        self.setText("Search...")
-        msz = self.minimumSizeHint()
-        self.setMinimumSize(self.qMax(msz.width(), self.clearButton.sizeHint().height() + self.frameWidth * 2 + 2),
-                            self.qMax(msz.height(), self.clearButton.sizeHint().height() + self.frameWidth * 2 + 2))
-    
-    def qMax(self, a1,  a2):
-        if a1 <= a2:
-            return a2
-        else:
-            return a1
-    
-    def clearClicked(self):
-        self.clear()
-    
-    def resizeEvent(self, event):
-        sz = self.clearButton.sizeHint()
-        self.frameWidth = self.style().pixelMetric(QtGui.QStyle.PM_DefaultFrameWidth)
-        self.clearButton.move(self.rect().right() - self.frameWidth - sz.width(), (self.rect().bottom() + 1 - sz.height())/2)
-    
-    def focusInEvent(self, event):
-        QtGui.QLineEdit.focusInEvent(self, event)
-        if (self.text() == "Search..."):
-            self.setStyleSheet(QtCore.QString("QLineEdit { padding-right: %1px; color: black } ").arg(self.clearButton.sizeHint().width()+self.frameWidth+1))
-            self.setText("")
-            
-    def focusOutEvent(self,event):
-        QtGui.QLineEdit.focusOutEvent(self, event)
-        if (self.text().isEmpty()):
-            self.setStyleSheet(QtCore.QString("QLineEdit { padding-right: %1px; color: gray } ").arg(self.clearButton.sizeHint().width()+self.frameWidth+1))
-            self.setText("Search...")
-        
-    def updateClearButton(self, text):
-        if (text.isEmpty() or text == "Search..."):
-            self.clearButton.setVisible(False) 
-        else:
-            self.clearButton.setVisible(True)
-  
 
 class LlampexMainWindow(QtGui.QMainWindow):
     def prjdir(self, x):
@@ -212,16 +105,14 @@ class LlampexMainWindow(QtGui.QMainWindow):
     
     def finish_load(self):
         self.addDockWidget(QtCore.Qt.LeftDockWidgetArea,self.mainmenu)
-
-        toolbar = self.addToolBar("Llampex Toolbar")
-        toolbar.setMovable(False)
-        self.searchBox = LlampexSearchBox(toolbar)
-        self.connect(self.searchBox, QtCore.SIGNAL("returnPressed()"), self.searchPerformed)
-
+        
         mainframe = QtGui.QFrame(self)
         mainframe.setLayout(QtGui.QVBoxLayout(mainframe))
         
-        self.toolframe = LlampexToolBar(self)
+        self.toolframe = llampextoolbar.LlampexToolBar(self)
+        
+        self.searchBox = llampextoolbar.LlampexSearchBox(self.toolframe)
+        self.connect(self.searchBox, QtCore.SIGNAL("returnPressed()"), self.searchPerformed)
         
         self.toolframe.layout().addWidget(self.searchBox,0,QtCore.Qt.AlignRight)
         mainframe.layout().addWidget(self.toolframe)
@@ -237,30 +128,34 @@ class LlampexMainWindow(QtGui.QMainWindow):
         #Set the tabbar of the mdiarea movable
         for tab in self.mdiarea.findChildren(QtGui.QTabBar): tab.setMovable(True);
         
-    def testDrop(self, e):
-        print "drop!"
-        e.accept()
-        
-    def testDragEnter(self, e):
-        print "dragEnter!"
-        e.accept()
-        
     def searchPerformed(self):
         if (not self.searchBox.text().isEmpty()):
             search = unicode(self.searchBox.text()).lower()
-            searchText = [u"Searching '%s':\n" % search]
-            widget = QtGui.QLabel("")
+            
+            widget = QtGui.QWidget()
+            widget.layout = QtGui.QVBoxLayout()
+            
             found = []
             for code, action in self.project.action_index.iteritems():
                 aname = unicode(action).lower()
                 if aname.find(search)>=0:
                     found+=[action]
-                
+                    
+            groupbox = llampexgroupbutton.LlampexGroupButton("Search: "+search)
+                    
             for action in sorted(found):
-                searchText.append(u" * %s -> %s -> %s" % (action.parent.name, action.parent.name, action.name))
-                
-            widget.setText("\n".join(searchText))
-            widget.setMargin(20)
+                icon = None
+                if action.icon:
+                    iconfile = action.filedir(action.icon)
+                    icon = QtGui.QIcon(iconfile)
+                    
+                action_key = "%s.%s.%s" % (action.parent.parent.parent.code, action.parent.parent.code, action.code)
+                self.actions[action_key] = (action.parent.parent.parent.code+action.parent.parent.code, icon, action)
+                groupbox.addAction(action.name, action_key, icon, self.actionbutton_clicked)
+            
+            widget.layout.addWidget(groupbox)
+            
+            widget.setLayout(widget.layout)
             
             scrollarea = QtGui.QScrollArea()
             scrollarea.setWidget(widget)
