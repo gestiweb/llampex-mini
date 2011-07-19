@@ -71,6 +71,9 @@
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Expanding</enum>
+          </property>
           <property name="sizeHint" stdset="0">
            <size>
             <width>40</width>
@@ -411,16 +414,16 @@
             <bool>false</bool>
            </property>
            <property name="actionName">
-            <string>sale_budgetlines</string>
+            <string>sale_deliverynotelines</string>
            </property>
            <property name="tableName">
-            <string>lineaspresupuestoscli</string>
+            <string>lineasalbaranescli</string>
            </property>
            <property name="fieldRelation">
-            <string>idpresupuesto</string>
+            <string>idalbaran</string>
            </property>
            <property name="foreignField">
-            <string>idpresupuesto</string>
+            <string>idalbaran</string>
            </property>
            <attribute name="verticalHeaderDefaultSectionSize">
             <number>16</number>

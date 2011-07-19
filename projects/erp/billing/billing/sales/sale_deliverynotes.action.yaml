@@ -7,7 +7,7 @@ weight: A.3
 table: albaranescli
 record:
     script: /generic/record/scripts/basic1
-    form: record/forms/presupuestoscli.ui
+    form: record/forms/albaranescli.ui
 master:
     script: /generic/master/scripts/masterbasic4
     form: /generic/master/forms/mastercopyprint4.ui
