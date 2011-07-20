@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # encoding: UTF-8
-
+import random
 import os.path
 
 import sys
@@ -8,6 +8,53 @@ from PyQt4 import QtGui, QtCore, uic, QtSql
 
 QtFormatRole = QtCore.Qt.UserRole + 1
 
+def autoDelegateMetadata(self, itemview):
+    delegate_bool = ItemComboDelegate(itemview)
+    delegate_bool.items = [u"Sí",u"No",u"--"]
+    delegate_bool.values = [True,False,None]
+    basic_delegate = ItemBasicDelegate(itemview)
+    fnSetColumnWidth = getattr(itemview,"setColumnWidth",None)
+    for i, name in enumerate(self.tmd.fieldlist):
+        field = self.tmd.field[i]
+        ctype = self.colType(i)
+        delegate = basic_delegate
+        optionlist = field.get("optionlist",None)
+        valuelist = field.get("valuelist",optionlist)            
+        if valuelist: 
+            # This is to avoid the same data in optionlist being referenced
+            # in valuelist instead of being copied.
+            valuelist = valuelist[:]
+        
+        if ctype == "b": delegate = delegate_bool
+        if optionlist:
+            delegate_adhoc = ItemComboDelegate(itemview)
+            delegate_adhoc.items = valuelist
+            delegate_adhoc.values = optionlist
+            delegate = delegate_adhoc
+
+        if delegate:
+            itemview.setItemDelegateForColumn(i, delegate)   
+        if fnSetColumnWidth:
+            if i not in self.columnWidth:
+                widths = [50]
+                for row in range(min(20, self.rowCount())):
+                    midx = self.index(row,i)
+                    sz = itemview.sizeHintForIndex(midx)
+                    widths.append(sz.width())
+                widths.sort()
+                x = len(widths) / 4 + 1
+                m = widths[x:]
+                lm = len(m) 
+                if lm:
+                    w = sum(m) / lm + 10
+                    #w = itemview.sizeHintForColumn(i)
+                    self.columnWidth[i] = w
+                else:
+                    self.columnWidth[i] = None
+            w = self.columnWidth[i]
+            if w:
+                fnSetColumnWidth(i, w)
+        
 
 class ItemComboDelegate(QtGui.QStyledItemDelegate):
     def __init__(self,*args):
@@ -70,7 +117,7 @@ class ItemBasicDelegate(QtGui.QStyledItemDelegate):
         """ 
         
 
-class QSqlMetadataModel(QtSql.QSqlQueryModel):
+class QSqlMetadataModel(QMetadataModel):
     colors = {}
     brushes = {}
     
@@ -87,7 +134,7 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
         return self.brushes[color]
     
     def __init__(self, parent, db, tmd = None):
-        QtSql.QSqlQueryModel.__init__(self, parent)
+        QMetadataModel.__init__(self, parent, db, tmd)
         self.db = db
         self.tmd = None
         self.checkstate = {}
@@ -96,8 +143,8 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
         self.sort = None
         self.columnWidth = {}
         self.dirtyrows = {}
-        if tmd: self.setMetaData(tmd)
-        
+        if tmd: self.setMetaData(tmd)        
+            
     def setMetaData(self,tmd):
         assert(self.tmd is None)
         self.tmd = tmd
@@ -106,6 +153,10 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
         self.pk = self.tmd.primarykey
         self.fieldlist = self.tmd.fieldlist
         self.pkidx = self.tmd.fieldlist.index(self.pk)
+        for i, fname in enumerate(self.fieldlist):
+            field = self.tmd.field[i]
+            self.setHeaderData(i, QtCore.Qt.Horizontal, field['alias'])
+    autoDelegate = autoDelegateMetadata    
     
     def getFilter(self):
         if (self.filter):
@@ -363,49 +414,7 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
             return ret
         return QtSql.QSqlQueryModel.data(self,index,role)
     
-    def setData(self, index, value, role):
-        if value == self.data(index, role): return False
-        if role == QtCore.Qt.EditRole:
-            row = index.row()
-            col = index.column()
-            if row not in self.dirtyrows:
-                self.dirtyrows[row] = {}
-            if col not in self.dirtyrows[row]:
-                self.dirtyrows[row][col] = None
-            self.dirtyrows[row][col] = QtCore.QVariant(value)
-            model = index.model()
-            #columns = model.columnCount()
-            left = model.index(row,0)
-            #right = model.index(row,columns-1)
-            
-            self.emit(QtCore.SIGNAL("dataChanged(QModelIndex,QModelIndex)"), left,left)
-            
-            """
-            primaryKeyIndex = self.index(index.row(), self.pkidx)
-            pkeyval = self.data(primaryKeyIndex)
-
-            self.clear()
-            try:
-                return self.setValue(pkeyval, self.tmd.field[index.column()]['name'], value)
-            finally:
-                self.refresh()
-            """
-        elif role == QtCore.Qt.CheckStateRole:
-            k = (index.row(), index.column())
-            val, ok = value.toInt()
-            print "Check %s -> %s" % (repr(k), repr(val))
-            c = self.checkstate.get(k,0) 
-            if c == 0: val = 1
-            self.checkstate[k]=val
-            row = index.row()
-            model = index.model()
-            columns = model.columnCount()
-            left = model.index(row,0)
-            right = model.index(row,columns-1)
-            
-            self.emit(QtCore.SIGNAL("dataChanged(QModelIndex,QModelIndex)"), left,right)
-            return True
-        return False
+    
     
     def commitDirtyRow(self, row):
         if row not in self.dirtyrows: 
@@ -416,8 +425,7 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
         
         self.setValues(pkeyval, self.dirtyrows[row])
         del self.dirtyrows[row]
-        
-        
+        self.refresh()
 
     def setValues(self, pkvalue, dirtyrow):
         values = []
@@ -466,4 +474,204 @@ class QSqlMetadataModel(QtSql.QSqlQueryModel):
             field = self.tmd.field[i]
             self.setHeaderData(i, QtCore.Qt.Horizontal, field['alias'])
     select = refresh
+
+
+class QMetadataModel(QtCore.QAbstractTableModel):
+    colors = {}
+    brushes = {}
     
+    def getColor(self, color):
+        if color not in self.colors: 
+            self.colors[color] = QtGui.QColor(color)
+        return self.colors[color]
+        
+    def getBrush(self, color):
+        if color not in self.brushes: 
+            self.brushes[color] = QtGui.QBrush(self.getColor(color))
+        return self.brushes[color]
+
+    def __init__(self, parent, db, tmd = None):
+        QtCore.QAbstractTableModel.__init__(self, parent)
+        self.db = db
+        self.tmd = tmd
+        self.table = self.tmd.code
+        self.fieldlist = self.tmd.fieldlist
+        self.pk = self.tmd.primarykey
+        self.pkidx = self.tmd.fieldlist.index(self.pk)
+        self.columnWidth = {}
+        self.checkstate = {}
+        self.decorations = {}
+        self.dirtyrows = {}
+        self.rows = 1
+        self._header_data = {}
+        
+        for i, fname in enumerate(self.tmd.fieldlist):
+            field = self.tmd.field[i]
+            self.setHeaderData(i, QtCore.Qt.Horizontal, field['alias'])
+            if i % 2 == 0:
+                color = self.getBrush("#00A")
+            else:
+                color = self.getBrush("#090")
+            self.setHeaderData(i, QtCore.Qt.Horizontal, color, role = QtCore.Qt.ForegroundRole)
+
+        
+    def getHeaderAlias(self):
+        header = []
+        for i, fname in enumerate(self.tmd.fieldlist):
+            field = self.tmd.field[i]
+            header.append(field['alias'])
+        return header
+    
+    def setSort(self, column, order):
+        pass
+    
+    def setBasicFilter(self, fieldname, filtertext):
+        pass
+    
+    def setFilter(self, filtertext):
+        pass
+    
+    def select(self):
+        pass
+    
+    def refresh(self):
+        pass
+
+    def flags(self, index):
+        assert(self.tmd)
+        flags = 0
+        field = self.tmd.field[index.column()]
+        if field.get("tableSelectable", True):
+            flags |= QtCore.Qt.ItemIsSelectable
+        if field.get("tableEditable", True):
+            flags |= QtCore.Qt.ItemIsEditable
+        if field.get("tableCheckable", False):
+            flags |= QtCore.Qt.ItemIsUserCheckable
+        if field.get("tableTristate", False):
+            flags |= QtCore.Qt.ItemIsTristate
+        if field.get("tableEnabled", True):
+            flags |= QtCore.Qt.ItemIsEnabled
+            
+        return flags
+    
+    def colType(self, column):
+        try: column = column.column()
+        except Exception: pass
+        field = self.tmd.field[column]
+        ftype = field.get("type", "vchar")
+        if ftype == "bool": return "b"
+        if ftype == "date": return "d"
+        if ftype == "datetime": return "dt"
+        if ftype == "double": return "n"
+        if ftype == "float": return "n"
+        if ftype == "int": return "n"
+        if ftype.startswith("number"): return "n"
+        if ftype == "string" or ftype.startswith("vchar"): return "s"
+        if ftype == "time": return "t"
+        return "x"
+        
+    autoDelegate = autoDelegateMetadata    
+    #def autoDelegate(self, widget):
+    #    pass
+        
+    def columnCount(self, parent = None):
+        if parent is None: parent = QtCore.QModelIndex()
+        if parent.isValid(): raise ValueError, "Valid parent passed to columnCount"
+        return len(self.tmd.fieldlist)
+    
+    def rowCount(self, parent = None):
+        if parent is None: parent = QtCore.QModelIndex()
+        if parent.isValid(): raise ValueError, "Valid parent passed to rowCount"
+        return self.rows
+        
+    def data(self, index, role = None):
+        if role is None: role = QtCore.Qt.DisplayRole
+        row, col = index.row(), index.column()
+        if role in (QtCore.Qt.DisplayRole, QtCore.Qt.EditRole):
+            return u"%.3f" % (random.uniform(100,999)) 
+        else:
+            return None
+    
+    def setHeaderData(self, section, orientation, value, role = None):
+        if role == None: role = QtCore.Qt.DisplayRole
+        k = section, orientation, role
+        self._header_data[k] = QtCore.QVariant(value)
+    
+    def headerData(self, section, orientation, role):
+        k = section, orientation, role
+        return self._header_data.get(k, QtCore.QAbstractTableModel.headerData(self, section, orientation, role))
+        
+        #if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
+        #    i = section
+        #    field = self.tmd.field[i]
+        #    return field['alias']
+    
+    def setData(self, index, value, role):
+        if value == self.data(index, role): return False
+        if role == QtCore.Qt.EditRole:
+            row = index.row()
+            col = index.column()
+            if row not in self.dirtyrows:
+                self.dirtyrows[row] = {}
+            if col not in self.dirtyrows[row]:
+                self.dirtyrows[row][col] = None
+            self.dirtyrows[row][col] = QtCore.QVariant(value)
+            model = index.model()
+            #columns = model.columnCount()
+            left = model.index(row,0)
+            #right = model.index(row,columns-1)
+            
+            self.emit(QtCore.SIGNAL("dataChanged(QModelIndex,QModelIndex)"), left,left)
+            
+            """
+            primaryKeyIndex = self.index(index.row(), self.pkidx)
+            pkeyval = self.data(primaryKeyIndex)
+
+            self.clear()
+            try:
+                return self.setValue(pkeyval, self.tmd.field[index.column()]['name'], value)
+            finally:
+                self.refresh()
+            """
+        elif role == QtCore.Qt.CheckStateRole:
+            k = (index.row(), index.column())
+            val, ok = value.toInt()
+            print "Check %s -> %s" % (repr(k), repr(val))
+            c = self.checkstate.get(k,0) 
+            if c == 0: val = 1
+            self.checkstate[k]=val
+            row = index.row()
+            model = index.model()
+            columns = model.columnCount()
+            left = model.index(row,0)
+            right = model.index(row,columns-1)
+            
+            self.emit(QtCore.SIGNAL("dataChanged(QModelIndex,QModelIndex)"), left,right)
+            return True
+        return False
+        
+    def commitDirtyRow(self, row):
+        if row not in self.dirtyrows: 
+            return False 
+
+        self.setValues(self.dirtyrows[row])
+        del self.dirtyrows[row]
+
+    def setValues(self, dirtyrow):
+        values = []
+        fields = []
+        for col, value in dirtyrow.iteritems():
+            field = self.tmd.field[col]['name']
+            values.append(value)
+            fields.append(field)
+            
+        query = QtSql.QSqlQuery(self.db)
+        query.prepare("INSERT INTO %(table)s (%(fields)s) VALUES(%(values)s)" %
+                    {
+                        'table' : self.table,
+                        'fields' : ", ".join(fields),
+                        'values' : ", ".join(values),
+                    })
+        return query.exec_()
+        
+        

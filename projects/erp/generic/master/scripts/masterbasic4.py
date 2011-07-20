@@ -10,7 +10,7 @@ import qsqlrpcdriver.qtdriver as qtdriver
 import threading
 import traceback
 from projectloader import LlampexTable
-from qsqlmetadatamodel import QSqlMetadataModel, ItemComboDelegate
+from qsqlmetadatamodel import QSqlMetadataModel, QMetadataModel
 from llitemview import LlItemView1 as MyItemView
 def h(*args): return os.path.realpath(os.path.join(os.path.dirname(os.path.abspath( __file__ )), *args))
        
@@ -114,12 +114,15 @@ class MasterScript(object):
         self.form.connect(self.form.ui.btnNew, QtCore.SIGNAL("clicked()"), self.btnNew_clicked)
         self.form.connect(self.form.ui.btnEdit, QtCore.SIGNAL("clicked()"), self.btnEdit_clicked)
         self.form.connect(self.form.ui.btnBrowse, QtCore.SIGNAL("clicked()"), self.btnBrowse_clicked)
+        self.form.connect(self.form.ui.btnCopy, QtCore.SIGNAL("clicked()"), self.btnCopy_clicked)
+        
         self.form.connect(self.form.ui.searchBox, QtCore.SIGNAL("textChanged(const QString&)"), self.searchBox_changed)
         self.form.connect(self.form.ui.searchCombo, QtCore.SIGNAL("currentIndexChanged(const QString&)"), self.searchCombo_changed)
-        self.model = QSqlMetadataModel(None,self.db, tmd)
-        self.model.decorations[None] = QtGui.QIcon(h("../../icons/null.png"))
-        self.model.decorations[True] = QtGui.QIcon(h("../../icons/true.png"))
-        self.model.decorations[False] = QtGui.QIcon(h("../../icons/false.png"))
+        self.model = QMetadataModel(None,self.db, tmd)
+        #self.model = QSqlMetadataModel(None,self.db, tmd)
+        #self.model.decorations[None] = QtGui.QIcon(h("../../icons/null.png"))
+        #self.model.decorations[True] = QtGui.QIcon(h("../../icons/true.png"))
+        #self.model.decorations[False] = QtGui.QIcon(h("../../icons/false.png"))
         
         # Add fields to combobox
         self.form.ui.searchCombo.addItems(self.model.getHeaderAlias())
@@ -176,6 +179,11 @@ class MasterScript(object):
         print "Button Browse clicked"
         #change visibility of searchFrame
         self.form.ui.searchFrame.setVisible(not self.form.ui.searchFrame.isVisible())
+    
+    def btnCopy_clicked(self):
+        print "Button Copy clicked"
+        if self.row is None: return False        
+        self.model.commitDirtyRow(self.row)
         
     def searchBox_changed(self,text):
         print "Search Box changed to ", unicode(text)

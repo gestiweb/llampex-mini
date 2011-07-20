@@ -7,7 +7,7 @@ from PyQt4 import QtSql
 import time
 import re
 import qsqlrpcdriver.qtdriver as qtdriver
-from qsqlmetadatamodel import QSqlMetadataModel, ItemComboDelegate
+from qsqlmetadatamodel import QSqlMetadataModel, QMetadataModel
 
 import threading
 from projectloader import LlampexAction, LlampexTable
@@ -49,9 +49,10 @@ def load_module(name, path):
             
                   
 class LlampexRecordForm(QtGui.QWidget):
-    def __init__(self, project, actionobj, prjconn, tmd, model, row):
+    def __init__(self, project, actionType, actionobj, prjconn, tmd, model, row):
         QtGui.QWidget.__init__(self) 
-        self.project = project       
+        self.project = project
+        self.actionType = actionType
         self.actionobj = actionobj
         self.prjconn = prjconn
         self.model = model
@@ -73,7 +74,8 @@ class LlampexRecordForm(QtGui.QWidget):
             self.layout.addStretch()
             self.setLayout(self.layout)
             return
-        self.setChildValuesFormRecord(self.ui)
+        
+        self.setChildValuesFormRecord(self.ui)            
         try:
             if "script" in self.actionobj.record:
                 source_filepath = self.actionobj.filedir(self.actionobj.record["script"])
@@ -121,8 +123,7 @@ class LlampexRecordForm(QtGui.QWidget):
         self.close()
         self.deleteLater()
         return ret
-        
-        
+       
                   
 def lock(fn):
     def myfn(self,*args):
@@ -145,7 +146,7 @@ class LlampexQDialog( QtGui.QDialog ):
         self.rowcount = 0
         self.widget = None
         self.setWindowTitle(title)
-        self.resize(300,105)
+        #self.resize(300,105)
         self.setParent(parent)        
         self.setWindowFlags(QtCore.Qt.Sheet)
         self.setupUi()
@@ -259,7 +260,11 @@ class LlampexQDialog( QtGui.QDialog ):
     def first(self): self.moveCursor(lambda row: 0)
     def last(self):  self.moveCursor(lambda row: self.getRowCount() )
     def acceptToContinue( self ):
-        print "AcceptToContinue Button Clicked"    
+        print "AcceptToContinue Button Clicked"
+        if self.widget.row is None: return False
+        self.widget.model.commitDirtyRow(self.widget.row)
+
+        
 
     
 class loadActionFormRecord():
@@ -286,6 +291,15 @@ class loadActionFormRecord():
             msgBox.exec_()
             return 
         
+        if self.windowAction == 'INSERT':
+            #self.model.insertRow(self.model.rowCount(), QtCore.QModelIndex())
+            #self.row = self.model.rowCount()
+            self.model = QMetadataModel(None, self.rpc.qtdb, self.tmd)
+            self.model.insertRow(1)
+            self.row = self.model.rowCount()-1
+            print "Row inserted --> ", self.row
+            
+            
         if self.tmd is None: self.tmd = LlampexTable.tableindex[self.form.actionobj.table]
         
         print "Ui record file : ", self.actionobj.record["form"]
@@ -294,7 +308,7 @@ class loadActionFormRecord():
     
     def recordFormFactory(self, row = None):
         if row is None: row = self.row
-        return LlampexRecordForm(self.project, self.actionobj, self.rpc, self.tmd, self.model, row)
+        return LlampexRecordForm(self.project, self.windowAction, self.actionobj, self.rpc, self.tmd, self.model, row)
         
     def showFormRecord(self):
         dialog = LlampexQDialog(self.project, self.parent, self.recordFormFactory, "Articulos Form Record")        
