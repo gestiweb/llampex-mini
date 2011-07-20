@@ -55,6 +55,9 @@ class LlampexToolBarButton(QtGui.QToolButton):
                 self.hide()
                 
                 dropAction = drag.start(QtCore.Qt.MoveAction)
+                
+                if (self.parent.layout().count() <= 1):
+                    self.parent.dragInfoLabel.show()
     
     def mousePressEvent(self, e):
         QtGui.QToolButton.mousePressEvent(self, e)
@@ -81,15 +84,28 @@ class LlampexToolBar(QtGui.QFrame):
         self.line.setFrameShape(QtGui.QFrame.VLine);
         self.line.setFrameShadow(QtGui.QFrame.Sunken);
         self.line.hide()
+        
+        self.dragInfoLabel = QtGui.QLabel()
+        self.dragInfoLabel.setText("<font color='gray'>Drag actions here to create direct links...</font>")
+        
+        self.layout().insertWidget(0,self.dragInfoLabel)
     
     def dragEnterEvent(self, e):
         #print "in!"
+        if self.dragInfoLabel.isVisible():
+            self.layout().removeWidget(self.dragInfoLabel)
+            self.dragInfoLabel.hide()
+            
         e.accept()
     
     def dragLeaveEvent(self, e):
         #print "out!"
         self.layout().removeWidget(self.line)
         self.line.hide()
+        
+        if (self.layout().count() <= 1):
+            self.dragInfoLabel.show()
+        
         e.accept()
 
     def dropEvent(self, e):
