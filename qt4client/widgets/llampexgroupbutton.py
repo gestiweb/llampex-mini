@@ -8,6 +8,7 @@ def filedir(x): # convierte una ruta relativa a este fichero en absoluta
     if os.path.isabs(x): return x
     else: return os.path.join(filepath(),x)
     
+MIN_DRAG_DISTANCE = 16
 
 class LlampexActionButton(QtGui.QToolButton):
     def __init__(self, text, key, icon, fn = None, parent=None):
@@ -27,6 +28,7 @@ class LlampexActionButton(QtGui.QToolButton):
         self.setMaximumWidth(256)
         self.setMinimumHeight(40)
         self.setMaximumHeight(40)
+        self.dragStartPoint = None
         
     def button_clicked(self):
         if self._callback:
@@ -35,16 +37,29 @@ class LlampexActionButton(QtGui.QToolButton):
             print "Clicked", self._key
             
     def mouseMoveEvent(self, e):
-        mimeData = QtCore.QMimeData()
-        mimeData.setText(self._key)
-        
-        drag = QtGui.QDrag(self)
-        drag.setPixmap(self.icon().pixmap(32,32))
-        drag.setMimeData(mimeData)
-        #drag.setHotSpot(e.pos() - self.rect().topLeft())
-        
-        dropAction = drag.start(QtCore.Qt.MoveAction)
-        self.setDown(False)
+        QtGui.QToolButton.mouseMoveEvent(self, e)
+        if e.buttons() == QtCore.Qt.LeftButton and self.dragStartPoint:
+            x,y = e.x() , e.y()
+            ox, oy = self.dragStartPoint
+            dx2 = (x - ox) ** 2
+            dy2 = (y - oy) ** 2
+            d2 = dx2+dy2
+            if d2 > MIN_DRAG_DISTANCE ** 2:
+                mimeData = QtCore.QMimeData()
+                mimeData.setText(self._key)
+    
+                drag = QtGui.QDrag(self)
+                drag.setPixmap(self.icon().pixmap(32,32))
+                drag.setMimeData(mimeData)
+                #drag.setHotSpot(e.pos() - self.rect().topLeft())
+    
+                dropAction = drag.start(QtCore.Qt.MoveAction)
+                self.setDown(False)
+    def mousePressEvent(self, e):
+        QtGui.QToolButton.mousePressEvent(self, e)
+        if e.buttons() == QtCore.Qt.LeftButton:
+            self.dragStartPoint = (e.x(), e.y())
+            
         
     
 class LlampexGroupButton(QtGui.QGroupBox):
