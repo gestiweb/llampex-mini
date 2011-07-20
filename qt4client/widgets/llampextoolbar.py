@@ -3,6 +3,8 @@
 
 from PyQt4 import QtCore, QtGui
 
+MIN_DRAG_DISTANCE = 16
+
 class LlampexToolBarButton(QtGui.QToolButton):
     def __init__(self, key, actionobj, parent=None):
         super(QtGui.QToolButton, self).__init__(parent)
@@ -12,6 +14,8 @@ class LlampexToolBarButton(QtGui.QToolButton):
         self.setup()
     
     def setup(self):
+        self.dragStartPoint = None
+        
         icon = None
         if self.actionobj.icon:
             iconfile = self.actionobj.filedir(self.actionobj.icon)
@@ -28,19 +32,34 @@ class LlampexToolBarButton(QtGui.QToolButton):
         self.parent.parent.actionbutton_clicked(str(self.key))
     
     def mouseMoveEvent(self, e):
-        mimeData = QtCore.QMimeData()
-        mimeData.setText(self.key)
-        
-        drag = QtGui.QDrag(self)
-        drag.setPixmap(self.icon().pixmap(16,16))
-        drag.setMimeData(mimeData)
-        drag.setHotSpot(e.pos() - self.rect().topLeft())
-        
-        self.parent.layout().removeWidget(self)
-        self.parent.keys.remove(self.key)
-        self.hide()
-        
-        dropAction = drag.start(QtCore.Qt.MoveAction)
+        QtGui.QToolButton.mouseMoveEvent(self, e)
+        if e.buttons() == QtCore.Qt.LeftButton and self.dragStartPoint:
+            x,y = e.x() , e.y()
+            ox, oy = self.dragStartPoint
+            dx2 = (x - ox) ** 2
+            dy2 = (y - oy) ** 2
+            d2 = dx2+dy2
+            if d2 > MIN_DRAG_DISTANCE ** 2:
+                mimeData = QtCore.QMimeData()
+                mimeData.setText(self.key)
+                
+                drag = QtGui.QDrag(self)
+                drag.setPixmap(self.icon().pixmap(16,16))
+                drag.setMimeData(mimeData)
+                
+                dragstartQPoint = QtCore.QPoint(self.dragStartPoint[0],self.dragStartPoint[1])
+                drag.setHotSpot(dragstartQPoint - self.rect().topLeft())
+                
+                self.parent.layout().removeWidget(self)
+                self.parent.keys.remove(self.key)
+                self.hide()
+                
+                dropAction = drag.start(QtCore.Qt.MoveAction)
+    
+    def mousePressEvent(self, e):
+        QtGui.QToolButton.mousePressEvent(self, e)
+        if e.buttons() == QtCore.Qt.LeftButton:
+            self.dragStartPoint = (e.x(), e.y())
         
 
 class LlampexToolBar(QtGui.QFrame):
