@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>667</width>
-    <height>473</height>
+    <width>757</width>
+    <height>582</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout_5">
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="minimumSize">
@@ -25,7 +25,7 @@
      <property name="title">
       <string>Presupuestos de Clientes</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_3">
+     <layout class="QVBoxLayout" name="verticalLayout_4">
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
@@ -38,6 +38,9 @@
           </property>
           <property name="labelText">
            <string>Codigo</string>
+          </property>
+          <property name="buttonVisible">
+           <bool>false</bool>
           </property>
          </widget>
         </item>
@@ -67,6 +70,56 @@
          </widget>
         </item>
         <item>
+         <widget class="LlItemView" name="fdbCodSerie">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="fieldName">
+           <string>codserie</string>
+          </property>
+          <property name="editorText">
+           <string/>
+          </property>
+          <property name="labelText">
+           <string>Serie</string>
+          </property>
+          <property name="labelVisible">
+           <bool>true</bool>
+          </property>
+          <property name="buttonVisible">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="LlItemView" name="fdbCodEjercicio">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="fieldName">
+           <string>codejercicio</string>
+          </property>
+          <property name="editorText">
+           <string/>
+          </property>
+          <property name="labelText">
+           <string>Ejercicio</string>
+          </property>
+          <property name="labelVisible">
+           <bool>true</bool>
+          </property>
+          <property name="buttonVisible">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
          <spacer name="horizontalSpacer_3">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -85,118 +138,440 @@
        </layout>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="LlItemView" name="fdbCodCliente">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="fieldName">
-           <string>codcliente</string>
-          </property>
-          <property name="editorText">
-           <string/>
-          </property>
-          <property name="labelText">
-           <string>Cliente</string>
-          </property>
-          <property name="buttonVisible">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="LlItemView" name="fdbNombre">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="fieldName">
-           <string>nombrecliente</string>
-          </property>
-          <property name="editorText">
-           <string/>
-          </property>
-          <property name="labelVisible">
-           <bool>false</bool>
-          </property>
-          <property name="buttonVisible">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_4">
-        <item>
-         <widget class="LlItemView" name="fdbCodPago">
-          <property name="fieldName">
-           <string>codpago</string>
-          </property>
-          <property name="editorText">
-           <string/>
-          </property>
-          <property name="labelText">
-           <string>F.Pago</string>
-          </property>
-          <property name="labelVisible">
-           <bool>true</bool>
-          </property>
-          <property name="buttonVisible">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <widget class="QTabWidget" name="tabWidget">
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="general">
+         <attribute name="title">
+          <string>General</string>
+         </attribute>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
-           <widget class="LlItemView" name="fdbNeto">
-            <property name="fieldName">
-             <string>neto</string>
-            </property>
-            <property name="editorText">
-             <string/>
-            </property>
-            <property name="labelText">
-             <string>Neto</string>
-            </property>
-            <property name="buttonVisible">
-             <bool>false</bool>
-            </property>
-           </widget>
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <item>
+             <widget class="LlItemView" name="fdbCodCliente">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="fieldName">
+               <string>codcliente</string>
+              </property>
+              <property name="editorText">
+               <string/>
+              </property>
+              <property name="labelText">
+               <string>Cliente</string>
+              </property>
+              <property name="buttonVisible">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="LlItemView" name="fdbNombre">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="fieldName">
+               <string>nombrecliente</string>
+              </property>
+              <property name="editorText">
+               <string/>
+              </property>
+              <property name="labelVisible">
+               <bool>false</bool>
+              </property>
+              <property name="buttonVisible">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="LlItemView" name="fdbCIFNIF">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="fieldName">
+               <string>cifnif</string>
+              </property>
+              <property name="editorText">
+               <string/>
+              </property>
+              <property name="labelText">
+               <string>CIF/NIF</string>
+              </property>
+              <property name="labelVisible">
+               <bool>true</bool>
+              </property>
+              <property name="buttonVisible">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
           <item>
-           <widget class="LlItemView" name="fdbTotalIva">
-            <property name="fieldName">
-             <string>totaliva</string>
-            </property>
-            <property name="editorText">
-             <string/>
-            </property>
-            <property name="labelText">
-             <string>Iva</string>
-            </property>
-            <property name="buttonVisible">
-             <bool>false</bool>
-            </property>
-           </widget>
+           <layout class="QHBoxLayout" name="horizontalLayout_9">
+            <item>
+             <widget class="LlItemView" name="fdbIRPF">
+              <property name="fieldName">
+               <string>irpf</string>
+              </property>
+              <property name="editorText">
+               <string/>
+              </property>
+              <property name="labelText">
+               <string>IRPF</string>
+              </property>
+              <property name="buttonVisible">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="LlItemView" name="fdbTotalIRPF">
+              <property name="fieldName">
+               <string>totalirpf</string>
+              </property>
+              <property name="editorText">
+               <string/>
+              </property>
+              <property name="labelText">
+               <string>Total IRPF</string>
+              </property>
+              <property name="buttonVisible">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="LlItemView" name="fdbRecFinanciero">
+              <property name="fieldName">
+               <string>recfinanciero</string>
+              </property>
+              <property name="editorText">
+               <string/>
+              </property>
+              <property name="labelText">
+               <string>R.Financiero</string>
+              </property>
+              <property name="buttonVisible">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="LlItemView" name="fdbTotalRecargo">
+              <property name="fieldName">
+               <string>totalrecargo</string>
+              </property>
+              <property name="editorText">
+               <string/>
+              </property>
+              <property name="labelText">
+               <string>Total (Rec)</string>
+              </property>
+              <property name="labelVisible">
+               <bool>false</bool>
+              </property>
+              <property name="buttonVisible">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
           <item>
-           <widget class="LlItemView" name="fdbTotal">
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <item>
+             <widget class="LlItemView" name="fdbNeto">
+              <property name="fieldName">
+               <string>neto</string>
+              </property>
+              <property name="editorText">
+               <string/>
+              </property>
+              <property name="labelText">
+               <string>Neto</string>
+              </property>
+              <property name="buttonVisible">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="LlItemView" name="fdbTotalIva">
+              <property name="fieldName">
+               <string>totaliva</string>
+              </property>
+              <property name="editorText">
+               <string/>
+              </property>
+              <property name="labelText">
+               <string>Iva</string>
+              </property>
+              <property name="buttonVisible">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="LlItemView" name="fdbTotal">
+              <property name="fieldName">
+               <string>total</string>
+              </property>
+              <property name="editorText">
+               <string/>
+              </property>
+              <property name="labelText">
+               <string>Total</string>
+              </property>
+              <property name="buttonVisible">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="LlItemView" name="fdbTotalEuros">
+              <property name="fieldName">
+               <string>totaleuros</string>
+              </property>
+              <property name="editorText">
+               <string/>
+              </property>
+              <property name="labelText">
+               <string>Total (€)</string>
+              </property>
+              <property name="labelVisible">
+               <bool>false</bool>
+              </property>
+              <property name="buttonVisible">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="datos">
+         <attribute name="title">
+          <string>Datos</string>
+         </attribute>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <item>
+             <widget class="LlItemView" name="fdbNumero">
+              <property name="fieldName">
+               <string>numero</string>
+              </property>
+              <property name="editorText">
+               <string/>
+              </property>
+              <property name="labelText">
+               <string>Número</string>
+              </property>
+              <property name="labelVisible">
+               <bool>true</bool>
+              </property>
+              <property name="buttonVisible">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="LlItemView" name="fdbServido">
+              <property name="fieldName">
+               <string>servido</string>
+              </property>
+              <property name="editorText">
+               <string/>
+              </property>
+              <property name="labelText">
+               <string>Servido</string>
+              </property>
+              <property name="labelVisible">
+               <bool>true</bool>
+              </property>
+              <property name="buttonVisible">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="LlItemView" name="fdbEditable">
+              <property name="fieldName">
+               <string>editable</string>
+              </property>
+              <property name="editorText">
+               <string/>
+              </property>
+              <property name="labelText">
+               <string>Editable</string>
+              </property>
+              <property name="labelVisible">
+               <bool>true</bool>
+              </property>
+              <property name="buttonVisible">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_7">
+            <item>
+             <widget class="LlItemView" name="fdbCodPago">
+              <property name="fieldName">
+               <string>codpago</string>
+              </property>
+              <property name="editorText">
+               <string/>
+              </property>
+              <property name="labelText">
+               <string>F.Pago</string>
+              </property>
+              <property name="labelVisible">
+               <bool>true</bool>
+              </property>
+              <property name="buttonVisible">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="LlItemView" name="fdbCodAlmacen">
+              <property name="fieldName">
+               <string>codalmacen</string>
+              </property>
+              <property name="editorText">
+               <string/>
+              </property>
+              <property name="labelText">
+               <string>Almacén</string>
+              </property>
+              <property name="labelVisible">
+               <bool>true</bool>
+              </property>
+              <property name="buttonVisible">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_5">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_8">
+            <item>
+             <widget class="LlItemView" name="fdbCodDivisa">
+              <property name="fieldName">
+               <string>coddivisa</string>
+              </property>
+              <property name="editorText">
+               <string/>
+              </property>
+              <property name="labelText">
+               <string>Divisa</string>
+              </property>
+              <property name="labelVisible">
+               <bool>true</bool>
+              </property>
+              <property name="buttonVisible">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="LlItemView" name="fdbTasaConv">
+              <property name="fieldName">
+               <string>tasaconv</string>
+              </property>
+              <property name="editorText">
+               <string/>
+              </property>
+              <property name="labelText">
+               <string>Tasa(Conv)</string>
+              </property>
+              <property name="labelVisible">
+               <bool>true</bool>
+              </property>
+              <property name="buttonVisible">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_6">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="LlItemView" name="fdbDireccion">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="fieldName">
-             <string>total</string>
+             <string>direccion</string>
             </property>
             <property name="editorText">
              <string/>
             </property>
             <property name="labelText">
-             <string>Total</string>
+             <string>Direccion</string>
+            </property>
+            <property name="labelVisible">
+             <bool>true</bool>
             </property>
             <property name="buttonVisible">
              <bool>false</bool>
@@ -204,8 +579,8 @@
            </widget>
           </item>
          </layout>
-        </item>
-       </layout>
+        </widget>
+       </widget>
       </item>
       <item>
        <widget class="QGroupBox" name="groupBox_2">

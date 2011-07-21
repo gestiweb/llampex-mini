@@ -12,6 +12,7 @@ fields:
                 - {table: lineaspedidoscli, field: idpedido, card: 1M, delC: true}
             tableCheckable: true
             tableEditable: false
+            weight: 1
         codigo:
             alias: "Código"
             type: vchar(12)
@@ -19,26 +20,30 @@ fields:
             null: false
             tableCheckable: true
             tableEditable: false
+            weight: 2
         servido:
             alias: "Servido"
             null: false
             pk: false
             type: vchar(10)
-            optionlist: [No,Parcial,Sí]
-            valuelist:  [No,Parcial,Sí]
+            optionlist: ["No","Parcial","Sí"]
+            valuelist:  ["No","Parcial","Sí"]
             colorlist:  ["#0C0", "#0B4", "#00B"]
+            weight: 3
         editable:
             alias: "Pte. aprobar"
             null: false
             pk: false
             type: bool
             tableEditable: false
+            weight: 4
         fecha:
             alias: "Fecha"
             null: false
             pk: false
             type: date
             format: "dd/MM/yyyy"
+            weight: 5
         codcliente:
             alias: "Cliente"
             type: vchar(6)
@@ -46,16 +51,25 @@ fields:
             null: false
             relations:
                 - {table: clientes, field: codcliente, card: M1, delC: false}
+            weight: 6
         nombrecliente:
             alias: "Nombre"
             type : vchar(100)
             pk: false
             null: false
+            weight: 7
         cifnif:
             alias: "C.I.F./N.I.F."
             type: vchar(20)
             pk: false
             null: false
+            weight: 8
+        direccion:
+            alias: "Direccion"
+            null: false
+            pk: false
+            type: vchar(100)
+            weight: 100
         codejercicio:
             alias: "Ejercicio"
             null: false
@@ -64,6 +78,7 @@ fields:
             type: vchar(4)
             relations:
                 - {table: ejercicios, field: codejercicio, card: M1, delC: false}
+            weight: 9
         codpago:
             alias: "F. Pago"
             null: false
@@ -71,24 +86,114 @@ fields:
             type: vchar(10)
             relations:
                 - {table: formaspago, field: codpago, card: M1, delC: false}
+            weight: 10
+        coddivisa:
+            alias: "Divisa"
+            null: false
+            pk: false
+            type: vchar(15)
+            relations:
+                - {table: divisas, field: coddivisa, card: M1, delC: false}
+            weight: 11
+        codserie:
+            alias: "Serie"
+            null: false
+            pk: false
+            type: vchar(15)
+            relations:
+                - {table: series, field: codserie, card: M1, delC: false}
+            weight: 12
+        codejercicio:
+            alias: "Ejercicio"
+            null: false
+            pk: false
+            type: vchar(15)
+            relations:
+                - {table: ejercicios, field: codejercicio, card: M1, delC: false}
+            weight: 13
+        tasaconv:
+            alias: "Tasa.Conv"
+            null: false
+            pk: false
+            type: double
+            format: "%.3f"
+            weight: 14
         neto:
             alias: "Neto"
             null: false
             pk: false
             type: double
             format: "%.2f€"
-        totaliva:
-            alias: "Total Iva"
-            null: false
-            pk: false
-            type: double
-            format: "%.2f€"
+            default: 0
+            weight: 15
         total:
             alias: "Total"
             null: false
             pk: false
             type: double
             format: "%.2f€"
-            
-            
-            
+            default: 0
+            weight: 16
+        totaleuros:
+            alias: "Total (€)"
+            null: false
+            pk: false
+            type: double
+            format: "%.2f€"
+            default: 0
+            weight: 17
+        totaliva:
+            alias: "Total Iva"
+            null: false
+            pk: false
+            type: double
+            format: "%.2f€"
+            default: 0
+            weight: 18
+        irpf:
+            alias: "IRPF"
+            null: false
+            pk: false
+            type: double
+            format: "%.2f€"
+            default: 0
+            weight: 19
+        totalirpf:
+            alias: "Total IRPF"
+            null: false
+            pk: false
+            type: double
+            format: "%.2f€"
+            default: 0
+            weight: 20
+        recfinanciero:
+            alias: "R.Financiero"
+            null: false
+            pk: false
+            type: double
+            format: "%.2f€"
+            default: 0
+            weight: 21
+        totalrecargo:
+            alias: "Total REC"
+            null: false
+            pk: false
+            type: double
+            format: "%.2f€"
+            default: 0
+            weight: 22
+        numero:
+            alias: "Número"
+            null: false
+            pk: false
+            type: vchar(12)
+            default: 0
+            weight: 23
+        codalmacen:
+            alias: "Almacén"
+            null: false
+            pk: false
+            type: vchar(15)
+            relations:
+                - {table: almacenes, field: codalmacen, card: M1, delC: false}
+            weight: 24

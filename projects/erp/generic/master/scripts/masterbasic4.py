@@ -118,11 +118,11 @@ class MasterScript(object):
         
         self.form.connect(self.form.ui.searchBox, QtCore.SIGNAL("textChanged(const QString&)"), self.searchBox_changed)
         self.form.connect(self.form.ui.searchCombo, QtCore.SIGNAL("currentIndexChanged(const QString&)"), self.searchCombo_changed)
-        self.model = QMetadataModel(None,self.db, tmd)
-        #self.model = QSqlMetadataModel(None,self.db, tmd)
-        #self.model.decorations[None] = QtGui.QIcon(h("../../icons/null.png"))
-        #self.model.decorations[True] = QtGui.QIcon(h("../../icons/true.png"))
-        #self.model.decorations[False] = QtGui.QIcon(h("../../icons/false.png"))
+        #self.model = QMetadataModel(None,self.db, tmd)
+        self.model = QSqlMetadataModel(None,self.db, tmd)
+        self.model.decorations[None] = QtGui.QIcon(h("../../icons/null.png"))
+        self.model.decorations[True] = QtGui.QIcon(h("../../icons/true.png"))
+        self.model.decorations[False] = QtGui.QIcon(h("../../icons/false.png"))
         
         # Add fields to combobox
         self.form.ui.searchCombo.addItems(self.model.getHeaderAlias())

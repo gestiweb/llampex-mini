@@ -292,18 +292,13 @@ class loadActionFormRecord():
             return 
         
         if self.windowAction == 'INSERT':
-            #self.model.insertRow(self.model.rowCount(), QtCore.QModelIndex())
-            #self.row = self.model.rowCount()
             self.model = QMetadataModel(None, self.rpc.qtdb, self.tmd)
-            self.model.insertRow(1)
             self.row = self.model.rowCount()-1
-            print "Row inserted --> ", self.row
             
-            
-        if self.tmd is None: self.tmd = LlampexTable.tableindex[self.form.actionobj.table]
+        if self.tmd is None: 
+            self.tmd = LlampexTable.tableindex[self.form.actionobj.table]
         
         print "Ui record file : ", self.actionobj.record["form"]
-        # self.recordUi = self.recordFormFactory()
         self.showFormRecord()
     
     def recordFormFactory(self, row = None):
@@ -347,7 +342,7 @@ class loadLlTableRelation(QtGui.QWidget):
             self.foreignField = self.obj.getForeignField()
             self.parentCol = self.parentTmd.fieldlist.index(self.fieldRelation)
             self.parentModelIndex = self.parentModel.index(self.parentRow, self.parentCol)
-            self.fieldRelationValue = self.parentModel.data(self.parentModelIndex, QtCore.Qt.DisplayRole)             
+            self.fieldRelationValue = self.parentModel.data(self.parentModelIndex, QtCore.Qt.DisplayRole)
         except Exception, e:
             print "Error loading the data table"
             print traceback.format_exc()
@@ -488,6 +483,7 @@ class loadLlTableRelation(QtGui.QWidget):
         self.model.refresh()
     
     def setTableFilter(self, text = None, alias = None):
+        if self.fieldRelationValue is None: self.fieldRelationValue = -1
         basicFilter = unicode(self.foreignField)+"="+str(self.fieldRelationValue)
         addFilter = None
         
@@ -515,8 +511,6 @@ class loadLlTableRelation(QtGui.QWidget):
         self.model.select()
     
     def settablemodel(self):
-        #self.form.ui.table.setModel(self.model)
-        #self.model.autoDelegate(self.form.table) 
         self.obj.setModel(self.model)
         self.model.autoDelegate(self.obj) 
         
