@@ -190,10 +190,11 @@ class MasterScript(object):
         self.model.setBasicFilter(self.form.ui.searchCombo.currentText(),text)
         self.model.refresh()
     
-    def searchCombo_changed(self,alias):
-        print "Search Combo changed to ", unicode(alias)
-        self.model.setBasicFilter(alias,self.form.ui.searchBox.text())
-        self.model.refresh()
+    def searchCombo_changed(self,alias):        
+        if self.form.ui.searchBox.text():
+            print "Search Combo changed to ", unicode(alias)
+            self.model.setBasicFilter(alias,self.form.ui.searchBox.text())
+            self.model.refresh()
     
     def action_addfilter_triggered(self, checked):
         print "Add Filter triggered:", checked

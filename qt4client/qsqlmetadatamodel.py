@@ -353,9 +353,9 @@ class QMetadataModel(QtSql.QSqlQueryModel):
                 if ctype == "dt": ret = QtCore.QVariant(datetime.now().isoformat())
                 if ctype == "b": ret = QtCore.QVariant(False)
                 if ctype == "n": ret = QtCore.QVariant(0)
-                if ctype == "s":
-                    if field.get("tableEditable", None)==False:
-                        ret = QtCore.QVariant(random.randrange(1,9999))
+                #if ctype == "s":
+                #    if field.get("tableEditable", None)==False:
+                #        ret = QtCore.QVariant(random.randrange(1,9999))
             if ret:
                 try:
                     if ctype == "b": ret = ret.toBool()
@@ -453,7 +453,6 @@ class QMetadataModel(QtSql.QSqlQueryModel):
                         'fields' : ", ".join(fields),
                         'values' : ", ".join(values),
                     })
-        print "Insert Query: ", query
         return query.exec_()
         
         
@@ -542,5 +541,7 @@ class QSqlMetadataModel(QMetadataModel):
         else: query+="ORDER BY %s" % (self.pk)
         print query
         self.setQuery(query, self.db)
-    
+        if self.lastError().isValid():
+            print "Error Query: ", self.lastError();
+            
     select = refresh

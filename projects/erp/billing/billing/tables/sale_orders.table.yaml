@@ -19,7 +19,7 @@ fields:
             pk: false
             null: false
             tableCheckable: true
-            tableEditable: false
+            tableEditable: true
             weight: 2
         servido:
             alias: "Servido"
