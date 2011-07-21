@@ -38,7 +38,9 @@ class LlampexMdiSubWindow(QtGui.QMdiSubWindow):
         if key in cls.windowdict:
             self = cls.windowdict[key]
             self.close()
-    
+            return True
+        return False
+        
     def closeEvent(self,event):
         #print "Closing", self.windowkey
         try:
@@ -234,8 +236,8 @@ class LlampexMainWindow(QtGui.QMainWindow):
         subwindowkey, icon, actionobj = self.actions[key]
         if subwindowkey in self.modulesubwindow:
             subwindow = self.modulesubwindow[subwindowkey]
-            subwindow.close()
-            del self.modulesubwindow[subwindowkey]
+            if LlampexMdiSubWindow.close_window(subwindowkey):
+                del self.modulesubwindow[subwindowkey]
          
         
         widget = LlampexMasterForm(self.project, key, actionobj, self.prjconn)
