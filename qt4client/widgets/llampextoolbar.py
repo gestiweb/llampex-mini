@@ -87,6 +87,7 @@ class LlampexToolBar(QtGui.QFrame):
         
         self.dragInfoLabel = QtGui.QLabel()
         self.dragInfoLabel.setText("<font color='gray'>Drag actions here to create direct links...</font>")
+        self.dragInfoLabel.setIndent(8)
         
         self.layout().insertWidget(0,self.dragInfoLabel)
     

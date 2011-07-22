@@ -138,24 +138,47 @@ class LlampexMainWindow(QtGui.QMainWindow):
             widget.layout = QtGui.QVBoxLayout()
             
             found = []
+            foundInTable = []
             for code, action in self.project.action_index.iteritems():
                 aname = unicode(action).lower()
                 if aname.find(search)>=0:
                     found+=[action]
-                    
-            groupbox = llampexgroupbutton.LlampexGroupButton("Search: "+search)
-                    
-            for action in sorted(found):
-                icon = None
-                if action.icon:
-                    iconfile = action.filedir(action.icon)
-                    icon = QtGui.QIcon(iconfile)
-                    
-                action_key = "%s.%s.%s" % (action.parent.parent.parent.code, action.parent.parent.code, action.code)
-                self.actions[action_key] = (action.parent.parent.parent.code+action.parent.parent.code, icon, action)
-                groupbox.addAction(action.name, action_key, icon, self.actionbutton_clicked)
+                else:
+                    for key, value in self.project.table_index[action.table].fields.iteritems():
+                        fname = unicode(key).lower()
+                        falias = unicode(value['alias']).lower()
+                        if fname.find(search)>=0 or falias.find(search)>=0:
+                            foundInTable+=[action]
             
-            widget.layout.addWidget(groupbox)
+            if (found):
+                groupbox = llampexgroupbutton.LlampexGroupButton("In Actions") 
+                for action in sorted(found):
+                    icon = None
+                    if action.icon:
+                        iconfile = action.filedir(action.icon)
+                        icon = QtGui.QIcon(iconfile)
+                        
+                    action_key = "%s.%s.%s" % (action.parent.parent.parent.code, action.parent.parent.code, action.code)
+                    self.actions[action_key] = (action.parent.parent.parent.code+action.parent.parent.code, icon, action)
+                    groupbox.addAction(action.name, action_key, icon, self.actionbutton_clicked)
+                widget.layout.addWidget(groupbox)
+            
+            if (foundInTable):
+                groupboxTables = llampexgroupbutton.LlampexGroupButton("In tables:")
+                for action in sorted(foundInTable):
+                    icon = None
+                    if action.icon:
+                        iconfile = action.filedir(action.icon)
+                        icon = QtGui.QIcon(iconfile)
+                        
+                    action_key = "%s.%s.%s" % (action.parent.parent.parent.code, action.parent.parent.code, action.code)
+                    self.actions[action_key] = (action.parent.parent.parent.code+action.parent.parent.code, icon, action)
+                    groupboxTables.addAction(action.name, action_key, icon, self.actionbutton_clicked)
+                widget.layout.addWidget(groupboxTables)
+                
+            if (not found and not foundInTable):
+                widget.layout.addWidget(QtGui.QLabel("No results found for "+search))
+            
             
             widget.setLayout(widget.layout)
             
@@ -165,10 +188,10 @@ class LlampexMainWindow(QtGui.QMainWindow):
             scrollarea.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
             scrollarea.setMinimumWidth(250)
             
-            subwindow = LlampexMdiSubWindow("Search:"+self.searchBox.text(),scrollarea)
+            subwindow = LlampexMdiSubWindow("Search:"+search,scrollarea)
             self.mdiarea.addSubWindow(subwindow)
             
-            subwindow.setWindowTitle("Search")
+            subwindow.setWindowTitle("Search: "+search)
             subwindow.setWindowIcon(self.searchIcon)
             subwindow.show()
             self.mdiarea.setActiveSubWindow(subwindow)
