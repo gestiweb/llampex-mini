@@ -103,6 +103,7 @@ class LlampexMainWindow(QtGui.QMainWindow):
                 self.modules[module_key] = (icon, moduleobj)
         self.modulesubwindow = {}
                     
+        self.loadActions()
         self.finish_load()        
     
     def finish_load(self):
@@ -130,6 +131,16 @@ class LlampexMainWindow(QtGui.QMainWindow):
         
         #Set the tabbar of the mdiarea movable
         for tab in self.mdiarea.findChildren(QtGui.QTabBar): tab.setMovable(True);
+        
+    def loadActions(self):
+        for code, action in self.project.action_index.iteritems():
+            icon = None
+            if action.icon:
+                iconfile = action.filedir(action.icon)
+                icon = QtGui.QIcon(iconfile)
+                
+            action_key = "%s.%s.%s" % (action.parent.parent.parent.code, action.parent.parent.code, action.code)
+            self.actions[action_key] = (action.parent.parent.parent.code+action.parent.parent.code, icon, action)
         
     def searchPerformed(self):
         if (not self.searchBox.text().isEmpty()):
@@ -160,7 +171,6 @@ class LlampexMainWindow(QtGui.QMainWindow):
                         icon = QtGui.QIcon(iconfile)
                         
                     action_key = "%s.%s.%s" % (action.parent.parent.parent.code, action.parent.parent.code, action.code)
-                    self.actions[action_key] = (action.parent.parent.parent.code+action.parent.parent.code, icon, action)
                     groupbox.addAction(action.name, action_key, icon, self.actionbutton_clicked)
                 widget.layout.addWidget(groupbox)
             
@@ -173,7 +183,6 @@ class LlampexMainWindow(QtGui.QMainWindow):
                         icon = QtGui.QIcon(iconfile)
                         
                     action_key = "%s.%s.%s" % (action.parent.parent.parent.code, action.parent.parent.code, action.code)
-                    self.actions[action_key] = (action.parent.parent.parent.code+action.parent.parent.code, icon, action)
                     groupboxTables.addAction(action.name, action_key, icon, self.actionbutton_clicked)
                 widget.layout.addWidget(groupboxTables)
                 
@@ -240,7 +249,6 @@ class LlampexMainWindow(QtGui.QMainWindow):
                     print repr(oldweight)
                     raise
                 action_key = "%s.%s" % (key,action_code)
-                self.actions[action_key] = (key,icon, actionobj)
                 groupbox.addAction(actionobj.name, action_key, icon, self.actionbutton_clicked)
                 oldweight = actionobj.weight
 
