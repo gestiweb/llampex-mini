@@ -4,6 +4,7 @@ import model
 import binascii
 import hashlib, threading
 import os , os.path, bz2, zlib
+import yaml
 
 from bjsonrpc.exceptions import ServerError
 from bjsonrpc.handlers import BaseHandler
@@ -167,7 +168,7 @@ class HashTable(BaseHandler):
         else: raise ValueError, "unknown style."
 
 class ProjectManager(BaseHandler):
-    def __init__(self, rpc, prj,user, conn):
+    def __init__(self, rpc, prj, user, conn):
         BaseHandler.__init__(self,rpc)
         self.data = prj
         self.path = prj.path
@@ -273,7 +274,37 @@ class ProjectManager(BaseHandler):
     
     def getFileTree(self):
         return self.b64list
+    
+    def getDirectLinks(self):
+        links = None
+        try:
+            config = model.session.query(
+                model.RowUserConfig).filter(model.RowUserConfig.user==self.user).filter(
+                model.RowUserConfig.project==self.data.code).filter(
+                model.RowUserConfig.configname=="directlinks").one()
+            
+            links = yaml.load(config.value)
+        except:
+            links = []
         
+        return links
+    
+    def updateDirectLinks(self,links):
+        config = None
+        try:
+            config = model.session.query(
+                model.RowUserConfig).filter(model.RowUserConfig.user==self.user).filter(
+                model.RowUserConfig.project==self.data.code).filter(
+                model.RowUserConfig.configname=="directlinks").one()
+        except:
+            config = model.RowUserConfig()
+            config.user = self.user
+            config.project = self.data.code
+            config.configname = "directlinks"
+            model.session.add(config)
+             
+        config.value = yaml.dump(links)
+        model.session.commit()
 
 def connect_project(rpc,project,username):
     print "connecting to project", project

@@ -52,6 +52,7 @@ class LlampexToolBarButton(QtGui.QToolButton):
                 
                 self.parent.layout().removeWidget(self)
                 self.parent.keys.remove(self.key)
+                self.parent.parent.prjconn.call.updateDirectLinks(self.parent.keys)
                 self.hide()
                 
                 dropAction = drag.start(QtCore.Qt.MoveAction)
@@ -141,9 +142,7 @@ class LlampexToolBar(QtGui.QFrame):
     def addToolButton(self,key,pos):
         print "Add "+key
         
-        print self.keys
         if (str(key) not in self.keys):
-            print "Gogogo!"
             index = str(key.split(".")[2])
             
             actionobj = self.parent.project.action_index[index]
@@ -157,7 +156,18 @@ class LlampexToolBar(QtGui.QFrame):
             
             self.layout().insertWidget(i,tb)
             
-            self.keys.append(str(key))
+            self.keys.insert(i,str(key))
+            self.parent.prjconn.call.updateDirectLinks(self.keys)
+
+    def loadSavedLinks(self):
+        links = self.parent.prjconn.call.getDirectLinks()
+        if (len(links)>0):
+            self.layout().removeWidget(self.dragInfoLabel)
+            self.dragInfoLabel.hide()
+            i = 0
+            for link in links:
+                self.addToolButton(link,i)
+                i=+1
 
 class LlampexSearchBox(QtGui.QLineEdit):
     

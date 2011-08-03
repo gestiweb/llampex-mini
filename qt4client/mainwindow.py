@@ -117,6 +117,7 @@ class LlampexMainWindow(QtGui.QMainWindow):
         self.connect(self.searchBox, QtCore.SIGNAL("returnPressed()"), self.searchPerformed)
         
         self.toolframe.layout().addWidget(self.searchBox,0,QtCore.Qt.AlignRight)
+        self.toolframe.loadSavedLinks()
         mainframe.layout().addWidget(self.toolframe)
         
         self.mdiarea = QtGui.QMdiArea()
